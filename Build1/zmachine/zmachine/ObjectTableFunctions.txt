@@ -1,0 +1,45 @@
+public class ObjectTable
+{
+       Memory memory;
+       public ObjectTable(Memory mem) 
+       {
+               memory = mem;
+       }
+       
+DONE   public int getObjectTable()
+      
+DONE   public int getObjectAddress(int objectId)
+    
+DONE   public int getPropertyTableAddress(int objectId)
+     
+DONE   public int getDefaultProperty(int property)
+     
+DONE   public int getObjectPropertyAddr(int objectId, int property)
+      
+       public int getNextObjectPropertyIdAfter(int objectId, int property)
+    
+DONE?  public int getObjectProperty(int objectId, int property)
+     
+       public void setObjectProperty(int objectId, int property, int value)
+  
+In Progress   public int getObjectPropertyLengthFromAddress(int propertyAddress)
+      
+       public boolean getObjectAttribute(int objectId, int attributeId)
+
+       public void setObjectAttribute(int objectId, int attributeId, int value)
+
+       public int getParent(int objectId)
+
+       public void setParent(int objectId, int parent)
+
+       public int getSibling(int objectId)
+
+       public void setSibling(int objectId, int sibling)
+ 
+       public int getChild(int objectId)
+
+       public void setChild(int objectId, int child)
+ 
+       void unlinkObject (int objectId)
+    
+In Progress   public String objectName(int objectId)
