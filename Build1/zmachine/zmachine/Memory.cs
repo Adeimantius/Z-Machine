@@ -38,8 +38,6 @@ namespace zmachine
             }
      
         }
-
-
         //assign given byte value @ hex address location
         public void setByte(uint address, byte val)
         {

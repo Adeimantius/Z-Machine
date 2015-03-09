@@ -27,8 +27,7 @@ namespace zmachine
             tp += (property - 1) * 2;
             int defaultProperty = tp_getWord();
             return defaultProperty;
-        }
-        
+        }        
         public int getObjectTable()
         {
             tp = memory.getWord((uint)Memory.ADDR_OBJECTS + (31 * 2));
@@ -40,74 +39,129 @@ namespace zmachine
 
             tp = getObjectAddress(objectId) + 7;
             int propertyTableAddress = tp_getWord();
-            /* Each object has its own property table. Each of these can be anywhere in dynamic memory 
- * (indeed, a game can legally change an object's properties table address in play, provided the new address points to another valid properties table). 
- * The header of a property table is as follows:
- *
- *   text-length     text of short name of object
- *  -----byte----   --some even number of bytes---
- * where the text-length is the number of 2-byte words making up the text, which is stored in the usual format. 
- * (This means that an object's short name is limited to 765 Z-characters.) After the header, the properties are listed in descending numerical order. 
- * (This order is essential and is not a matter of convention.)
-
-In Versions 1 to 3, each property is stored as a block:
- * size byte     the actual property data
- *              ---between 1 and 8 bytes--
- *              where the size byte is arranged as 32 times the number of data bytes minus one, plus the property number.
- *              A property list is terminated by a size byte of 0. (It is otherwise illegal for a size byte to be a multiple of 32.)            */
           return propertyTableAddress;
         }
-
-        public int getObjectAddress(int objectId)
+        public int getObjectAddress(int objectId) // take an objectId and consult the objectTable
         {
             
             getObjectTable();
             tp += 9 * (objectId - 1);             // tp will already be set at the start of the object table
-            int objectAddress = tp;
-            // each object is 9 bytes above the previous
-            // take an objectId and consult the objectTable
+            int objectAddress = tp;              // each object is 9 bytes above the previous    
 
             return objectAddress;
         }
-
         public int getObjectPropertyAddress(int objectId, int property)
         {
             int propertyAddress; 
             tp = getPropertyTableAddress(objectId);
+            int text_length = tp_getByte(); // Read the first byte of the property address, figure out the text-length, then skip forward to the first property address.
+            tp += (text_length * 2);   // skip past header
 
-            for (int i = 1; i < property; i++)
+            int sizeByte = tp_getByte();        // get initial sizeByte (property 1)
+            while (sizeByte > 0)
             {
-                int text_length = tp_getByte(); // Read the first byte of the property address, figure out the text-length, then skip forward to the next property address. Do this i times.
-                tp += tp * (text_length * 2);
+                int propertyId = sizeByte & 31;
+                int propLen = (sizeByte / 32) + 1;
+                if (property == propertyId)
+                {
+                    propertyAddress = tp;
+                    return propertyAddress;              
+                }
+                tp += propLen;
+                sizeByte = tp_getByte();
             }
-            propertyAddress = tp;
-                return propertyAddress;
+                return 0;
+        }
+        public int getNextObjectPropertyIdAfter(int objectId, int property)
+        {                        
+            int propLen;
+            int nextPropertyId;
+            byte sizeByte;
+            // Since we are not at the start of the property we want...
+            tp = getObjectPropertyAddress(objectId, property);              // Set pointer to start of given property
+            sizeByte = memory.getByte((uint)tp - 1);       // Find length of property
+            propLen = getObjectPropertyLengthFromAddress(tp);
+             
+                if (sizeByte == 0)                    // No next property
+                    return 0;
+
+            tp += propLen;                            // Move pointer to start next property and skip header   
+            nextPropertyId = tp_getByte() & 31;       // Read next property number
+            
+            return nextPropertyId;
         }
         public int getObjectPropertyLengthFromAddress(int propertyAddress)
         {
-            tp = memory.getWord((uint)propertyAddress);
             int sizeByte = memory.getByte((uint)propertyAddress - 1);  // arranged as 32 times the number of data bytes minus one, plus the property number
-            return sizeByte;
-
+            int propLen = (sizeByte / 32) + 1;
+            return propLen;
         }
-
         public int getObjectProperty(int objectId, int property)
         {
-            int propertyAddress = getObjectPropertyAddress(objectId, property);
-            int[] propertyList = new int[8];
-
-            for (int i = 0; i < getObjectPropertyLengthFromAddress(propertyAddress); i++)
-            {
-                propertyList[i] = tp_getByte();
-            }
-            // From here, we read past the header based on the length in getObjectPropertyLengthFromAddress(int propertyAddress)
-            // After the header, the properties are listed in descending numerical order. 
             // each property is stored as a block
-   //size byte     the actual property data
-                //---between 1 and 8 bytes--
-            return propertyList[property];          // When we refer to the "property", is it a list of values? Is it the whole thing? If so, how do I return 8 bytes of data nicely?
-        }
+            //size byte     the actual property data
+            //---between 1 and 8 bytes--
 
+            int propertyAddress = getObjectPropertyAddress(objectId, property);
+
+            if (propertyAddress == 0)
+            {
+                return getDefaultProperty(property); 
+            }
+
+            int propertyData;
+            int propLen = getObjectPropertyLengthFromAddress(propertyAddress);  // get size of property
+
+                if (propLen == 1)                                   // Return size of property (byte or word)
+                    propertyData = tp_getByte();
+                else
+                    propertyData = tp_getWord();
+
+            return propertyData;
+        }
+        public bool getObjectAttribute(int objectId, int attributeId)
+        {
+            tp = getObjectAddress(objectId);
+            bool [] attributes = new bool[32];
+            byte attributeSegment;
+
+            // Why not just make a boolean array of the attributes?!
+            for (int i = 0; i < 4; i++)
+            {
+                attributeSegment = tp_getByte();
+                for (int j = 0; j < 8; j++)
+                {
+                    attributes[i * 8 + j] = Convert.ToBoolean((attributeSegment >> (7 - j)) & 0x01);// Take the next byte and cut the first (MSB) value off the top. Add to boolean array attribute[]
+                }
+            }
+            
+            return attributes[attributeId];
+        }
+        public void setObjectAttribute(int objectId, int attributeId, bool value)
+        {
+            byte a;                     // If can find the right byte in the memory, I can bitwise AND or OR to clear or fill it.
+            uint address = (uint)getObjectAddress(objectId);
+            uint attributeSegment = (uint)(attributeId / 4);           // The byte of the attribute header that we are working in
+            int attributeShift = attributeId % 8;
+
+            if (value == true)
+            { 
+                a = memory.getByte(address + attributeSegment);        // If 
+                a |= (byte)(1 << attributeShift);
+            }
+            else 
+            {
+                a = memory.getByte(address + attributeSegment);
+                a &= (byte)(1 << attributeShift);
+            }
+            memory.setByte(address, a);
+
+        }
+        public void setObjectProperty(int objectId, int property, int value)
+        {
+            getObjectPropertyAddress(objectId, property);
+            
+        }
 
         // -------------------------- 
         public byte tp_getByte()
@@ -127,9 +181,9 @@ In Versions 1 to 3, each property is stored as a block:
         public String objectName(int objectId)
         {
             Machine.StringAndReadLength str = new Machine.StringAndReadLength();
-            getObjectAddress(objectId);
-            int byteNumber = tp_getByte();
-            str = Machine.getZSCII((uint)objectId, (uint)byteNumber);
+            getPropertyTableAddress(objectId);                 // An object's name is stored in the header of its property table, and is given in the text-length.
+            int byteNumber = tp_getByte();                     // The first byte is the text-length number of words in the short name
+            str = Machine.getZSCII((uint)getPropertyTableAddress(objectId), (uint)byteNumber);
             String objectName = str.str;
             return objectName;
         }

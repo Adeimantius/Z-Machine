@@ -12,20 +12,17 @@ Unimplemented: (** = easy. Good next steps)
 1OP:130	get_child object -> (result) ?(label)	
 1OP:131	get_parent object -> (result)	
 1OP:132	get_prop_len property-address -> (result)	
-1OP:135	print_addr byte-address-of-string	
 1OP:137	remove_obj object	
-1OP:138	print_obj object	
-1OP:141	print_paddr packed-address-of-string		
-0OP:178	print (literal-string)	
-0OP:179	print_ret (literal-string)	 	
+1OP:138	print_obj object					 	
 VAR:227	put_prop object property value	
-VAR:228	sread text parse	
-VAR:229	print_char output-character-code		
+VAR:228	sread text parse		
 
 In progress:
-1OP:142	load (variable) -> (result)
-2OP:7	test bitmap flags ?(label)
-VAR:230	print_num value
+1OP:135	print_addr byte-address-of-string
+1OP:141	print_paddr packed-address-of-string	
+0OP:178	print (literal-string)
+0OP:179	print_ret (literal-string)
+VAR:229	print_char output-character-code	
 
 Done:
 
@@ -34,6 +31,7 @@ Done:
 2OP:3	jg a b ?(label)	
 2OP:4	dec_chk (variable) value ?(label)	
 2OP:5	inc_chk (variable) value ?(label)	
+2OP:7	test bitmap flags ?(label)
 2OP:8	or a b -> (result)	
 2OP:9	and a b -> (result)
 2OP:13	store (variable) value	
@@ -49,6 +47,7 @@ Done:
 1OP:134	dec (variable)	
 1OP:139	ret value	
 1OP:140	jump ?(label)	
+1OP:142	load (variable) -> (result)
 1OP:143	not value -> (result)	<- Wasn't actually implemented until v4
 0OP:176	rtrue	
 0OP:177	rfalse	
@@ -60,6 +59,7 @@ Done:
 VAR:224	call routine ...0 to 3 args... -> (result)	
 VAR:225	storew array word-index value	
 VAR:226	storeb array byte-index value	
+VAR:230	print_num value
 VAR:231	random range -> (result)
 VAR:232	push value	
 VAR:233	pull (variable)	

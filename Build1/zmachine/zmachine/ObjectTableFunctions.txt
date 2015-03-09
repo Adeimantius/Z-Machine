@@ -16,17 +16,17 @@ DONE   public int getDefaultProperty(int property)
      
 DONE   public int getObjectPropertyAddr(int objectId, int property)
       
-       public int getNextObjectPropertyIdAfter(int objectId, int property)
+DONE   public int getNextObjectPropertyIdAfter(int objectId, int property)
     
-DONE?  public int getObjectProperty(int objectId, int property)
+DONE   public int getObjectProperty(int objectId, int property)
      
        public void setObjectProperty(int objectId, int property, int value)
   
-In Progress   public int getObjectPropertyLengthFromAddress(int propertyAddress)
+DONE   public int getObjectPropertyLengthFromAddress(int propertyAddress)
       
-       public boolean getObjectAttribute(int objectId, int attributeId)
+DONE   public boolean getObjectAttribute(int objectId, int attributeId)
 
-       public void setObjectAttribute(int objectId, int attributeId, int value)
+DONE   public void setObjectAttribute(int objectId, int attributeId, int value)
 
        public int getParent(int objectId)
 

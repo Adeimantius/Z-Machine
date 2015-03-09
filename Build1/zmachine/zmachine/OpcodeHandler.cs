@@ -121,7 +121,7 @@ namespace zmachine
         public class op_test_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_test_attr"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { machine.branch((v1 & v2) == v2);            }
+            public override void run(Machine machine, ushort v1, ushort v2) { fail_unimplemented(machine); }
         }
         public class op_set_attr : OpcodeHandler_2OP
         {
@@ -275,7 +275,7 @@ namespace zmachine
         public class op_print_addr : OpcodeHandler_1OP
         {
             public override String name() { return "op_print_addr"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { Console.WriteLine(machine.getZSCII(v1, 0)); }
         }
         public class op_remove_obj : OpcodeHandler_1OP
         {
@@ -304,7 +304,7 @@ namespace zmachine
         public class op_print_paddr : OpcodeHandler_1OP
         {
             public override String name() { return "op_print_paddr"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1) { Console.Write(machine.getZSCII((uint)v1 * 2, 0)); }
         }
         public class op_load : OpcodeHandler_1OP
         {
@@ -326,12 +326,16 @@ namespace zmachine
         public class op_print : OpcodeHandler_0OP
         {
             public override String name() { return "op_print"; }
-            public override void run(Machine machine) { fail_unimplemented(machine); }
+            public override void run(Machine machine) { Console.Write(machine.getZSCII(machine.pc_getWord(), 0)); }
         }
         public class op_print_ret : OpcodeHandler_0OP
         {
             public override String name() { return "op_print_ret"; }
-            public override void run(Machine machine) { fail_unimplemented(machine); }
+            public override void run(Machine machine) 
+            { 
+                Console.WriteLine(machine.getZSCII(machine.pc_getWord(), 0));
+                machine.popRoutineData(1);
+            }
         }
         public class op_nop : OpcodeHandler_0OP
         {
@@ -427,16 +431,14 @@ namespace zmachine
         public class op_print_char : OpcodeHandler_OPVAR
         {
             public override String name() { return "op_print_char"; }
-            public override void run(Machine machine,List<ushort> operands) { fail_unimplemented(machine); }
+            public override void run(Machine machine, List<ushort> operands) { Console.Write(machine.getZChar(operands[0])); }
         }
         public class op_print_num : OpcodeHandler_OPVAR
         {
             public override String name() { return "op_print_num"; }
             public override void run(Machine machine,List<ushort> operands) 
             {
-                if (operands[0] < 0)
-                    Console.Write("-");
-                Console.Write(operands[0]); 
+                Console.Write((short)operands[0]); 
             }
         }
         public class op_random : OpcodeHandler_OPVAR
