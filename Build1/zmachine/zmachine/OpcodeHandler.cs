@@ -121,17 +121,17 @@ namespace zmachine
         public class op_test_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_test_attr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.branch(ObjectTable.getObjectAttribute(v1, v2) == 1); }
         }
         public class op_set_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_set_attr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.setObjectAttribute(v1, v2, true); }
         }
         public class op_clear_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_clear_attr"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.setObjectAttribute(v1, v2, false); }
         }
         public class op_store : OpcodeHandler_2OP
         {
@@ -166,17 +166,17 @@ namespace zmachine
         public class op_get_prop : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_prop"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getObjectProperty(v1, v2); }
         }
         public class op_get_prop_addr : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_prop_addr"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getObjectPropertyAddress(v1, v2); }
         }
         public class op_get_next_addr : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_next_addr"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getNextObjectPropertyIdAfter(v1, v2); }
         }
         public class op_add : OpcodeHandler_2OP
         {
@@ -232,22 +232,22 @@ namespace zmachine
         public class op_get_sibling : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_sibling"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { ObjectTable.getSibling(v1); }
         }
         public class op_get_child : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_child"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { ObjectTable.getChild(v1); }
         }
         public class op_get_parent : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_parent"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { ObjectTable.getParent(v1);  }
         }
         public class op_get_prop_len : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_prop_len"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { ObjectTable.getObjectPropertyLengthFromAddress(v1); }
         }
         public class op_inc : OpcodeHandler_1OP
         {
@@ -421,7 +421,7 @@ namespace zmachine
         public class op_put_prop : OpcodeHandler_OPVAR
         {
             public override String name() { return "op_put_prop"; }
-            public override void run(Machine machine,List<ushort> operands) { fail_unimplemented(machine); }
+            public override void run(Machine machine, List<ushort> operands) { ObjectTable.setObjectProperty(operands[0], operands[1], operands[2]); }
         }
         public class op_sread : OpcodeHandler_OPVAR
         {

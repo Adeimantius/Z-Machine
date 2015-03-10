@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace zmachine
@@ -92,6 +93,10 @@ namespace zmachine
         }
         public int getObjectPropertyLengthFromAddress(int propertyAddress)
         {
+            if (propertyAddress == 0)
+            {
+                return 0;
+            }
             int sizeByte = memory.getByte((uint)propertyAddress - 1);  // arranged as 32 times the number of data bytes minus one, plus the property number
             int propLen = (sizeByte / 32) + 1;
             return propLen;
@@ -112,10 +117,15 @@ namespace zmachine
             int propertyData;
             int propLen = getObjectPropertyLengthFromAddress(propertyAddress);  // get size of property
 
-                if (propLen == 1)                                   // Return size of property (byte or word)
-                    propertyData = tp_getByte();
-                else
-                    propertyData = tp_getWord();
+            if (propLen == 1)                                   // Return size of property (byte or word)
+                propertyData = tp_getByte();
+            else if (propLen == 2)
+                propertyData = tp_getWord();
+            else
+            {
+                propertyData = 0;
+                Debug.WriteLine("Property Length " + propLen + " is an unspecified length call for opcodes.");
+            }
 
             return propertyData;
         }
@@ -177,7 +187,9 @@ namespace zmachine
         }
         public void setObjectProperty(int objectId, int property, int value)
         {
-            getObjectPropertyAddress(objectId, property);
+            tp = getObjectPropertyAddress(objectId, property);
+            
+
             
         }
         public void setParent(int objectId, int parentId)
