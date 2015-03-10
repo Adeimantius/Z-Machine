@@ -119,6 +119,24 @@ namespace zmachine
 
             return propertyData;
         }
+        public int getParent(int objectId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4;                           // move past object header (4 attribute bytes)
+            return tp_getByte();
+        }
+        public int getSibling(int objectId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4 + 1;                           // move past object header (4 attribute bytes + parent byte)
+            return tp_getByte();
+        }
+        public int getChild(int objectId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4 + 2;                           // move past object header (4 attribute bytes + parent byte + sibling byte)
+            return tp_getByte();
+        }
         public bool getObjectAttribute(int objectId, int attributeId)
         {
             tp = getObjectAddress(objectId);
@@ -162,6 +180,24 @@ namespace zmachine
             getObjectPropertyAddress(objectId, property);
             
         }
+        public void setParent(int objectId, int parentId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4;                           // move past object header (4 attribute bytes)
+            memory.setByte((uint)tp, (byte)parentId);
+        }
+        public void setSibling(int objectId, int siblingId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4 + 1;                           // move past object header (4 attribute bytes)
+            memory.setByte((uint)tp, (byte)siblingId);
+        }
+        public void setChild(int objectId, int childId)
+        {
+            tp = getObjectAddress(objectId);
+            tp += 4 + 2;                           // move past object header (4 attribute bytes + parent byte + sibling byte)
+            memory.setByte((uint)tp, (byte)childId);
+        }
 
         // -------------------------- 
         public byte tp_getByte()
@@ -182,8 +218,8 @@ namespace zmachine
         {
             Machine.StringAndReadLength str = new Machine.StringAndReadLength();
             getPropertyTableAddress(objectId);                 // An object's name is stored in the header of its property table, and is given in the text-length.
-            int byteNumber = tp_getByte();                     // The first byte is the text-length number of words in the short name
-            str = Machine.getZSCII((uint)getPropertyTableAddress(objectId), (uint)byteNumber);
+            int textLength = tp_getByte();                     // The first byte is the text-length number of words in the short name
+            str = Machine.getZSCII((uint)getPropertyTableAddress(objectId), (uint)textLength);
             String objectName = str.str;
             return objectName;
         }
