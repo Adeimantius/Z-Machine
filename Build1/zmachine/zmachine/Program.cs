@@ -25,6 +25,7 @@ namespace zmachine
                 Debug.Write("" + numInstructionsProcessed + " : ");
                 machine.processInstruction();
                 ++numInstructionsProcessed;
+                Debug.WriteLine("Object name: " + ObjectTable.objectName(1));
             }
             Debug.WriteLine("Instructions processed: " + numInstructionsProcessed);
         }
