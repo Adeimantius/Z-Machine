@@ -18,6 +18,7 @@ namespace zmachine
             //memory.load("ZORK1.DAT");
             //memory.dumpHeader();
             Machine machine = new Machine("ZORK1.DAT");
+            Debug.WriteLine("Object name: " + machine.objectName(2));
 
             int numInstructionsProcessed = 0;
             while (!machine.isFinished())
@@ -25,7 +26,6 @@ namespace zmachine
                 Debug.Write("" + numInstructionsProcessed + " : ");
                 machine.processInstruction();
                 ++numInstructionsProcessed;
-                Debug.WriteLine("Object name: " + ObjectTable.objectName(1));
             }
             Debug.WriteLine("Instructions processed: " + numInstructionsProcessed);
         }

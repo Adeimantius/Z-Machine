@@ -1,6 +1,12 @@
 Unimplemented: (** = easy. Good next steps)
 
-2OP:6	jin obj1 obj2 ?(label)			
+			
+
+VAR:228	sread text parse		
+
+In progress:
+
+2OP:6	jin obj1 obj2 ?(label)
 2OP:10	test_attr object attribute ?(label)	
 2OP:11	set_attr object attribute	
 2OP:12	clear_attr object attribute	
@@ -14,16 +20,12 @@ Unimplemented: (** = easy. Good next steps)
 1OP:132	get_prop_len property-address -> (result)	
 1OP:137	remove_obj object	
 1OP:138	print_obj object					 	
-VAR:227	put_prop object property value	
-VAR:228	sread text parse		
-
-In progress:
+VAR:227	put_prop object property value		
 1OP:135	print_addr byte-address-of-string
 1OP:141	print_paddr packed-address-of-string	
 0OP:178	print (literal-string)
 0OP:179	print_ret (literal-string)
-VAR:229	print_char output-character-code	
-
+VAR:229	print_char output-character-code
 Done:
 
 2OP:1	je a b ?(label)	

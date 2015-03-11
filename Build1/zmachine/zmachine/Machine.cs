@@ -12,6 +12,7 @@ namespace zmachine
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
         Memory memory = new Memory(1024 * 128);         // Initialize memory
         Memory stack = new Memory(1024 * 32);           // Stack of size 32768 (can be larger, but this should be fine)
+        ObjectTable objectTable = new ObjectTable(new Memory(1024 * 128));
 
 
         //  StateOfPlay stateofplay = new StateOfPlay();    // Will contain (1) Local variable table, (2) contents of the stack, (3) value of PC, (4) current routine call state.
@@ -525,7 +526,7 @@ namespace zmachine
             }
         }
 
-        public StringAndReadLength getZSCII(uint address, uint numBytes = 0)
+        public StringAndReadLength getZSCII(uint address, uint numBytes)
         {
             String[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
             int currentAlphabet = 0;
@@ -636,7 +637,23 @@ namespace zmachine
             return ret;
         }
 
-         
+        public String objectName(int objectId)          // I hate putting this here, but it works, so here it is..
+        {
+            String name;
+            if (objectId == 0)
+            {
+                return "Null";
+            }
+            Machine.StringAndReadLength str = new Machine.StringAndReadLength();
+            objectTable.tp = objectTable.getPropertyTableAddress(objectId);            // An object's name is stored in the header of its property table, and is given in the text-length.
+            int textLength = objectTable.tp_getByte();                     // The first byte is the text-length number of words in the short name
+            if (textLength == 0)
+            {
+                return "";
+            }
+            name = getZSCII((uint)objectTable.tp, (uint)textLength * 2).str;
+            return name;
+        }
 
 
     } // end Machine

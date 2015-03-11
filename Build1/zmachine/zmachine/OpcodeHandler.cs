@@ -101,7 +101,7 @@ namespace zmachine
         public class op_jin : OpcodeHandler_2OP
         {
             public override String name() { return "op_jin"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1, ushort v2) { machine.branch(machine.objectTable.getParent(v1) == machine.objectTable.getChild(v2)); }
         }
         public class op_test : OpcodeHandler_2OP
         {
@@ -121,17 +121,17 @@ namespace zmachine
         public class op_test_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_test_attr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { machine.branch(ObjectTable.getObjectAttribute(v1, v2) == 1); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.branch(machine.objectTable.getObjectAttribute(v1, v2) == true); }
         }
         public class op_set_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_set_attr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.setObjectAttribute(v1, v2, true); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.objectTable.setObjectAttribute(v1, v2, true); }
         }
         public class op_clear_attr : OpcodeHandler_2OP
         {
             public override String name() { return "op_clear_attr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.setObjectAttribute(v1, v2, false); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.objectTable.setObjectAttribute(v1, v2, false); }
         }
         public class op_store : OpcodeHandler_2OP
         {
@@ -141,7 +141,16 @@ namespace zmachine
         public class op_insert_obj : OpcodeHandler_2OP
         {
             public override String name() { return "op_insert_obj"; }
-            public override void run(Machine machine,ushort v1, ushort v2) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1, ushort v2) 
+            {
+                int newSibling = machine.objectTable.getChild(v2); // 
+                machine.objectTable.setChild(v2, v1);
+                machine.objectTable.setParent(v1, v2);
+                machine.objectTable.setSibling(v1, newSibling);
+                    // after the operation the child of v2 is v1
+                    // and the sibling of v1 is whatever was previously the child of v2.
+                    // All children of v1 move with it. (Initially O can be at any point in the object tree; it may legally have parent zero.)    
+            }
         }
         public class op_loadw : OpcodeHandler_2OP
         {
@@ -166,17 +175,17 @@ namespace zmachine
         public class op_get_prop : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_prop"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getObjectProperty(v1, v2); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.objectTable.getObjectProperty(v1, v2); }
         }
         public class op_get_prop_addr : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_prop_addr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getObjectPropertyAddress(v1, v2); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.objectTable.getObjectPropertyAddress(v1, v2); }
         }
         public class op_get_next_addr : OpcodeHandler_2OP
         {
             public override String name() { return "op_get_next_addr"; }
-            public override void run(Machine machine, ushort v1, ushort v2) { ObjectTable.getNextObjectPropertyIdAfter(v1, v2); }
+            public override void run(Machine machine, ushort v1, ushort v2) { machine.objectTable.getNextObjectPropertyIdAfter(v1, v2); }
         }
         public class op_add : OpcodeHandler_2OP
         {
@@ -232,22 +241,22 @@ namespace zmachine
         public class op_get_sibling : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_sibling"; }
-            public override void run(Machine machine,ushort v1) { ObjectTable.getSibling(v1); }
+            public override void run(Machine machine,ushort v1) { machine.objectTable.getSibling(v1); }
         }
         public class op_get_child : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_child"; }
-            public override void run(Machine machine,ushort v1) { ObjectTable.getChild(v1); }
+            public override void run(Machine machine, ushort v1) { machine.objectTable.getChild(v1); }
         }
         public class op_get_parent : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_parent"; }
-            public override void run(Machine machine,ushort v1) { ObjectTable.getParent(v1);  }
+            public override void run(Machine machine, ushort v1) { machine.objectTable.getParent(v1); }
         }
         public class op_get_prop_len : OpcodeHandler_1OP
         {
             public override String name() { return "op_get_prop_len"; }
-            public override void run(Machine machine,ushort v1) { ObjectTable.getObjectPropertyLengthFromAddress(v1); }
+            public override void run(Machine machine, ushort v1) { machine.objectTable.getObjectPropertyLengthFromAddress(v1); }
         }
         public class op_inc : OpcodeHandler_1OP
         {
@@ -280,12 +289,12 @@ namespace zmachine
         public class op_remove_obj : OpcodeHandler_1OP
         {
             public override String name() { return "op_remove_obj"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { machine.objectTable.setParent(v1, 0); }
         }
         public class op_print_obj : OpcodeHandler_1OP
         {
             public override String name() { return "op_print_obj"; }
-            public override void run(Machine machine,ushort v1) { fail_unimplemented(machine); }
+            public override void run(Machine machine,ushort v1) { Debug.Write(machine.objectName(v1)); }
         }
         public class op_ret : OpcodeHandler_1OP
         {
@@ -421,7 +430,7 @@ namespace zmachine
         public class op_put_prop : OpcodeHandler_OPVAR
         {
             public override String name() { return "op_put_prop"; }
-            public override void run(Machine machine, List<ushort> operands) { ObjectTable.setObjectProperty(operands[0], operands[1], operands[2]); }
+            public override void run(Machine machine, List<ushort> operands) { machine.objectTable.setObjectProperty(operands[0], operands[1], operands[2]); }
         }
         public class op_sread : OpcodeHandler_OPVAR
         {
