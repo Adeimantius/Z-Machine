@@ -12,8 +12,10 @@ namespace zmachine
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
         Memory memory = new Memory(1024 * 128);         // Initialize memory
         Memory stack = new Memory(1024 * 32);           // Stack of size 32768 (can be larger, but this should be fine)
-        ObjectTable objectTable = new ObjectTable(new Memory(1024 * 128));
+        ObjectTable objectTable;
+        Lex lex;
 
+        public bool debug = false;
 
         //  StateOfPlay stateofplay = new StateOfPlay();    // Will contain (1) Local variable table, (2) contents of the stack, (3) value of PC, (4) current routine call state.
         uint pc = 0;                                    // Program Counter to step through memory
@@ -115,14 +117,15 @@ namespace zmachine
             setProgramCounter();
 
             for (int i =0  ; i < 128 ; ++i)
-            callStack[i] = new RoutineCallState();
+                callStack[i] = new RoutineCallState();
 
+            objectTable = new ObjectTable(memory);
+            lex = new Lex(memory);
         }
 
         // Find the PC start point in the header file and set PC 
         public void setProgramCounter()
         {
-
             pc = memory.getWord(Memory.ADDR_INITIALPC);               // Set PC by looking at pc start byte in header file
         }
 
@@ -163,9 +166,9 @@ namespace zmachine
                     // Value of 0 means variable, value of 1 means small
 
                     // load both operands of long form instruction
-                    ushort op1 = loadOperand(opTypeA == 0 ? OperandType.Small : OperandType.Var);
-                    ushort op2 = loadOperand(opTypeB == 0 ? OperandType.Small : OperandType.Var); 
-                    process2OP(opcode, op1, op2); 
+                    operandList.Add(loadOperand(opTypeA == 0 ? OperandType.Small : OperandType.Var));
+                    operandList.Add(loadOperand(opTypeB == 0 ? OperandType.Small : OperandType.Var)); 
+                    process2OP(opcode, operandList); 
                 }
                 break;                   
 
@@ -218,7 +221,7 @@ namespace zmachine
                         
                         if (type == 0)
                         {
-                            process2OP(opcode, operandList[0], operandList[1]);           // Need to pass in two operands?
+                            process2OP(opcode, operandList);           // Need to pass in two operands?
                         }
                         else
                         {
@@ -276,31 +279,42 @@ namespace zmachine
             }
         }
 
-        void process2OP(int opcode, ushort operand1, ushort operand2) 
+        void process2OP(int opcode, List<ushort> operands) 
         {
             OpcodeHandler_2OP op = OP2opcodes[opcode];
-            Debug.WriteLine(pcStart.ToString("X4") + " : [2OP/" + opcode.ToString("X2") + "] " + op.name() + " " + operand1.ToString() + " " + operand2.ToString());
-            op.run(this, operand1, operand2);
+            if (debug)
+            {
+                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [2OP/" + opcode.ToString("X2") + "] " + op.name());
+                foreach (ushort v in operands)
+                    Debug.Write(" " + v);
+                Debug.WriteLine("");
+            }
+            op.run(this, operands);
         }
         void process1OP(int opcode, ushort operand1) 
         {
             OpcodeHandler_1OP op = OP1opcodes[opcode];
-            Debug.WriteLine(pcStart.ToString("X4") + " : [1OP/" + opcode.ToString("X2") + "] " + op.name() + " " + operand1.ToString());
+            if (debug)
+                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [1OP/" + opcode.ToString("X2") + "] " + op.name() + " " + operand1.ToString());
             op.run(this, operand1);
         }
         void process0OP(int opcode)
         {
             OpcodeHandler_0OP op = OP0opcodes[opcode];
-            Debug.WriteLine(pcStart.ToString("X4") + " : [0OP/" + opcode.ToString("X2") + "] " + op.name());
+            if (debug)
+                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [0OP/" + opcode.ToString("X2") + "] " + op.name());
             op.run(this);
         }
         void processVAR(int opcode, List<ushort> operands) 
         {
             OpcodeHandler_OPVAR op = VARopcodes[opcode];
-            Debug.Write(pcStart.ToString("X4") + " : [VAR/" + opcode.ToString("X2") + "] " + op.name());
-            foreach (ushort v in operands)
-                Debug.Write(" " + v);
-            Debug.WriteLine("");
+            if (debug)
+            {
+                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [VAR/" + opcode.ToString("X2") + "] " + op.name());
+                foreach (ushort v in operands)
+                    Debug.Write(" " + v);
+                Debug.WriteLine("");
+            }
             op.run(this, operands);
         }
 
@@ -399,11 +413,11 @@ namespace zmachine
         new  op_output_stream(),    // 243/13
         new  op_input_stream()      // 244/14
         };
+// --------------------------------------------------------------------------------------------
 
-
-
-         public void branch(bool condition)        // Check branch instructions
+        public void branch(bool condition)        // Check branch instructions
          {
+//             Debug.WriteLine("BRANCH: " + (condition ? "1" : "0"));
 
              byte branchInfo = pc_getByte();
              int branchOn = ((branchInfo >> 7) & 0x01);
@@ -428,10 +442,10 @@ namespace zmachine
              {
                  if (offset == 0 || offset == 1)
                  {
-                     popRoutineData(0);     // if offset is 0 or 1, return 0.
-                     return;
+                     popRoutineData((ushort)offset);
                  }
-                 pc += offset - 2;
+                 else
+                     pc += offset - 2;
              }
              
          }
@@ -489,13 +503,13 @@ namespace zmachine
             
         }
 
+// --------------------------------------------------------------------------------------------
         public string getAbbrev(int abbrevIndex)
         {
             StringAndReadLength abbrev = getZSCII((uint)(memory.getWord((uint)(memory.getWord(Memory.ADDR_ABBREVS) + abbrevIndex * 2)) * 2), 0); 
             return abbrev.str;
         }
 
-        //        -----------------------------------------------------------------
         public class StringAndReadLength
         {
             public String str = "";
@@ -655,6 +669,15 @@ namespace zmachine
             return name;
         }
 
+        public String stateString()
+        {
+            String s = "M: " + memory.getCrc32() + " S: " + stack.getCrc32();
+//            for (ushort i = 1; i < 256; ++i)
+//                s += " " + getVar(i);
+            return s;
+        }
+//        --------------------------------------------------------------------------------------------
+        
 
     } // end Machine
 } // end namespace

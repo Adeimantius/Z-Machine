@@ -17,13 +17,13 @@ namespace zmachine
             //Memory memory = new Memory(128 * 1024); //128k main memory block
             //memory.load("ZORK1.DAT");
             //memory.dumpHeader();
-            Machine machine = new Machine("ZORK1.DAT");
-            Debug.WriteLine("Object name: " + machine.objectName(2));
+            Machine machine = new Machine("ZORK1.dat");
 
             int numInstructionsProcessed = 0;
             while (!machine.isFinished())
             {
-                Debug.Write("" + numInstructionsProcessed + " : ");
+                if (machine.debug)
+                    Debug.Write("" + numInstructionsProcessed + " : ");
                 machine.processInstruction();
                 ++numInstructionsProcessed;
             }

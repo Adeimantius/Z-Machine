@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="crc32.cs" />
+    <Compile Include="Lex.cs" />
     <Compile Include="ObjectTable.cs" />
     <Compile Include="OpcodeHandler.cs" />
     <Compile Include="Machine.cs" />

@@ -17,8 +17,7 @@ namespace zmachine
 
         public ObjectTable (Memory mem)
         {
-            Memory memory = mem;
-
+            memory = mem;
         }
 
         public int getDefaultProperty(int property)     // Start reading from the Program Defaults Table (before list of objects)
@@ -30,7 +29,7 @@ namespace zmachine
         }        
         public int getObjectTable()                     // Set Table Pointer to the beginning of the object table. (After Default Properties)
         {
-            tp = memory.getWord((uint)Memory.ADDR_OBJECTS + (31 * 2));
+            tp = memory.getWord((uint)Memory.ADDR_OBJECTS) + (31 * 2);
             return tp;
         }
         public int getPropertyTableAddress(int objectId)// Return property table address for given object. Leaves Table Pointer at beginning of next property.
@@ -176,8 +175,9 @@ namespace zmachine
         {
             byte a;                     // If can find the right byte in the memory, I can bitwise AND or OR to clear or fill it.
             uint address = (uint)getObjectAddress(objectId);
+//            Debug.WriteLine("BEFORE address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
             byte attributeByte = (byte)(attributeId / 4);           // The byte of the attribute header that we are working in
-            int attributeShift = 8 - (attributeId % 8);
+            int attributeShift = 7 - (attributeId % 8);
 
             if (value == true)
             {
@@ -187,11 +187,12 @@ namespace zmachine
             else 
             {
                 a = memory.getByte(address + (uint)attributeByte);
-                a &= (byte)(1 << attributeShift);
+                a &= (byte)~(1 << attributeShift);
             }
+//            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
             memory.setByte(address, a);
-
         }
+
         public void setObjectProperty(int objectId, int property, ushort value)
         {
             int propertyAddress = getObjectPropertyAddress(objectId, property);
@@ -241,20 +242,23 @@ namespace zmachine
 
 
 
-        //public String objectName(int objectId)
-        //{
-        //    if (objectId == 0)
-        //        return new String("NULL");
-        //    int propAddress = getPropertyTableAddress(objectId);
-        //    int textLength = memory.getByte(propAddress);
-        //    if (textLength == 0)
-        //        return new String("");
-        //    else
-        //    {
-        //        String name = memory.getZSCII(propAddress + 1, textLength * 2).str;
-        //        return name;
-        //    }
-        //}
+        public String objectName(int objectId)
+        {
+            int propAddress = getPropertyTableAddress(objectId);
+            int textLength = memory.getByte((uint)propAddress);
+
+            if (objectId == 0)
+                return "Unable to find Object";
+                            
+            if (textLength == 0)
+                return "Name not found";                        
+            else
+            {
+                //String name = Machine.getZSCII((uint)propAddress + 1, (uint)textLength * 2).str;
+                //return name;
+                return "Name not implemented";
+            }
+        }
 
     }
 }

@@ -102,6 +102,12 @@ namespace zmachine
 
         }
 
+        public uint getCrc32()
+        {
+            Crc32 crc32 = new Crc32();
+            return crc32.ComputeChecksum(memory);
+        }
+
 
     }
 }
