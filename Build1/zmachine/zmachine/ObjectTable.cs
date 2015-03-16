@@ -240,24 +240,22 @@ namespace zmachine
         }
 
 
-
-
-        public String objectName(int objectId)
+        public String objectName(int objectId)          // I hate putting this here, but it works, so here it is..
         {
-            int propAddress = getPropertyTableAddress(objectId);
-            int textLength = memory.getByte((uint)propAddress);
-
+            String name;
             if (objectId == 0)
-                return "Unable to find Object";
-                            
-            if (textLength == 0)
-                return "Name not found";                        
-            else
             {
-                //String name = Machine.getZSCII((uint)propAddress + 1, (uint)textLength * 2).str;
-                //return name;
-                return "Name not implemented";
+                return "Unable to find Object";
             }
+            Memory.StringAndReadLength str = new Memory.StringAndReadLength();
+            tp = getPropertyTableAddress(objectId);            // An object's name is stored in the header of its property table, and is given in the text-length.
+            int textLength = tp_getByte();                     // The first byte is the text-length number of words in the short name
+            if (textLength == 0)
+            {
+                return "Name not found";                        
+            }
+            name = memory.getZSCII((uint)tp, (uint)textLength * 2).str;
+            return name;
         }
 
     }
