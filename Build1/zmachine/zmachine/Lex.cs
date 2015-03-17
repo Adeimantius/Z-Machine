@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -78,7 +79,7 @@ namespace zmachine
                 {
                     dictionaryIndex.Add(i);         // Record dictionary entry address
                     Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 4);
-//                    Console.WriteLine(dictEntry.str);
+                    Debug.WriteLine(dictEntry.str);
                     dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
                 }
             }
@@ -117,12 +118,12 @@ namespace zmachine
                 return wordArray;
             }
 
-            // Store string (in ASCII) at address in byte 1 onward with a zero terminator. 
+            // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
             public void writeToBuffer(String input, int address) 
             {
                 int[] c = new int[3];        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
                 int i = 0;
-                mp = address + 1;
+                mp = 1;
 
                 bool stringComplete = false;
 
@@ -134,41 +135,47 @@ namespace zmachine
                     {   
                         if (i + j > input.Length - 1)
                         {
-                            c[j] = Convert.ToInt32('5');            // Pad word with 5's.
+                            c[j] = 5;            // Pad word with 5's.
                             stringComplete = true;
                         }
                         else                                        // Write next char from input into 3-char array
                         {
-                            c[j] = convertASCIIToZSCII(input[i + j]);                    
+                            c[j] = convertZSCIIToZchar(input[i + j]);                    
                         }
-                        word += (ushort)(c[j] << 10 - (5 * j));     // Write 3 chars into word
+                        word += (ushort)(c[j] << 10 - (5 * j));     // Write 3 zchars into word
                     }
-                    //word += (ushort)(c[0] << 10);
-                    //word += (ushort)(c[1] << 5);
-                    //word += (ushort)(c[2]);
-//                    Console.WriteLine("Converted ZSCII string: " + word);
 
                     memory.setWord((uint)(address + mp), word);      // Write word to memory
+                    Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + mp), 2).str);
                     i += 3;
                     mp += 2;
+
+                    
                 }
                 memory.setWord((uint)(address + mp), 0);       // Write empty word to terminate after read is complete.
                 
             }
 
-            public int convertASCIIToZSCII(char ascii)
+            public int convertZSCIIToZchar(char letter)
             {
-                // Convert into ZSCII from ASCII char
-                if (ascii == ' ')
+                String[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
+                // Convert into Zchar from ZSCII char
+                // Note: ASCII 'a' = int 97
+                if (letter == ' ')
                     return 0;
-                else if (
-                    ascii >= 32 && ascii <= 126 ||      // standard ascii
-                    ascii >= 155 && ascii <= 251)       // Take in ascii and return 10-bit zscii
-                    return (int)ascii;
+                else if (zalphabets[0].IndexOf(letter) != -1)       // Take in ZSCII letter and return 5-bit Zchar
+                {
+//                    Console.WriteLine("Recognized character: " + (int)letter);
+                    return zalphabets[0].IndexOf(letter) + 6;
+                }
+                else if (zalphabets[2].IndexOf(letter) != -1)
+                {
+                    return zalphabets[2].IndexOf(letter) + 6;           // not working properly
+                }
                 else
                 {
-                    Console.WriteLine("Invalid character: " + ascii);
-                    return ' ';
+                    Console.WriteLine("Invalid character: " + letter);
+                    return 0;
                 }
             }
 
