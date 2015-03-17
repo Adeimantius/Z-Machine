@@ -121,39 +121,30 @@ namespace zmachine
             // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
             public void writeToBuffer(String input, int address) 
             {
-                int[] c = new int[3];        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
+                int c = 0;        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
                 int i = 0;
-                mp = 1;
 
                 bool stringComplete = false;
 
                 while (stringComplete != true)
                 {
-                    ushort word = 0;
 
-                    for (int j = 0; j < 3; j++)
-                    {   
-                        if (i + j > input.Length - 1)
-                        {
-                            c[j] = 5;            // Pad word with 5's.
-                            stringComplete = true;
-                        }
-                        else                                        // Write next char from input into 3-char array
-                        {
-                            c[j] = convertZSCIIToZchar(input[i + j]);                    
-                        }
-                        word += (ushort)(c[j] << 10 - (5 * j));     // Write 3 zchars into word
+                    if (i > input.Length - 1)
+                    {
+                        stringComplete = true;
+                    }
+                    // Write next char from input into 3-char array
+                    else
+                    {
+                        c = convertZSCIIToZchar(input[i]);
                     }
 
-                    memory.setWord((uint)(address + mp), word);      // Write word to memory
-                    Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + mp), 2).str);
-                    i += 3;
-                    mp += 2;
-
+                    memory.setByte((uint)(address + 1 + i), (byte)c);
+                    i++;
                     
                 }
-                memory.setWord((uint)(address + mp), 0);       // Write empty word to terminate after read is complete.
-                
+                memory.setWord((uint)(address + 1 + i), 0);       // Write empty word to terminate after read is complete.
+                Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
             }
 
             public int convertZSCIIToZchar(char letter)
