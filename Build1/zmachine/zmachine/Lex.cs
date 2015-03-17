@@ -13,7 +13,9 @@ namespace zmachine
             uint dictionaryAddress;
             List<ushort> separators = new List<ushort>();
             List<String> dictionary = new List<String>();
-            List<int> dictionaryIndex = new List<int>();
+            List<uint> dictionaryIndex = new List<uint>();
+            int[] wordStartIndex;                      
+
             int mp = 0;                                 // Memory Pointer
 
             public Lex(Memory mem)
@@ -24,84 +26,83 @@ namespace zmachine
 
             public void read(int textBufferAddress, uint parseBufferAddress)
             {
+                int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
+                int maxWordLength = memory.getByte((uint)parseBufferAddress);
 
-                // NOTE: These is a String.Contains function that may be of great value with the resulting zstring..!
-                int maxInputLength = memory.getByte((uint)textBufferAddress) - 1; //byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
-                int maxWordLength = memory.getByte((uint) parseBufferAddress);
-
-                int[] wordBuffer = new int[maxWordLength];           
-                String input = Console.ReadLine();                    // Get initial input from console terminal
+                String input = Console.ReadLine();                                   // Get initial input from console terminal
 
                 if (input.Length > maxInputLength)
-                    input.Remove(maxInputLength);                   // Limit input to size of text-buffer
-                input.TrimEnd('\n');                            // Remove carriage return from end of string  
-                input.ToLower();                                // Convert to lowercase
-                writeToBuffer(input, textBufferAddress);        //stored in bytes 1 onward, with a zero terminator (but without any other terminator, such as a carriage return code
+                    input = input.Remove(maxInputLength);                            // Limit input to size of text-buffer
+                input.TrimEnd('\n');                                                 // Remove carriage return from end of string  
+                input = input.ToLower();                                             // Convert to lowercase
 
-                String[] wordArray = parseWord(input);
+                writeToBuffer(input, textBufferAddress);                             // stored in bytes 1 onward, with a zero terminator (but without any other terminator, such as a carriage return code
 
-                buildDict();
-                for (int i = 0; i < wordArray.Length; i++) 
+                buildDict();                                                         // Build Dictionary into class variable
+                String[] wordArray = parseString(input);         // Separate string by spaces and build list of word indices
+                int[] wordBuffer = new int[maxWordLength];
+
+                for (int i = 0; i < wordArray.Length; i++)
                 {
-                    String word = wordArray[i];
-                    wordBuffer[i] = compare(word);
+                    wordBuffer[i] = compare(wordArray[i]);
+                }
+                // Record dictionary addresses after comparing words
+
+
+                memory.setByte(parseBufferAddress + 1, (byte)(wordBuffer.Length));  // Write number of parsed words
+
+                for (int i = 0; i < wordArray.Length; i++)
+                {
+                    int wordLength = wordStartIndex[i] > 0 ? wordStartIndex[i + 1] - wordStartIndex[i] : input.Length - wordStartIndex[i];
+                    memory.setWord((uint)(parseBufferAddress + 2 + (4 * i)), (byte)wordBuffer[i]);      // Address in dictionary
+                    memory.setByte((uint)(parseBufferAddress + 4 + (4 * i)), (byte)wordLength); // # of letters in parsed word (either from dictionary or 0)
+                    memory.setByte((uint)(parseBufferAddress + 5 + (4 * i)), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
                 }
 
-                memory.setByte(parseBufferAddress + 1, (byte)(wordBuffer.Length));
-
-                for (int i = 0; i < maxWordLength; i++)
-                {
-                    memory.setWord((uint)(parseBufferAddress + 2 + (4 * i)), (byte)wordBuffer[i]);
-                    memory.setByte((uint)(parseBufferAddress + 4 + (4 * i)), (byte)dictionary[i].Length);
-                    memory.setByte((uint)(parseBufferAddress + 5 + (4 * i)), (byte)dictionaryIndex[i]);
-                }
-                    
             }
 
             public void buildDict()
             {
-                // First build the dictionary
-                uint separatorLength = memory.getByte(dictionaryAddress);
-                uint entryLength = memory.getByte(dictionaryAddress + separatorLength + 1);
-                uint dictionaryLength = memory.getWord(dictionaryAddress + separatorLength + 2);
+                // build the dictionary into class variable
+                uint separatorLength = memory.getByte(dictionaryAddress);                           // Number of separators
+                uint entryLength = memory.getByte(dictionaryAddress + separatorLength + 1);         // Size of each entry (default 7 bytes)
+                uint dictionaryLength = memory.getWord(dictionaryAddress + separatorLength + 2);    // Number of 2-byte entries
+                uint entryAddress = dictionaryAddress + separatorLength + 4;                        // Start of dictionary entries
 
-                for (uint i = dictionaryAddress; i < separatorLength; i++)
+                for (uint i = entryAddress; i < dictionaryAddress + separatorLength; i++)
                 {
                     separators.Add(memory.getByte(i + 1));      // Find 'n' different word separators and add to list
                 }
-                for (uint i = dictionaryAddress; i < dictionaryLength; i += entryLength)
+
+                for (uint i = entryAddress; i < entryAddress + dictionaryLength * 2; i += entryLength)
                 {
-                    dictionaryIndex.Add(memory.getWord(i + separatorLength + 1));         // Record dictionary entry address
-                    Memory.StringAndReadLength dictEntry = memory.getZSCII(i + separatorLength + 1, 0);
+                    dictionaryIndex.Add(i);         // Record dictionary entry address
+                    Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 4);
+//                    Console.WriteLine(dictEntry.str);
                     dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
                 }
-
-
-                // search Dictionary for comparisons
-
             }
 
             public int compare(String word, int dictionaryFlag = 0)
             {
+                // search dictionary for comparisons
                 for (int i = 0; i < dictionary.Count; i++)
                 {
-                    if (dictionary[i] == word)
-                    {
-                        return memory.getByte((uint)dictionaryIndex[i]);
-                    }
+                        if (dictionary[i] == word)
+                            return memory.getByte((uint)dictionaryIndex[i]);
                 }
                 Console.WriteLine("Could not identify keyword:" + word);
                 return 0;
             }
 
-            public String[] parseWord(String input)
+            public String[] parseString(String input)
             {
-                                // --------------------------------------------------------- What do I do with this stuff?                
                 int wordindex = 0;
 
                 String[] wordArray = input.Split(' ');        // Tokenize into words
-                int[] wordStartIndex = new int[wordArray.Length];                      
+                wordStartIndex = new int[wordArray.Length + 1];
 
+                // Record start index of each word in input string
                 for (int i = 0; i < wordArray.Length; i++)
                 {
                     wordStartIndex[i] = wordindex;                                // take index of word
@@ -122,11 +123,13 @@ namespace zmachine
                 int[] c = new int[3];        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
                 int i = 0;
                 mp = address + 1;
-                ushort word = 0;
+
                 bool stringComplete = false;
 
                 while (stringComplete != true)
                 {
+                    ushort word = 0;
+
                     for (int j = 0; j < 3; j++)
                     {   
                         if (i + j > input.Length - 1)
@@ -136,13 +139,15 @@ namespace zmachine
                         }
                         else                                        // Write next char from input into 3-char array
                         {
-                            c[j] = input[i + j];                    
+                            c[j] = convertASCIIToZSCII(input[i + j]);                    
                         }
                         word += (ushort)(c[j] << 10 - (5 * j));     // Write 3 chars into word
                     }
                     //word += (ushort)(c[0] << 10);
                     //word += (ushort)(c[1] << 5);
                     //word += (ushort)(c[2]);
+//                    Console.WriteLine("Converted ZSCII string: " + word);
+
                     memory.setWord((uint)(address + mp), word);      // Write word to memory
                     i += 3;
                     mp += 2;
@@ -151,7 +156,22 @@ namespace zmachine
                 
             }
 
-            // Get console input and fix it to ZSpec standards.
+            public int convertASCIIToZSCII(char ascii)
+            {
+                // Convert into ZSCII from ASCII char
+                if (ascii == ' ')
+                    return 0;
+                else if (
+                    ascii >= 32 && ascii <= 126 ||      // standard ascii
+                    ascii >= 155 && ascii <= 251)       // Take in ascii and return 10-bit zscii
+                    return (int)ascii;
+                else
+                {
+                    Console.WriteLine("Invalid character: " + ascii);
+                    return ' ';
+                }
+            }
+
 
 
 

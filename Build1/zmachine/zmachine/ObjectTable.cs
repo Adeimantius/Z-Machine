@@ -240,7 +240,7 @@ namespace zmachine
         }
 
 
-        public String objectName(int objectId)          // I hate putting this here, but it works, so here it is..
+        public String objectName(int objectId)   
         {
             String name;
             if (objectId == 0)
