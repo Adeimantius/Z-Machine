@@ -22,7 +22,7 @@ namespace zmachine
             public Lex(Memory mem)
             {
                 memory = mem;
-                dictionaryAddress = memory.getByte(Memory.ADDR_DICT);
+                dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
             }
 
             public void read(int textBufferAddress, uint parseBufferAddress)
@@ -55,9 +55,9 @@ namespace zmachine
                 for (int i = 0; i < wordArray.Length; i++)
                 {
                     int wordLength = wordStartIndex[i] > 0 ? wordStartIndex[i + 1] - wordStartIndex[i] : input.Length - wordStartIndex[i];
-                    memory.setWord((uint)(parseBufferAddress + 2 + (4 * i)), (byte)wordBuffer[i]);      // Address in dictionary
-                    memory.setByte((uint)(parseBufferAddress + 4 + (4 * i)), (byte)wordLength); // # of letters in parsed word (either from dictionary or 0)
-                    memory.setByte((uint)(parseBufferAddress + 5 + (4 * i)), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                    memory.setWord((uint)(parseBufferAddress + 1 + (4 * i)), (byte)wordBuffer[i]);      // Address in dictionary
+                    memory.setByte((uint)(parseBufferAddress + 3 + (4 * i)), (byte)wordLength); // # of letters in parsed word (either from dictionary or 0)
+                    memory.setByte((uint)(parseBufferAddress + 4 + (4 * i)), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
                 }
 
             }
@@ -75,7 +75,7 @@ namespace zmachine
                     separators.Add(memory.getByte(i + 1));      // Find 'n' different word separators and add to list
                 }
 
-                for (uint i = entryAddress; i < entryAddress + dictionaryLength * 2; i += entryLength)
+                for (uint i = entryAddress; i < entryAddress + dictionaryLength * entryLength; i += entryLength)
                 {
                     dictionaryIndex.Add(i);         // Record dictionary entry address
                     Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 4);
@@ -121,33 +121,21 @@ namespace zmachine
             // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
             public void writeToBuffer(String input, int address) 
             {
-                int c = 0;        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
-                int i = 0;
-
-                bool stringComplete = false;
-
-                while (stringComplete != true)
+                int i;
+                for(i = 0 ; i < input.Length; ++i)
                 {
-
-                    if (i > input.Length - 1)
-                    {
-                        stringComplete = true;
-                    }
-                    // Write next char from input into 3-char array
-                    else
-                    {
-                        c = convertZSCIIToZchar(input[i]);
-                    }
-
-                    memory.setByte((uint)(address + 1 + i), (byte)c);
-                    i++;
-                    
+                    char ch = input[i];
+                    // Supposed to convert these to zscii here...
+            
+                    memory.setByte((uint)(address + 1 + i), (byte)ch);
                 }
+                    // Write next char from input into 3-char array (unimplemented)
+                                    
                 memory.setWord((uint)(address + 1 + i), 0);       // Write empty word to terminate after read is complete.
-                Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
+//              Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
             }
 
-            public int convertZSCIIToZchar(char letter)
+            public int convertZSCIIToZchar(char letter) // (unimplemented)
             {
                 String[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
                 // Convert into Zchar from ZSCII char

@@ -362,7 +362,7 @@ namespace zmachine
             {
 //                Debug.WriteLine("Getting string at " + machine.pc);
                 Memory.StringAndReadLength str = machine.memory.getZSCII(machine.pc, 0);
-                Console.WriteLine(str.str); 
+                Console.Write(str.str); 
                 machine.pc += (uint)str.bytesRead;
 //                Debug.WriteLine("New pc location: " + machine.pc);
 
