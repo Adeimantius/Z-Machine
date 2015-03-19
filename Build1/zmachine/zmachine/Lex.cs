@@ -17,7 +17,7 @@ namespace zmachine
             List<uint> dictionaryIndex = new List<uint>();
             int[] wordStartIndex;                      
 
-            int mp = 0;                                 // Memory Pointer
+            uint mp = 0;                                 // Memory Pointer
 
             public Lex(Memory mem)
             {
@@ -29,7 +29,7 @@ namespace zmachine
             {
                 int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
                 int maxWordLength = memory.getByte((uint)parseBufferAddress);
-
+                mp = parseBufferAddress + 2;
                 String input = Console.ReadLine();                                   // Get initial input from console terminal
 
                 if (input.Length > maxInputLength)
@@ -39,25 +39,33 @@ namespace zmachine
 
                 writeToBuffer(input, textBufferAddress);                             // stored in bytes 1 onward, with a zero terminator (but without any other terminator, such as a carriage return code
 
-                buildDict();                                                         // Build Dictionary into class variable
-                String[] wordArray = parseString(input);         // Separate string by spaces and build list of word indices
-                int[] wordBuffer = new int[maxWordLength];
-
-                for (int i = 0; i < wordArray.Length; i++)
+                if (maxWordLength > 0)                                               // Check to see if lexical analysis is called for
                 {
-                    wordBuffer[i] = compare(wordArray[i]);
-                }
-                // Record dictionary addresses after comparing words
+                    buildDict();                                                     // Build Dictionary into class variable
+                    String[] wordArray = parseString(input);                         // Separate string by spaces and build list of word indices
+                    uint[] matchedWords = new uint[maxWordLength];                       
+
+                    for (int i = 0; i < wordArray.Length; i++)
+                    {
+                        matchedWords[i] = compare(wordArray[i]);                       // Stores the dictionary address of matched words (or 0 if no match)
+ //                       Debug.WriteLine("Byte address of matched word: " + matchedWords[i]);
+                    }
+                    // Record dictionary addresses after comparing words
 
 
-                memory.setByte(parseBufferAddress + 1, (byte)(wordBuffer.Length));  // Write number of parsed words
+                    memory.setByte(mp - 1, (byte)(wordArray.Length));  // Write number of parsed words
 
-                for (int i = 0; i < wordArray.Length; i++)
-                {
-                    int wordLength = wordStartIndex[i] > 0 ? wordStartIndex[i + 1] - wordStartIndex[i] : input.Length - wordStartIndex[i];
-                    memory.setWord((uint)(parseBufferAddress + 1 + (4 * i)), (byte)wordBuffer[i]);      // Address in dictionary
-                    memory.setByte((uint)(parseBufferAddress + 3 + (4 * i)), (byte)wordLength); // # of letters in parsed word (either from dictionary or 0)
-                    memory.setByte((uint)(parseBufferAddress + 4 + (4 * i)), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                    for (int i = 0; i < wordArray.Length; i++)
+                    {
+                        if (4 * i < maxWordLength)
+                        {
+                            int wordLength = wordStartIndex[i] > 0 ? wordStartIndex[i + 1] - wordStartIndex[i] : input.Length - wordStartIndex[i];
+                            memory.setWord((uint)(mp), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
+                            memory.setByte((uint)(mp + 2), (byte)wordLength);     // # of letters in parsed word 
+                            memory.setByte((uint)(mp + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                        }
+                        mp += 4;
+                    }
                 }
 
             }
@@ -79,18 +87,23 @@ namespace zmachine
                 {
                     dictionaryIndex.Add(i);         // Record dictionary entry address
                     Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 4);
-                    Debug.WriteLine(dictEntry.str);
+//                  Debug.WriteLine(dictEntry.str);
                     dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
                 }
             }
 
-            public int compare(String word, int dictionaryFlag = 0)
+            public uint compare(String word, int dictionaryFlag = 0)
             {
+                if (word.Length > 6)
+                    word = word.Remove(6);
                 // search dictionary for comparisons
                 for (int i = 0; i < dictionary.Count; i++)
                 {
-                        if (dictionary[i] == word)
-                            return memory.getByte((uint)dictionaryIndex[i]);
+                    if (dictionary[i] == word)
+                    {
+//                        Console.WriteLine("Matched word: " + word + " at dictionary entry: " + memory.getByte((uint)dictionaryIndex[i]) + " // " + dictionary[i] );
+                        return dictionaryIndex[i];
+                    }
                 }
                 Console.WriteLine("Could not identify keyword:" + word);
                 return 0;
