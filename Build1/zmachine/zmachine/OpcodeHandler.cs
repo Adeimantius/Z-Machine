@@ -307,7 +307,7 @@ namespace zmachine
         public class op_print_addr : OpcodeHandler_1OP
         {
             public override String name() { return "op_print_addr"; }
-            public override void run(Machine machine,ushort v1) { Console.WriteLine(machine.memory.getZSCII(v1, 0)); }
+            public override void run(Machine machine,ushort v1) { Console.WriteLine(machine.memory.getZSCII(v1, 0).str); }
         }
         public class op_remove_obj : OpcodeHandler_1OP
         {
@@ -336,7 +336,7 @@ namespace zmachine
         public class op_print_paddr : OpcodeHandler_1OP
         {
             public override String name() { return "op_print_paddr"; }
-            public override void run(Machine machine, ushort v1) { Console.Write(machine.memory.getZSCII((uint)v1 * 2, 0)); }
+            public override void run(Machine machine, ushort v1) { Console.Write(machine.memory.getZSCII((uint)v1 * 2, 0).str); }
         }
         public class op_load : OpcodeHandler_1OP
         {
@@ -362,7 +362,7 @@ namespace zmachine
             {
 //                Debug.WriteLine("Getting string at " + machine.pc);
                 Memory.StringAndReadLength str = machine.memory.getZSCII(machine.pc, 0);
-                Console.WriteLine(str.str); 
+                Console.Write(str.str); 
                 machine.pc += (uint)str.bytesRead;
 //                Debug.WriteLine("New pc location: " + machine.pc);
 
@@ -373,7 +373,7 @@ namespace zmachine
             public override String name() { return "op_print_ret"; }
             public override void run(Machine machine) 
             { 
-                Console.WriteLine(machine.memory.getZSCII(machine.pc_getWord(), 0));
+                Console.WriteLine(machine.memory.getZSCII(machine.pc_getWord(), 0).str);
                 machine.popRoutineData(1);
             }
         }
