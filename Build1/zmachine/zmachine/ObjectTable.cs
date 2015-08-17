@@ -173,10 +173,10 @@ namespace zmachine
         }
         public void setObjectAttribute(int objectId, int attributeId, bool value)
         {
-            byte a;                     // If can find the right byte in the memory, I can bitwise AND or OR to clear or fill it.
+            byte a;                     // If can find the right byte in the memory, I can bitwise AND or NOT to fill or clear it.
             uint address = (uint)getObjectAddress(objectId);
 //            Debug.WriteLine("BEFORE address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
-            byte attributeByte = (byte)(attributeId / 4);           // The byte of the attribute header that we are working in
+            byte attributeByte = (byte)(attributeId / 8);           // The byte of the attribute header that we are working in
             int attributeShift = 7 - (attributeId % 8);
 
             if (value == true)
@@ -190,7 +190,7 @@ namespace zmachine
                 a &= (byte)~(1 << attributeShift);
             }
 //            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
-            memory.setByte(address, a);
+            memory.setByte(address + attributeByte, a);
         }
 
         public void setObjectProperty(int objectId, int property, ushort value)
@@ -256,6 +256,38 @@ namespace zmachine
             }
             name = memory.getZSCII((uint)tp, (uint)textLength * 2).str;
             return name;
+        }
+        public void unlinkObject(int objectId)
+        {
+            // Get parent of object. If no parent, no need to unlink it.
+            int parentId = getParent(objectId);
+            if (parentId == 0)
+                return;
+
+            // Get next sibling
+            int nextSibling = getSibling(objectId);
+
+            // Get very first sibling in list
+            int firstSibling = getChild(parentId);
+
+            // Clear out the parent/sibling fields since they'll no longer be valid when this is done.
+            setParent(objectId, 0);
+            setSibling(objectId, 0);
+
+            // Remove object from the list of siblings
+            if (firstSibling == objectId)   // If this object is the first child, just set it to the next child.
+                setChild(parentId, nextSibling);
+            else
+            {
+                int sibId = firstSibling;
+                int lastSibId = sibId;
+                do
+                {
+                    lastSibId = sibId;
+                    sibId = getSibling(sibId);
+                } while (sibId != objectId);
+                setSibling(lastSibId, nextSibling);
+            }
         }
 
     }

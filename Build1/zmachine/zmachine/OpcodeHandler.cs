@@ -159,6 +159,7 @@ namespace zmachine
             public override void run(Machine machine,ushort v1, ushort v2) 
             {
                 int newSibling = machine.objectTable.getChild(v2); // 
+                machine.objectTable.unlinkObject(v1);
                 machine.objectTable.setChild(v2, v1);
                 machine.objectTable.setParent(v1, v2);
                 machine.objectTable.setSibling(v1, newSibling);
@@ -238,7 +239,7 @@ namespace zmachine
         }
         public class op_mul : OpcodeHandler_2OP
         {
-            public override String name() { return "op_mod"; }
+            public override String name() { return "op_mul"; }
             public override void run(Machine machine, ushort v1, ushort v2)
             {
                 int result = (short)v1 * (short)v2;
@@ -373,7 +374,9 @@ namespace zmachine
             public override String name() { return "op_print_ret"; }
             public override void run(Machine machine) 
             { 
-                Console.WriteLine(machine.memory.getZSCII(machine.pc_getWord(), 0).str);
+                Memory.StringAndReadLength str = machine.memory.getZSCII(machine.pc, 0);
+                Console.Write(str.str);
+                machine.pc += (uint)str.bytesRead;
                 machine.popRoutineData(1);
             }
         }
@@ -528,7 +531,24 @@ namespace zmachine
         public class op_output_stream : OpcodeHandler_OPVAR
         {
             public override String name() { return "op_output_stream"; }
-            public override void run(Machine machine,List<ushort> operands) { fail_unimplemented(machine); }
+            public override void run(Machine machine,List<ushort> operands) 
+            {
+                if (operands[0] != 0)
+                {
+                    if (operands[0] < 0)
+                    {
+                        // deselect output stream
+                    }
+                    else if (operands[0] == 3)
+                    {
+                        Memory.StringAndReadLength str = machine.memory.getZSCII((uint)operands[1] + 2, machine.memory.getWord((uint)operands[1]));
+                    }
+                    else
+                    {
+                        // select output stream
+                    }
+                }
+            }
         }
         public class op_input_stream : OpcodeHandler_OPVAR
         {
