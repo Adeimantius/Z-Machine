@@ -11,6 +11,7 @@ namespace zmachine
     public class Memory
     {
         byte[] memory;
+        IO io = new IO();
 
         public Memory (int size)
         {
@@ -107,15 +108,15 @@ namespace zmachine
         public char getZChar(int zchar)
         {
             if (zchar == 0)         // null char
-                return ' ';
+                return (char)0;
             else if (zchar == 8)    // delete char
-                return ' ';
+                return (char)0;
             else if (zchar == 13)   // newline char
                 return '\n';
             else if (zchar == 27)
-                return ' ';
+                return (char)0;
             else if (zchar >= 129 && zchar <= 154)
-                return ' ';
+                return (char)0;
             else if (
                 zchar >= 32 && zchar <= 126 || // standard ascii
                 zchar >= 155 && zchar <= 251)         // Take in 10-bit zscii and return ascii
@@ -123,7 +124,7 @@ namespace zmachine
             else
             {
                 Debug.WriteLine("Invalid 10-bit char: " + (char)zchar);
-                return ' ';
+                return (char)0;
             }
         }
 
@@ -137,6 +138,10 @@ namespace zmachine
             int zchar10 = 0;
 
             String output = "";
+            String debugOutput = "";
+            int z = 0;
+            bool debug = false;
+
 
             bool stringComplete = false;
             while (!stringComplete)
@@ -191,6 +196,11 @@ namespace zmachine
                                     zchar10 += c[i];
 
                                     output += getZChar(zchar10);
+                                    if (debug == true)
+                                    {
+                                        debugOutput += getZChar(zchar10); z++;
+                                        io.WriteLine("\n" + debugOutput + "(" + z + ")");
+                                    }
                                     break;
                                 }
                         }
@@ -201,10 +211,22 @@ namespace zmachine
                         int abbrevId = (abbrevSet - 1) * 32 + c[i];
                         //get the abbrev string using the current character and append it
                         output += getAbbrev(abbrevId);
+                        if (debug == true)
+                        {
+                            debugOutput += getAbbrev(abbrevId); z++;
+                            Debug.WriteLine("Abbrev: |" + abbrevId + "| : " + getAbbrev(abbrevId));
+                        }
                         abbrevSet = 0;
                     }
                     else if (c[i] == 0)
+                    {
                         output += " ";
+                        if (debug == true)
+                        {
+                            debugOutput += (" "); z++;
+                            Debug.WriteLine("\n" + "SPACE" + "(" + z + ")");
+                        }
+                    }
                     else if (c[i] == 1 || c[i] == 2 || c[i] == 3)  // Get abbreviation at given address using next two values
                     {
                         abbrevSet = c[i];
@@ -220,6 +242,10 @@ namespace zmachine
                     else
                     {
                         output += zalphabets[currentAlphabet][c[i] - 6];
+                        if (debug == true)
+                        {
+                            debugOutput += zalphabets[currentAlphabet][c[i] - 6]; z++;
+                        }
                         currentAlphabet = 0;
                     }
 
@@ -229,7 +255,14 @@ namespace zmachine
                 bytesRead += 2;             // store number of bytesRead for pointer
 
                 if (numBytes > 0 && bytesRead >= numBytes)
+                {
                     stringComplete = true;
+                    if (debug == true)
+                    {
+                        Debug.WriteLine("\n" + debugOutput + "(" + z + ")");
+                    }
+                }
+
             }
 
             StringAndReadLength ret = new StringAndReadLength();

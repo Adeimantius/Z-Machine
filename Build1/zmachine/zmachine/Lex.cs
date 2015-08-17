@@ -15,7 +15,8 @@ namespace zmachine
             List<ushort> separators = new List<ushort>();
             List<String> dictionary = new List<String>();
             List<uint> dictionaryIndex = new List<uint>();
-            int[] wordStartIndex;                      
+            int[] wordStartIndex;  
+            IO io = new IO();        
 
             uint mp = 0;                                 // Memory Pointer
 
@@ -23,14 +24,15 @@ namespace zmachine
             {
                 memory = mem;
                 dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
+                //IO io = new IO();
             }
 
             public void read(int textBufferAddress, uint parseBufferAddress)
             {
                 int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
-                int maxWordLength = memory.getByte((uint)parseBufferAddress);
+                int parseBufferLength = memory.getByte((uint)parseBufferAddress);
                 mp = parseBufferAddress + 2;
-                String input = Console.ReadLine();                                   // Get initial input from console terminal
+                String input = io.ReadLine();                                   // Get initial input from io terminal
 
                 if (input.Length > maxInputLength)
                     input = input.Remove(maxInputLength);                            // Limit input to size of text-buffer
@@ -39,11 +41,11 @@ namespace zmachine
 
                 writeToBuffer(input, textBufferAddress);                             // stored in bytes 1 onward, with a zero terminator (but without any other terminator, such as a carriage return code
 
-                if (maxWordLength > 0)                                               // Check to see if lexical analysis is called for
+                if (parseBufferLength > 0)                                               // Check to see if lexical analysis is called for
                 {
                     buildDict();                                                     // Build Dictionary into class variable
                     String[] wordArray = parseString(input);                         // Separate string by spaces and build list of word indices
-                    uint[] matchedWords = new uint[maxWordLength];                       
+                    uint[] matchedWords = new uint[parseBufferLength];                       
 
                     for (int i = 0; i < wordArray.Length; i++)
                     {
@@ -57,17 +59,35 @@ namespace zmachine
 
                     for (int i = 0; i < wordArray.Length; i++)
                     {
-                        if (4 * i < maxWordLength)
-                        {
-                            int wordLength = wordStartIndex[i] > 0 ? wordStartIndex[i + 1] - wordStartIndex[i] : input.Length - wordStartIndex[i];
+
+    //                    if (4 * (i + 1) < parseBufferLength)
+    //                    {                            
+                            int wordLength = wordArray[i].Length;
                             memory.setWord((uint)(mp), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
                             memory.setByte((uint)(mp + 2), (byte)wordLength);     // # of letters in parsed word 
                             memory.setByte((uint)(mp + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
-                        }
+    //                     }
                         mp += 4;
+                        memory.setByte((uint)mp, 0);
                     }
                 }
 
+            }
+
+            // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
+            public void writeToBuffer(String input, int address)
+            {
+                int i;
+                for (i = 0; i < input.Length; i++)
+                {
+                    char ch = input[i];
+                    // Supposed to convert these to zscii here...     
+                    memory.setByte((uint)(address + i + 1), (byte)ch);
+                }
+                // Write next char from input into 3-char array (unimplemented)
+
+                memory.setByte((uint)(address + i + 1), 0);       // Write empty byte to terminate after read is complete.
+                //              io.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
             }
 
             public void buildDict()
@@ -86,7 +106,7 @@ namespace zmachine
                 for (uint i = entryAddress; i < entryAddress + dictionaryLength * entryLength; i += entryLength)
                 {
                     dictionaryIndex.Add(i);         // Record dictionary entry address
-                    Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 4);
+                    Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 0);
 //                  Debug.WriteLine(dictEntry.str);
                     dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
                 }
@@ -101,20 +121,20 @@ namespace zmachine
                 {
                     if (dictionary[i] == word)
                     {
-//                        Console.WriteLine("Matched word: " + word + " at dictionary entry: " + memory.getByte((uint)dictionaryIndex[i]) + " // " + dictionary[i] );
+                        io.WriteLine("Matched word: " + word + " at dictionary entry: " + memory.getByte((uint)dictionaryIndex[i]) + " // " + dictionary[i] );
                         return dictionaryIndex[i];
                     }
                 }
-                Console.WriteLine("Could not identify keyword:" + word);
+                io.WriteLine("Could not identify keyword: " + word);
                 return 0;
             }
 
             public String[] parseString(String input)
             {
-                int wordindex = 0;
+                int wordindex = 1;
 
                 String[] wordArray = input.Split(' ');        // Tokenize into words
-                wordStartIndex = new int[wordArray.Length + 1];
+                wordStartIndex = new int[wordArray.Length];
 
                 // Record start index of each word in input string
                 for (int i = 0; i < wordArray.Length; i++)
@@ -131,22 +151,7 @@ namespace zmachine
                 return wordArray;
             }
 
-            // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
-            public void writeToBuffer(String input, int address) 
-            {
-                int i;
-                for(i = 0 ; i < input.Length; ++i)
-                {
-                    char ch = input[i];
-                    // Supposed to convert these to zscii here...
-            
-                    memory.setByte((uint)(address + 1 + i), (byte)ch);
-                }
-                    // Write next char from input into 3-char array (unimplemented)
-                                    
-                memory.setWord((uint)(address + 1 + i), 0);       // Write empty word to terminate after read is complete.
-//              Console.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
-            }
+
 
             public int convertZSCIIToZchar(char letter) // (unimplemented)
             {
@@ -157,7 +162,7 @@ namespace zmachine
                     return 0;
                 else if (zalphabets[0].IndexOf(letter) != -1)       // Take in ZSCII letter and return 5-bit Zchar
                 {
-//                    Console.WriteLine("Recognized character: " + (int)letter);
+                    io.WriteLine("Recognized character: " + (int)letter);
                     return zalphabets[0].IndexOf(letter) + 6;
                 }
                 else if (zalphabets[2].IndexOf(letter) != -1)
@@ -166,7 +171,7 @@ namespace zmachine
                 }
                 else
                 {
-                    Console.WriteLine("Invalid character: " + letter);
+                    io.WriteLine("Invalid character: " + letter);
                     return 0;
                 }
             }
@@ -192,7 +197,7 @@ namespace zmachine
     //            for (int i = 0; i < zstringArray.Count; i += 3)    // Pack into 3-char pieces as a Zstring
     //            {
     //                Concatenate 3 consecutive chars into a word;
-    //                memory.setWord((uint)(textBufferAddress + (2 + 4 * i)), (ushort)zstringArray[i]);    // Write number of words in byte 1, write words from byte 2 onward (stopping at maxWordLength;
+    //                memory.setWord((uint)(textBufferAddress + (2 + 4 * i)), (ushort)zstringArray[i]);    // Write number of words in byte 1, write words from byte 2 onward (stopping at parseBufferLength;
     //            }
     //                                                            //
 
@@ -203,7 +208,7 @@ namespace zmachine
 
             public char readChar()
             {
-                memory.getZChar(Convert.ToChar(Console.ReadKey()));// read keypress and pass as a char into getZchar
+                memory.getZChar(Convert.ToChar(io.ReadKey()));// read keypress and pass as a char into getZchar
                 return '0';
             }
 
