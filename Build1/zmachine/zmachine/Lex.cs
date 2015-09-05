@@ -81,13 +81,13 @@ namespace zmachine
                 for (i = 0; i < input.Length; i++)
                 {
                     char ch = input[i];
-                    // Supposed to convert these to zscii here...     
+                    // Convert these to ZSCII here...     
                     memory.setByte((uint)(address + i + 1), (byte)ch);
                 }
                 // Write next char from input into 3-char array (unimplemented)
 
                 memory.setByte((uint)(address + i + 1), 0);       // Write empty byte to terminate after read is complete.
-                //              io.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
+                // io.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
             }
 
             public void buildDict()
@@ -121,11 +121,11 @@ namespace zmachine
                 {
                     if (dictionary[i] == word)
                     {
-                        io.WriteLine("Matched word: " + word + " at dictionary entry: " + memory.getByte((uint)dictionaryIndex[i]) + " // " + dictionary[i] );
+                        // io.WriteLine("Matched word: " + word + " at dictionary entry: " + memory.getByte((uint)dictionaryIndex[i]) + " // " + dictionary[i] );
                         return dictionaryIndex[i];
                     }
                 }
-                io.WriteLine("Could not identify keyword: " + word);
+                // io.WriteLine("Could not identify keyword: " + word);    // Game will have its own readout
                 return 0;
             }
 
@@ -162,7 +162,7 @@ namespace zmachine
                     return 0;
                 else if (zalphabets[0].IndexOf(letter) != -1)       // Take in ZSCII letter and return 5-bit Zchar
                 {
-                    io.WriteLine("Recognized character: " + (int)letter);
+                    // io.WriteLine("Recognized character: " + (int)letter);
                     return zalphabets[0].IndexOf(letter) + 6;
                 }
                 else if (zalphabets[2].IndexOf(letter) != -1)
@@ -171,7 +171,7 @@ namespace zmachine
                 }
                 else
                 {
-                    io.WriteLine("Invalid character: " + letter);
+                    // io.WriteLine("Invalid character: " + letter);
                     return 0;
                 }
             }

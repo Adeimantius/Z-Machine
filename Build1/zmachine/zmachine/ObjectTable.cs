@@ -133,7 +133,7 @@ namespace zmachine
             else
             {
                 propertyData = 0;
-                Debug.WriteLine("Property Length " + propLen + " is an unspecified length call for opcodes.");
+                // Debug.WriteLine("Property Length " + propLen + " is an unspecified length call for opcodes.");
             }
 
             return propertyData;

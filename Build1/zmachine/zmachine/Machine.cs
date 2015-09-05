@@ -129,18 +129,12 @@ namespace zmachine
             pc = memory.getWord(Memory.ADDR_INITIALPC);               // Set PC by looking at pc start byte in header file
         }
 
-        //AB:   In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
+        //In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
         //      - 2OP
         //      - 1OP
         //      - 0OP
         //      - VAR
-        //      We'll want to handle them differently because the opcodes overlap (they all start at 0 and go up)
-        //      So You're going to want four different functions to process them:
-        //      void process2OP(int opcode) {}
-        //      void process1OP(int opcode) {}
-        //      void process0OP(int opcode) {}
-        //      void processVAR(int opcode) {}
-        //      We'll start fitting these into our code below.
+
 
         // Looks at pointer and returns instruction
         public void processInstruction()
@@ -197,16 +191,7 @@ namespace zmachine
                         opcode = (ushort)(instruction & 0x1f);          // Grab bottom 5 bits. 
                         int type = ((instruction >> 5) & 1);            // Store type of opcode (2OP, VAR)          
                         byte operandTypes = (byte)pc_getByte();
-// The 4 operand types are encoded in the bits:                 |
-//           76543210                                           |
-//           AABBCCDD                                           |
-//    So you want to work on THAT byte with this sort of loop:  |
-//    After the first loop you have AA, and byte contains:      |
-//           76543210                                           |
-//           BBCCDD00                                           |
-//    Second loop you have BB, and byte contains:               |
-//           76543210                                           |
-//           CCDD0000                                           | 
+
                        for (int i = 0; i < 4; i++)
                         {
                             OperandType opType = (OperandType)((operandTypes >> 6) & 3);  // Grab top 2 bits
@@ -233,7 +218,7 @@ namespace zmachine
 		        default:
                     break;
 
-            //return (byte) instruction;                // Return void for now, need to figure out format to output instruction    
+            //return (byte) instruction;                 
 	            }
         }// end processInstruction
 
@@ -457,7 +442,7 @@ namespace zmachine
             if (variable == 0)                   // Variable number $00 refers to the top of the stack
             {
                 stack.setWord(sp, value);        // Set value in stack
-                sp += 2;                         // Increment stack pointer by 2
+                sp += 2;                         // Increment stack pointer by 2 (size of word)
             }
             else if (variable < 16)              //$01 to $0f mean the local variables of the current routine
             {
@@ -470,9 +455,6 @@ namespace zmachine
                 memory.setWord(address, value);
             }
         }
-
-//AB: 4.2.2
-//        It is illegal to refer to local variables which do not exist for the current routine (there may even be none).
 
         // Get a value from the top of the stack.
         public ushort getVar(ushort variable)
