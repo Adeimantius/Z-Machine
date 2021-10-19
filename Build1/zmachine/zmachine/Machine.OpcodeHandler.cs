@@ -328,7 +328,7 @@ namespace zmachine
             public override void run(Machine machine, ushort v1)
             {
                 int offset = (short)v1;
-                machine.pc += (uint)(offset - 2);
+                machine.programCounter += (uint)(offset - 2);
             }
         }
         public class op_print_paddr : OpcodeHandler_1OP
@@ -359,9 +359,9 @@ namespace zmachine
             public override void run(Machine machine)
             {
                 //                Debug.WriteLine("Getting string at " + machine.pc);
-                Memory.StringAndReadLength str = machine.memory.getZSCII(machine.pc, 0);
+                Memory.StringAndReadLength str = machine.memory.getZSCII(machine.programCounter, 0);
                 Console.Write(str.str);
-                machine.pc += (uint)str.bytesRead;
+                machine.programCounter += (uint)str.bytesRead;
                 //                Debug.WriteLine("New pc location: " + machine.pc);
 
             }
@@ -371,9 +371,9 @@ namespace zmachine
             public override string name() { return "op_print_ret"; }
             public override void run(Machine machine)
             {
-                Memory.StringAndReadLength str = machine.memory.getZSCII(machine.pc, 0);
+                Memory.StringAndReadLength str = machine.memory.getZSCII(machine.programCounter, 0);
                 Console.Write(str.str);
-                machine.pc += (uint)str.bytesRead;
+                machine.programCounter += (uint)str.bytesRead;
                 machine.popRoutineData(1);
             }
         }

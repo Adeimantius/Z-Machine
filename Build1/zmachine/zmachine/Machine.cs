@@ -15,21 +15,23 @@ namespace zmachine
         private Memory memory = new Memory(size: MemorySize);         // Initialize memory
         private Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
         private ObjectTable objectTable;
-        private Lex lex;
+        private readonly IIO io;
+        private readonly Lex lex;
 
         private readonly bool debug = false;
 
         //  StateOfPlay stateofplay = new StateOfPlay();    // Will contain (1) Local variable table, (2) contents of the stack, (3) value of PC, (4) current routine call state.
-        uint pc = 0;                                        // Program Counter to step through memory
-        uint pcStart = 0;                                   // Program Counter at the beginning of executing the instruction
-        bool finish = false;                                // Flag to say "finish processing. We're done".
-        uint sp = 0;
-        uint callDepth = 0;
+        private uint programCounter = 0;                                        // Program Counter to step through memory
+        private uint pcStart = 0;                                   // Program Counter at the beginning of executing the instruction
+        private bool finish = false;                                // Flag to say "finish processing. We're done".
+        private uint stackPointer = 0;
+        private uint callDepth = 0;
         RoutineCallState[] callStack = new RoutineCallState[StackDepth];  // We could use a "Stack" here, as well, but we have lots of memory. According to the spec, there could be up to 90. But 128 is nice.
 
         // Class constructor : Loads in data from file and sets Program Counter
         public Machine(IIO io, string programFilename)
         {
+            this.io = io;
             this.memory.load(programFilename);
             this.setProgramCounter();
 
@@ -38,7 +40,7 @@ namespace zmachine
 
             this.objectTable = new ObjectTable(memory);
             this.lex = new Lex(
-                io: io,
+                io: this.io,
                 mem: memory);
         }
 
@@ -48,11 +50,13 @@ namespace zmachine
             {
                 throw new ArgumentNullException(nameof(initialState));
             }
-            this.State = initialState;
+            this.io = io;
             this.objectTable = new ObjectTable(memory);
             this.lex = new Lex(
-                io: io,
-                mem: memory);
+                io: this.io,
+                mem: memory,
+                mp: initialState.lexMemoryPointer);
+            this.State = initialState;
         }
 
         public bool Finished => finish;
@@ -79,9 +83,9 @@ namespace zmachine
             }
 
             ++callDepth;
-            callStack[callDepth].returnAddress = pc;            // Store return address @ current position of pc upon entering routine
-            pc = unpackedAddress(operands[0]);                  // Set the PC to the routine address.
-            callStack[callDepth].stackFrameAddress = sp;                       // Store stack pointer address.
+            callStack[callDepth].returnAddress = programCounter;            // Store return address @ current position of pc upon entering routine
+            programCounter = unpackedAddress(operands[0]);                  // Set the PC to the routine address.
+            callStack[callDepth].stackFrameAddress = stackPointer;                       // Store stack pointer address.
 
             //SPEC: 6.4.4 When a routine is called, its local variables are created with initial values taken from the routine header (Versions 1 to 4). 
             //            Next, the arguments are written into the local variables (argument 1 into local 1 and so on).
@@ -110,8 +114,8 @@ namespace zmachine
                 finish = true;
             }
             // Restore the stack to the previous value in callstack[callDepth]
-            pc = callStack[callDepth].returnAddress;                       //Restore the PC to the previous value in callstack[callDepth]
-            sp = callStack[callDepth].stackFrameAddress;                   //Restore the sp to the previous value in callstack[callDepth]
+            programCounter = callStack[callDepth].returnAddress;                       //Restore the PC to the previous value in callstack[callDepth]
+            stackPointer = callStack[callDepth].stackFrameAddress;                   //Restore the sp to the previous value in callstack[callDepth]
             --callDepth;
 
             setVar(pc_getByte(), returnVal);                                // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
@@ -120,7 +124,7 @@ namespace zmachine
         // Find the PC start point in the header file and set PC 
         public void setProgramCounter()
         {
-            pc = memory.getWord(Memory.ADDR_INITIALPC);               // Set PC by looking at pc start byte in header file
+            programCounter = memory.getWord(Memory.ADDR_INITIALPC);               // Set PC by looking at pc start byte in header file
         }
 
         //In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
@@ -133,7 +137,7 @@ namespace zmachine
         // Looks at pointer and returns instruction
         public void processInstruction()
         {
-            pcStart = pc;
+            pcStart = programCounter;
             ushort opcode;                              // Initialize variables
             int instruction = pc_getByte();
             //            Debug.WriteLine(pcStart.ToString("X4") + " : 0x" + instruction.ToString("X2") + " (" + instruction + ")");
@@ -218,14 +222,14 @@ namespace zmachine
 
         public byte pc_getByte()
         {
-            byte next = memory.getByte(pc);
-            pc++;
+            byte next = memory.getByte(programCounter);
+            programCounter++;
             return (byte)next;
         }
         public ushort pc_getWord()
         {
-            ushort next = memory.getWord(pc);
-            pc += 2;
+            ushort next = memory.getWord(programCounter);
+            programCounter += 2;
             return next;
         }
 
@@ -297,7 +301,7 @@ namespace zmachine
             op.run(this, operands);
         }
 
-        OpcodeHandler_2OP[] OP2opcodes = {
+        private readonly OpcodeHandler_2OP[] OP2opcodes = {
         new  op_unknown_2op(),      // OPCODE/HEX
         new  op_je(),               // 01/01 a b ?(label)
         new  op_jl(),               // 02/02 a b ?(label)	
@@ -331,7 +335,7 @@ namespace zmachine
         new  op_unknown_2op(),      // 30/1E
         new  op_unknown_2op()       // 31/1F 
      };
-        OpcodeHandler_1OP[] OP1opcodes = {
+        private readonly OpcodeHandler_1OP[] OP1opcodes = {
                                     // OPCODE/HEX
         new  op_jz(),               // 128/01
         new  op_get_sibling(),      // 129/01 	
@@ -351,7 +355,7 @@ namespace zmachine
         new  op_unknown_1op(),      // 141/0F
         new  op_unknown_1op()       // 142/0F
         };
-        OpcodeHandler_0OP[] OP0opcodes = {
+        private readonly OpcodeHandler_0OP[] OP0opcodes = {
                                     // OPCODE/HEX
         new  op_rtrue(),            // 176/00 
         new  op_rfalse(),           // 177/01 
@@ -368,7 +372,7 @@ namespace zmachine
         new  op_show_status(),      // 188/0C
         new  op_verify ()           // 189/0C
         };
-        OpcodeHandler_OPVAR[] VARopcodes = {
+        private readonly OpcodeHandler_OPVAR[] VARopcodes = {
                                     // OPCODE/HEX
         new  op_call(),             // 224/00 
         new  op_storew(),           // 225/01 
@@ -424,7 +428,7 @@ namespace zmachine
                     popRoutineData((ushort)offset);
                 }
                 else
-                    pc += offset - 2;
+                    programCounter += offset - 2;
             }
 
         }
@@ -435,8 +439,8 @@ namespace zmachine
         {
             if (variable == 0)                   // Variable number $00 refers to the top of the stack
             {
-                stack.setWord(sp, value);        // Set value in stack
-                sp += 2;                         // Increment stack pointer by 2 (size of word)
+                stack.setWord(stackPointer, value);        // Set value in stack
+                stackPointer += 2;                         // Increment stack pointer by 2 (size of word)
             }
             else if (variable < 16)              //$01 to $0f mean the local variables of the current routine
             {
@@ -459,8 +463,8 @@ namespace zmachine
 
             if (variable == 0)
             {
-                sp -= 2;
-                value = stack.getWord(sp);                     // get value from stack;
+                stackPointer -= 2;
+                value = stack.getWord(stackPointer);                     // get value from stack;
             }
             else if (variable < 16)
             {
@@ -486,9 +490,10 @@ namespace zmachine
                 return new CPUState(
                     memory: this.memory.Contents,
                     stack: this.stack.Contents,
-                    pc: this.pc,
+                    lexMemoryPointer: this.lex.MemoryPointer,
+                    pc: this.programCounter,
                     pcStart: this.pcStart,
-                    sp: this.sp,
+                    sp: this.stackPointer,
                     callDepth: this.callDepth,
                     callStack: this.callStack,
                     finish: this.finish);
@@ -497,9 +502,10 @@ namespace zmachine
             {
                 this.memory.load(value.memory);
                 this.stack.load(value.stack);
-                this.pc = value.pc;
+                this.lex.MemoryPointer = value.lexMemoryPointer;
+                this.programCounter = value.programCounter;
                 this.pcStart = value.pcStart;
-                this.sp = value.sp;
+                this.stackPointer = value.stackPointer;
                 this.callDepth = value.callDepth;
                 this.callStack = value.callStack;
                 this.finish = value.finish;

@@ -6,28 +6,37 @@ namespace zmachine
 
     public class Lex
     {
-        Memory memory;
-        uint dictionaryAddress;
-        List<ushort> separators = new List<ushort>();
-        List<string> dictionary = new List<string>();
-        List<uint> dictionaryIndex = new List<uint>();
-        int[] wordStartIndex;
+        private Memory memory;
+        private uint dictionaryAddress;
+        private List<ushort> separators = new List<ushort>();
+        private List<string> dictionary = new List<string>();
+        private List<uint> dictionaryIndex = new List<uint>();
+        private int[] wordStartIndex;
         private IIO io;
+        /// <summary>
+        /// memory pointer
+        /// </summary>
+        private uint memoryPointer;
 
-        uint mp = 0;                                 // Memory Pointer
-
-        public Lex(IIO io, Memory mem)
+        public Lex(IIO io, Memory mem, uint mp = 0)
         {
             this.io = io;
             this.memory = mem;
+            this.memoryPointer = mp;
             this.dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
+        }
+
+        public uint MemoryPointer
+        {
+            get => this.memoryPointer;
+            set => this.memoryPointer = value;
         }
 
         public void read(int textBufferAddress, uint parseBufferAddress)
         {
             int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
             int parseBufferLength = memory.getByte((uint)parseBufferAddress);
-            mp = parseBufferAddress + 2;
+            memoryPointer = parseBufferAddress + 2;
             string input = io.ReadLine();                                   // Get initial input from io terminal
 
             if (input.Length > maxInputLength)
@@ -51,7 +60,7 @@ namespace zmachine
                 // Record dictionary addresses after comparing words
 
 
-                memory.setByte(mp - 1, (byte)(wordArray.Length));  // Write number of parsed words
+                memory.setByte(memoryPointer - 1, (byte)(wordArray.Length));  // Write number of parsed words
 
                 for (int i = 0; i < wordArray.Length; i++)
                 {
@@ -59,12 +68,12 @@ namespace zmachine
                     //                    if (4 * (i + 1) < parseBufferLength)
                     //                    {                            
                     int wordLength = wordArray[i].Length;
-                    memory.setWord((uint)(mp), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
-                    memory.setByte((uint)(mp + 2), (byte)wordLength);     // # of letters in parsed word 
-                    memory.setByte((uint)(mp + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                    memory.setWord((uint)(memoryPointer), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
+                    memory.setByte((uint)(memoryPointer + 2), (byte)wordLength);     // # of letters in parsed word 
+                    memory.setByte((uint)(memoryPointer + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
                                                                              //                     }
-                    mp += 4;
-                    memory.setByte((uint)mp, 0);
+                    memoryPointer += 4;
+                    memory.setByte((uint)memoryPointer, 0);
                 }
             }
 
