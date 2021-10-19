@@ -1,5 +1,4 @@
-﻿using System;
-public class Crc32
+﻿public class Crc32
 {
     uint[] table;
 

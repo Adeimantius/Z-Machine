@@ -10,9 +10,9 @@
 	<StartupObject>zmachine.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="Unity3D.SDK" Version="2021.1.14.1" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <ProjectReference Include="..\..\zmachine.Library\zmachine.Library.csproj" />
   </ItemGroup>
 </Project>
