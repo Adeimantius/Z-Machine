@@ -2,7 +2,7 @@
 
 namespace zmachine
 {
-    public class IO : IIO
+    public class ConsoleIO : IIO
     {
         public string ReadLine()
         {
@@ -10,7 +10,7 @@ namespace zmachine
         }
         public void Write(string str)
         {
-            Console.WriteLine(str);
+            Console.WriteLine(str); // write/writeline came reversed in the fork.... -JM
         }
         public void WriteLine(string str)
         {

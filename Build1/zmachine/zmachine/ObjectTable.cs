@@ -3,8 +3,8 @@
     class ObjectTable
     {
         Memory memory = new Memory(1024 * 128);
-        public int tp = 0;                                 // pointer to move through tables
-        public int objectId = 0;                           // Object ID
+        private int tp = 0;                                 // pointer to move through tables
+        private int objectId = 0;                           // Object ID
 
 
 

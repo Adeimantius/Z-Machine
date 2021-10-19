@@ -6,15 +6,23 @@ namespace zmachine
 {
     public class Memory
     {
-        protected byte[] memory;
+        public const ushort ADDR_VERSION = 0x00;
+        public const ushort ADDR_HIGH = 0x04;
+        public const ushort ADDR_INITIALPC = 0x06;
+        public const ushort ADDR_GLOBALS = 0x0c;
+        public const ushort ADDR_DICT = 0x08;
+        public const ushort ADDR_OBJECTS = 0x0a;
+        public const ushort ADDR_ABBREVS = 0x18;
 
-        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
+        private byte[] memory;
 
         public Memory(int size)
         {
             // Class constructor
             this.memory = new byte[size];
         }
+        
+        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
 
         public void load(ReadOnlyMemory<byte> contents)
         {
@@ -90,14 +98,6 @@ namespace zmachine
         {
             return (short)getWord(address);
         }
-
-        public static ushort ADDR_VERSION = 0x00;
-        public static ushort ADDR_HIGH = 0x04;
-        public static ushort ADDR_INITIALPC = 0x06;
-        public static ushort ADDR_GLOBALS = 0x0c;
-        public static ushort ADDR_DICT = 0x08;
-        public static ushort ADDR_OBJECTS = 0x0a;
-        public static ushort ADDR_ABBREVS = 0x18;
 
         public string getAbbrev(int abbrevIndex)
         {

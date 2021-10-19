@@ -13,22 +13,42 @@ namespace zmachine
         public const int StackSize = 1024 * 32;
 
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
-        Memory memory = new Memory(size: MemorySize);         // Initialize memory
-        Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
-        ObjectTable objectTable;
-        Lex lex;
+        private Memory memory = new Memory(size: MemorySize);         // Initialize memory
+        private Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
+        private ObjectTable objectTable;
+        private Lex lex;
 
-        public bool debug = false;
+        private readonly bool debug = false;
 
         //  StateOfPlay stateofplay = new StateOfPlay();    // Will contain (1) Local variable table, (2) contents of the stack, (3) value of PC, (4) current routine call state.
-        uint pc = 0;                                    // Program Counter to step through memory
-        uint pcStart = 0;                               // Program Counter at the beginning of executing the instruction
-        bool finish = false;                            // Flag to say "finish processing. We're done".
-
+        uint pc = 0;                                        // Program Counter to step through memory
+        uint pcStart = 0;                                   // Program Counter at the beginning of executing the instruction
+        bool finish = false;                                // Flag to say "finish processing. We're done".
         uint sp = 0;
+        uint callDepth = 0;
+        RoutineCallState[] callStack = new RoutineCallState[StackDepth];  // We could use a "Stack" here, as well, but we have lots of memory. According to the spec, there could be up to 90. But 128 is nice.
 
+        // Class constructor : Loads in data from file and sets Program Counter
+        public Machine(IIO io, string filename)
+        {
+            memory.load(filename);
+            setProgramCounter();
 
-        public bool isFinished() { return finish; }
+            for (int i = 0; i < StackDepth; ++i)
+                callStack[i] = new RoutineCallState();
+
+            objectTable = new ObjectTable(memory);
+            lex = new Lex(
+                io: io,
+                mem: memory);
+        }
+
+        public bool Finished => finish;
+
+        public bool DebugEnabled
+        {
+            get => debug;
+        }
 
         // This class stores the chain of routines that have been called, in sequence, and the values in the local variable table.
         public class RoutineCallState
@@ -43,10 +63,6 @@ namespace zmachine
             // We want to be able to call a RoutineCallState for every time a routine is called.
             // We return values when routine is complete - but routine needs access to local variable table until it returns.
         } // end RoutineCallState
-        RoutineCallState[] callStack = new RoutineCallState[StackDepth];  // We could use a "Stack" here, as well, but we have lots of memory. According to the spec, there could be up to 90. But 128 is nice.
-
-
-        uint callDepth = 0;
 
         public uint unpackedAddress(ushort address)
         {
@@ -111,19 +127,6 @@ namespace zmachine
             Omit = 3
         };
 
-
-        // Class constructor : Loads in data from file and sets Program Counter
-        public Machine(IIO io, string filename)
-        {
-            memory.load(filename);
-            setProgramCounter();
-
-            for (int i = 0; i < StackDepth; ++i)
-                callStack[i] = new RoutineCallState();
-
-            objectTable = new ObjectTable(memory);
-            lex = new Lex(io: io, mem: memory);
-        }
 
         // Find the PC start point in the header file and set PC 
         public void setProgramCounter()

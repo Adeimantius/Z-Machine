@@ -45,13 +45,15 @@ namespace zmachine
             //Memory memory = new Memory(128 * 1024); //128k main memory block
             //memory.load("ZORK1.DAT");
             //memory.dumpHeader();
-            IO io = new IO();
-            Machine machine = new Machine(io, selectedFile);
+            ConsoleIO io = new ConsoleIO();
+            Machine machine = new Machine(
+                io: io,
+                filename: selectedFile);
 
             int numInstructionsProcessed = 0;
-            while (!machine.isFinished())
+            while (!machine.Finished)
             {
-                if (machine.debug)
+                if (machine.DebugEnabled)
                     Debug.Write("" + numInstructionsProcessed + " : ");
                 machine.processInstruction();
                 ++numInstructionsProcessed;
