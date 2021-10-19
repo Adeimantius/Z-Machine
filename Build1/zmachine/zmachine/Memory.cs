@@ -21,7 +21,7 @@ namespace zmachine
             // Class constructor
             this.memory = new byte[size];
         }
-        
+
         public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
 
         public void load(ReadOnlyMemory<byte> contents)
