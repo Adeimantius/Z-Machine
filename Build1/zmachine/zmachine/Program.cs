@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace zmachine
 {
@@ -20,12 +16,14 @@ namespace zmachine
             {
                 Console.WriteLine("Please select a file:\n\n\t 1) Zork 1: The Final Underground\n\t 2) Hitchhiker's Guide to the Galaxy\n\t 3) Custom File");
                 userSelection = Console.ReadLine();
-                if (userSelection == "1"){ selectedFile = "ZORK1.DAT"; }
-                else if (userSelection == "2"){ selectedFile = "hhgg2.z5"; }
-                else if (userSelection == "3"){
+                if (userSelection == "1") { selectedFile = "ZORK1.DAT"; }
+                else if (userSelection == "2") { selectedFile = "hhgg2.z5"; }
+                else if (userSelection == "3")
+                {
                     Console.WriteLine("Please Enter the destination filename:");
-                    selectedFile = Console.ReadLine(); }
-                else 
+                    selectedFile = Console.ReadLine();
+                }
+                else
                 {
                     Console.WriteLine("Please make a valid selection.");
                     continue;
@@ -37,7 +35,7 @@ namespace zmachine
                     Console.Clear();
                     break;
                 }
-                else 
+                else
                 {
                     Console.WriteLine("\n\n ==================================\n File Not Found.\n==================================\n\n");
                 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-namespace zmachine
+﻿namespace zmachine
 {
     class ObjectTable
     {
@@ -15,7 +8,7 @@ namespace zmachine
 
 
 
-        public ObjectTable (Memory mem)
+        public ObjectTable(Memory mem)
         {
             memory = mem;
         }
@@ -26,7 +19,7 @@ namespace zmachine
             tp += (property - 1) * 2;
             int defaultProperty = tp_getWord();
             return defaultProperty;
-        }        
+        }
         public int getObjectTable()                     // Set Table Pointer to the beginning of the object table. (After Default Properties)
         {
             tp = memory.getWord((uint)Memory.ADDR_OBJECTS) + (31 * 2);
@@ -38,11 +31,11 @@ namespace zmachine
 
             tp = getObjectAddress(objectId) + 7;
             int propertyTableAddress = tp_getWord();
-          return propertyTableAddress;
+            return propertyTableAddress;
         }
         public int getObjectAddress(int objectId)       // take an objectId and consult the objectTable
         {
-            
+
             getObjectTable();
             tp += 9 * (objectId - 1);             // tp will already be set at the start of the object table
             int objectAddress = tp;              // each object is 9 bytes above the previous    
@@ -51,7 +44,7 @@ namespace zmachine
         }
         public int getObjectPropertyAddress(int objectId, int property)  // Get property address for an object's property (if it exists)
         {
-            int propertyAddress; 
+            int propertyAddress;
             tp = getPropertyTableAddress(objectId);
             int text_length = tp_getByte();  // Read the first byte of the property address, figure out the text-length, then skip forward to the first property address.
             tp += (text_length * 2);         // skip past header
@@ -64,12 +57,12 @@ namespace zmachine
                 if (property == propertyId)
                 {
                     propertyAddress = tp;
-                    return propertyAddress;              
+                    return propertyAddress;
                 }
                 tp += propLen;
                 sizeByte = tp_getByte();
             }
-                return 0;
+            return 0;
         }
         public int getNextObjectPropertyIdAfter(int objectId, int property) // Get property address down the chain given a certain object.
         {
@@ -91,13 +84,13 @@ namespace zmachine
             tp = getObjectPropertyAddress(objectId, property);              // Set pointer to start of given property
             sizeByte = memory.getByte((uint)tp - 1);       // Find length of property
             propLen = getObjectPropertyLengthFromAddress(tp);
-             
-                if (sizeByte == 0)                    // No next property
-                    return 0;
+
+            if (sizeByte == 0)                    // No next property
+                return 0;
 
             tp += propLen;                            // Move pointer to start next property   
             nextPropertyId = tp_getByte() & 31;       // Read next property number
-            
+
             return nextPropertyId;
         }
         public int getObjectPropertyLengthFromAddress(int propertyAddress)
@@ -120,7 +113,7 @@ namespace zmachine
 
             if (propertyAddress == 0)
             {
-                return getDefaultProperty(property); 
+                return getDefaultProperty(property);
             }
 
             int propertyData;
@@ -156,7 +149,7 @@ namespace zmachine
         public bool getObjectAttribute(int objectId, int attributeId)
         {
             tp = getObjectAddress(objectId);
-            bool [] attributes = new bool[32];
+            bool[] attributes = new bool[32];
             byte attributeByte;
 
             // Why not just make a boolean array of the attributes?!
@@ -168,14 +161,14 @@ namespace zmachine
                     attributes[i * 8 + j] = ((attributeByte >> (7 - j)) & 0x01) > 0;// Take the next byte and cut the first (MSB) value off the top. Add to boolean array attribute[] and voila!
                 }
             }
-            
+
             return attributes[attributeId];
         }
         public void setObjectAttribute(int objectId, int attributeId, bool value)
         {
             byte a;                     // If can find the right byte in the memory, I can bitwise AND or NOT to fill or clear it.
             uint address = (uint)getObjectAddress(objectId);
-//            Debug.WriteLine("BEFORE address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
+            //            Debug.WriteLine("BEFORE address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
             byte attributeByte = (byte)(attributeId / 8);           // The byte of the attribute header that we are working in
             int attributeShift = 7 - (attributeId % 8);
 
@@ -184,12 +177,12 @@ namespace zmachine
                 a = memory.getByte(address + (uint)attributeByte);        // Read the byte given by the attribute segment our attribute Id is in.
                 a |= (byte)(1 << attributeShift);                      // Fill a bit at the given shift in that byte.
             }
-            else 
+            else
             {
                 a = memory.getByte(address + (uint)attributeByte);
                 a &= (byte)~(1 << attributeShift);
             }
-//            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
+            //            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
             memory.setByte(address + attributeByte, a);
         }
 
@@ -206,7 +199,7 @@ namespace zmachine
             if (propLen == 1)                                   // Check size of property
                 memory.setWord((uint)propertyAddress, (ushort)(value & 0xff));
             else if (propLen == 2)
-                memory.setWord((uint)propertyAddress, value);            
+                memory.setWord((uint)propertyAddress, value);
         }
         public void setParent(int objectId, int parentId)
         {
@@ -240,7 +233,7 @@ namespace zmachine
         }
 
 
-        public string objectName(int objectId)   
+        public string objectName(int objectId)
         {
             string name;
             if (objectId == 0)
@@ -252,7 +245,7 @@ namespace zmachine
             int textLength = tp_getByte();                     // The first byte is the text-length number of words in the short name
             if (textLength == 0)
             {
-                return "Name not found";                        
+                return "Name not found";
             }
             name = memory.getZSCII((uint)tp, (uint)textLength * 2).str;
             return name;

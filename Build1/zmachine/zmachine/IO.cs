@@ -10,11 +10,11 @@ namespace zmachine
         }
         public void Write(string str)
         {
-           Console.WriteLine(str);
+            Console.WriteLine(str);
         }
         public void WriteLine(string str)
         {
-            Console.Write(str); 
+            Console.Write(str);
         }
         public System.ConsoleKeyInfo ReadKey()
         {

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace zmachine
 {
@@ -12,12 +8,24 @@ namespace zmachine
     {
         protected byte[] memory;
 
-        public Memory (int size)
+        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
+
+        public Memory(int size)
         {
             // Class constructor
             this.memory = new byte[size];
         }
- 
+
+        public void load(ReadOnlyMemory<byte> contents)
+        {
+            this.memory = contents.ToArray();
+        }
+
+        public void load(byte[] contents)
+        {
+            this.memory = contents;
+        }
+
         //input byte array [] from file, output size specified byte array []
         public void load(string filename)
         {
@@ -27,7 +35,7 @@ namespace zmachine
 
             if (src.Length <= memory.Length)
             {
-            
+
                 int i = 0;
                 foreach (byte b in src)
                 {
@@ -36,7 +44,7 @@ namespace zmachine
                     i++;
                 }
             }
-     
+
         }
         //assign given byte value @ hex address location
         public void setByte(uint address, byte val)
@@ -47,33 +55,33 @@ namespace zmachine
 
         //access given byte location & return byte stored in data
         public byte getByte(uint address)
-        { 
-            return (byte) memory[address];
+        {
+            return (byte)memory[address];
         }
 
 
         //assign 16-bit value from given 16-bit memory address
         public void setWord(uint address, ushort val)
         {
-            byte a = (byte) ((val >> 8) & 0xff);
-            byte b = (byte) (val & 0xff);
+            byte a = (byte)((val >> 8) & 0xff);
+            byte b = (byte)(val & 0xff);
 
             // byte[] a = BitConverter.GetBytes(val);
             // byte first = (byte) a[0];
             // byte second = (byte) a[1];
             // first <<= 8;                             // shift first byte up 8 bits
             memory[address] = a;
-            memory[address + 1] = b;     
+            memory[address + 1] = b;
         }
 
 
         public ushort getWord(uint address)
-        { 
+        {
             //access 16-bit value and return "word" stored in data
             //read in two bytes, shift first byte left (<<) 8 bits
             byte a = memory[address];
             byte b = memory[address + 1];
-            ushort val = (ushort) ((a << 8) + b);
+            ushort val = (ushort)((a << 8) + b);
 
             return val;
         }
