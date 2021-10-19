@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace zmachine
 {
-    partial class Machine
+    public partial class Machine
     {
 
         public abstract class OpcodeHandler

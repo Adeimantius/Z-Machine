@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace zmachine
 {
-    partial class Machine { 
-    
+    public partial class Machine
+    {
+
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
-        Memory memory = new Memory(1024 * 128);         // Initialize memory
-        Memory stack = new Memory(1024 * 32);           // Stack of size 32768 (can be larger, but this should be fine)
+        Memory memory = new Memory(size: 1024 * 128);         // Initialize memory
+        Memory stack = new Memory(size: 1024 * 32);           // Stack of size 32768 (can be larger, but this should be fine)
         ObjectTable objectTable;
         Lex lex;
 
@@ -34,7 +35,22 @@ namespace zmachine
             public uint stackFrameAddress = 0;     // Store the stack pointer whenever we call a return
             public uint returnAddress = 0;         // Store where we need to return to
             public uint numLocalVars = 0;          // We have an array of localVars, but we don't know how long it is.
-
+            
+            public string StateBase64
+            {
+                get => string.Format(
+                    "{0}{1}{2}{3}",
+                    string.Join(separator: "", values: localVars.Select(s => Convert.ToString(value: s, toBase: 16))),
+                    Convert.ToString(value: stackFrameAddress, toBase: 16),
+                    Convert.ToString(value: returnAddress, toBase: 16),
+                    Convert.ToString(value: numLocalVars, toBase: 16)
+                );
+                set
+                {
+                    var stateHex = value;
+                    throw new NotImplementedException();
+                }
+            }
 
         // A stack frame is an index to the routine call state (aka the stack of return addresses for routines already running, and the local variables they carry).
         // The interpreter should be able to produce the current value and set a value further down the call-stack than the current one, throwing away all others.
@@ -111,7 +127,7 @@ namespace zmachine
 
 
         // Class constructor : Loads in data from file and sets Program Counter
-        public Machine(string filename)
+        public Machine(IIO io, string filename)
         {
             memory.load(filename);
             setProgramCounter();
@@ -120,7 +136,7 @@ namespace zmachine
                 callStack[i] = new RoutineCallState();
 
             objectTable = new ObjectTable(memory);
-            lex = new Lex(memory);
+            lex = new Lex(io: io, mem: memory);
         }
 
         // Find the PC start point in the header file and set PC 

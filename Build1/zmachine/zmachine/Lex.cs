@@ -16,15 +16,15 @@ namespace zmachine
             List<String> dictionary = new List<String>();
             List<uint> dictionaryIndex = new List<uint>();
             int[] wordStartIndex;  
-            IO io = new IO();        
+            private IIO io;        
 
             uint mp = 0;                                 // Memory Pointer
 
-            public Lex(Memory mem)
+            public Lex(IIO io, Memory mem)
             {
-                memory = mem;
-                dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
-                //IO io = new IO();
+                this.io = io;
+                this.memory = mem;
+                this.dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
             }
 
             public void read(int textBufferAddress, uint parseBufferAddress)
@@ -106,7 +106,7 @@ namespace zmachine
                 for (uint i = entryAddress; i < entryAddress + dictionaryLength * entryLength; i += entryLength)
                 {
                     dictionaryIndex.Add(i);         // Record dictionary entry address
-                    Memory.StringAndReadLength dictEntry = memory.getZSCII(i, 0);
+                    Memory.StringAndReadLength dictEntry = memory.getZSCII(address: i, numBytes: 0);
 //                  Debug.WriteLine(dictEntry.str);
                     dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
                 }

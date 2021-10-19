@@ -10,13 +10,13 @@ namespace zmachine
 {
     public class Memory
     {
-        byte[] memory;
+        private byte[] memory;
  
 
         public Memory (int size)
         {
             // Class constructor
-           memory = new byte[size];    
+           this.memory = new byte[size];    
         }
  
         //input byte array [] from file, output size specified byte array []

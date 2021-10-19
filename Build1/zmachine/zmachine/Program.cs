@@ -47,7 +47,8 @@ namespace zmachine
             //Memory memory = new Memory(128 * 1024); //128k main memory block
             //memory.load("ZORK1.DAT");
             //memory.dumpHeader();
-            Machine machine = new Machine(selectedFile);
+            IO io = new IO();
+            Machine machine = new Machine(io, selectedFile);
 
             int numInstructionsProcessed = 0;
             while (!machine.isFinished())

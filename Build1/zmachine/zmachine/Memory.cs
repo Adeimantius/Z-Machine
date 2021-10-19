@@ -10,13 +10,12 @@ namespace zmachine
 {
     public class Memory
     {
-        byte[] memory;
-        IO io = new IO();
+        protected byte[] memory;
 
         public Memory (int size)
         {
             // Class constructor
-           memory = new byte[size];    
+            this.memory = new byte[size];
         }
  
         //input byte array [] from file, output size specified byte array []
@@ -94,7 +93,7 @@ namespace zmachine
 
         public string getAbbrev(int abbrevIndex)
         {
-            StringAndReadLength abbrev = getZSCII((uint)(getWord((uint)(getWord(Memory.ADDR_ABBREVS) + abbrevIndex * 2)) * 2), 0);
+            StringAndReadLength abbrev = getZSCII(address: (uint)(getWord((uint)(getWord(Memory.ADDR_ABBREVS) + abbrevIndex * 2)) * 2), numBytes: 0);
             return abbrev.str;
         }
 
@@ -199,7 +198,7 @@ namespace zmachine
                                     if (debug == true)
                                     {
                                         debugOutput += getZChar(zchar10); z++;
-                                        io.WriteLine("\n" + debugOutput + "(" + z + ")");
+                                        Debug.WriteLine("\n" + debugOutput + "(" + z + ")");
                                     }
                                     break;
                                 }
@@ -210,11 +209,11 @@ namespace zmachine
                     {
                         int abbrevId = (abbrevSet - 1) * 32 + c[i];
                         //get the abbrev string using the current character and append it
-                        output += getAbbrev(abbrevId);
+                        output += getAbbrev(abbrevIndex: abbrevId);
                         if (debug == true)
                         {
-                            debugOutput += getAbbrev(abbrevId); z++;
-                            Debug.WriteLine("Abbrev: |" + abbrevId + "| : " + getAbbrev(abbrevId));
+                            debugOutput += getAbbrev(abbrevIndex: abbrevId); z++;
+                            Debug.WriteLine("Abbrev: |" + abbrevId + "| : " + getAbbrev(abbrevIndex: abbrevId));
                         }
                         abbrevSet = 0;
                     }
@@ -287,7 +286,5 @@ namespace zmachine
             Crc32 crc32 = new Crc32();
             return crc32.ComputeChecksum(memory);
         }
-
-
     }
 }
