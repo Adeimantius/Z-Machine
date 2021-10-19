@@ -240,9 +240,9 @@ namespace zmachine
         }
 
 
-        public String objectName(int objectId)   
+        public string objectName(int objectId)   
         {
-            String name;
+            string name;
             if (objectId == 0)
             {
                 return "Unable to find Object";

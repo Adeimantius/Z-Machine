@@ -13,7 +13,7 @@ namespace zmachine
             Memory memory;
             uint dictionaryAddress;
             List<ushort> separators = new List<ushort>();
-            List<String> dictionary = new List<String>();
+            List<string> dictionary = new List<string>();
             List<uint> dictionaryIndex = new List<uint>();
             int[] wordStartIndex;  
             private IIO io;        
@@ -32,7 +32,7 @@ namespace zmachine
                 int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
                 int parseBufferLength = memory.getByte((uint)parseBufferAddress);
                 mp = parseBufferAddress + 2;
-                String input = io.ReadLine();                                   // Get initial input from io terminal
+                string input = io.ReadLine();                                   // Get initial input from io terminal
 
                 if (input.Length > maxInputLength)
                     input = input.Remove(maxInputLength);                            // Limit input to size of text-buffer
@@ -44,7 +44,7 @@ namespace zmachine
                 if (parseBufferLength > 0)                                               // Check to see if lexical analysis is called for
                 {
                     buildDict();                                                     // Build Dictionary into class variable
-                    String[] wordArray = parseString(input);                         // Separate string by spaces and build list of word indices
+                    string[] wordArray = parseString(input);                         // Separate string by spaces and build list of word indices
                     uint[] matchedWords = new uint[parseBufferLength];                       
 
                     for (int i = 0; i < wordArray.Length; i++)
@@ -75,7 +75,7 @@ namespace zmachine
             }
 
             // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
-            public void writeToBuffer(String input, int address)
+            public void writeToBuffer(string input, int address)
             {
                 int i;
                 for (i = 0; i < input.Length; i++)
@@ -112,7 +112,7 @@ namespace zmachine
                 }
             }
 
-            public uint compare(String word, int dictionaryFlag = 0)
+            public uint compare(string word, int dictionaryFlag = 0)
             {
                 if (word.Length > 6)
                     word = word.Remove(6);
@@ -129,11 +129,11 @@ namespace zmachine
                 return 0;
             }
 
-            public String[] parseString(String input)
+            public string[] parseString(string input)
             {
                 int wordindex = 1;
 
-                String[] wordArray = input.Split(' ');        // Tokenize into words
+                string[] wordArray = input.Split(' ');        // Tokenize into words
                 wordStartIndex = new int[wordArray.Length];
 
                 // Record start index of each word in input string
@@ -155,7 +155,7 @@ namespace zmachine
 
             public int convertZSCIIToZchar(char letter) // (unimplemented)
             {
-                String[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
+                string[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
                 // Convert into Zchar from ZSCII char
                 // Note: ASCII 'a' = int 97
                 if (letter == ' ')

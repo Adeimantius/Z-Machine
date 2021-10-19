@@ -8,11 +8,11 @@ namespace zmachine
         {
             return Console.ReadLine();
         }
-        public void Write(String str)
+        public void Write(string str)
         {
            Console.WriteLine(str);
         }
-        public void WriteLine(String str)
+        public void WriteLine(string str)
         {
             Console.Write(str); 
         }

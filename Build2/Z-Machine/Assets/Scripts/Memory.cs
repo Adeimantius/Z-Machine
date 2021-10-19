@@ -100,7 +100,7 @@ namespace zmachine
 
         public class StringAndReadLength
         {
-            public String str = "";
+            public string str = "";
             public int bytesRead = 0;   // We need to return how many bytes were read so that op_print can correctly place the pc after reading.
 
         }
@@ -130,15 +130,15 @@ namespace zmachine
 
         public StringAndReadLength getZSCII(uint address, uint numBytes)
         {
-            String[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
+            string[] zalphabets = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", " \n0123456789.,!?_#'\"/\\-:()" };
             int currentAlphabet = 0;
             int bytesRead = 0;
             int read10Bit = 0;
             int abbrevSet = 0;
             int zchar10 = 0;
 
-            String output = "";
-            String debugOutput = "";
+            string output = "";
+            string debugOutput = "";
             int z = 0;
             bool debug = false;
 

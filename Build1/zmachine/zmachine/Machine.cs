@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 
 namespace zmachine
 {
+
     public partial class Machine
     {
+        public const int MemorySize = 1024 * 128;
+        public const int StackSize = 1024 * 32;
 
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
-        Memory memory = new Memory(size: 1024 * 128);         // Initialize memory
-        Memory stack = new Memory(size: 1024 * 32);           // Stack of size 32768 (can be larger, but this should be fine)
+        Memory memory = new Memory(size: MemorySize);         // Initialize memory
+        Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
         ObjectTable objectTable;
         Lex lex;
 
@@ -506,9 +509,9 @@ namespace zmachine
 
        
 
-        public String stateString()
+        public string stateString()
         {
-            String s = "M: " + memory.getCrc32() + " S: " + stack.getCrc32();
+            string s = "M: " + memory.getCrc32() + " S: " + stack.getCrc32();
 //            for (ushort i = 1; i < 256; ++i)
 //                s += " " + getVar(i);
             return s;

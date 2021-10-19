@@ -42,4 +42,4 @@ DONE   public void setChild(int objectId, int child)
  
        void unlinkObject (int objectId)
     
-In Progress   public String objectName(int objectId)
+In Progress   public string objectName(int objectId)
