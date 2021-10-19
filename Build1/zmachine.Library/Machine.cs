@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using zmachine.Library.Opcodes;
 
     /// <summary>
     /// This class moves through the input file and extracts bytes to deconstruct instructions in the code
@@ -72,6 +73,21 @@
                 mp: initialState.lexMemoryPointer);
             this.State = initialState;
         }
+
+        public void Terminate(string error = null)
+        {
+            if (debug == true)
+            {
+                Debug.WriteLine("Terminate called");
+            }
+            if (error is not null)
+            {
+                Debug.WriteLine("Error: " + error);
+            }
+            this.finish = true;
+        }
+
+        public ObjectTable ObjectTable => this.objectTable;
 
         public bool Finished => finish;
 

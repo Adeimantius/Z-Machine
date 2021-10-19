@@ -1,4 +1,8 @@
-﻿namespace zmachine
+﻿using zmachine.Library.Opcodes;
+using zmachine.Library.Opcodes._2OP;
+using zmachine.Library.Opcodes.Unknown;
+
+namespace zmachine
 {
     public partial class Machine
     {
