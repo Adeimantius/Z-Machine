@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
+
     public record CPUState
     {
         public byte[] memory;

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+
     public class Memory
     {
         public const ushort ADDR_VERSION = 0x00;

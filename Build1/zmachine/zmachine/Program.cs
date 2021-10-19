@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+
     class Program
     {
         static void Main(string[] args)

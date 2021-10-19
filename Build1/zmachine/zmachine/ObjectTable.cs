@@ -1,8 +1,8 @@
 ﻿namespace zmachine
 {
-    class ObjectTable
+    public class ObjectTable
     {
-        Memory memory = new Memory(1024 * 128);
+        private readonly Memory memory;
         private int tp = 0;                                 // pointer to move through tables
         private int objectId = 0;                           // Object ID
 

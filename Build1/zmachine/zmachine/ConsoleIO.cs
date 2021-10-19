@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
     public class ConsoleIO : IIO
     {
         public string ReadLine()

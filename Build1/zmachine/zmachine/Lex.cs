@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
+    using System.Collections.Generic;
 
     public class Lex
     {
-        private Memory memory;
+        private readonly Memory memory;
         private uint dictionaryAddress;
-        private List<ushort> separators = new List<ushort>();
-        private List<string> dictionary = new List<string>();
-        private List<uint> dictionaryIndex = new List<uint>();
+        private readonly List<ushort> separators = new List<ushort>();
+        private readonly List<string> dictionary = new List<string>();
+        private readonly List<uint> dictionaryIndex = new List<uint>();
         private int[] wordStartIndex;
-        private IIO io;
+        private readonly IIO io;
         /// <summary>
         /// memory pointer
         /// </summary>
@@ -71,7 +70,7 @@ namespace zmachine
                     memory.setWord((uint)(memoryPointer), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
                     memory.setByte((uint)(memoryPointer + 2), (byte)wordLength);     // # of letters in parsed word 
                     memory.setByte((uint)(memoryPointer + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
-                                                                             //                     }
+                                                                                        //                     }
                     memoryPointer += 4;
                     memory.setByte((uint)memoryPointer, 0);
                 }
