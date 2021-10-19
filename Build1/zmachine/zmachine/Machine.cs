@@ -12,9 +12,9 @@ namespace zmachine
         public const int StackSize = 1024 * 32;
 
         // This class moves through the input file and extracts bytes to deconstruct instructions in the code
-        private Memory memory = new Memory(size: MemorySize);         // Initialize memory
-        private Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
-        private ObjectTable objectTable;
+        private readonly Memory memory = new Memory(size: MemorySize);         // Initialize memory
+        private readonly Memory stack = new Memory(size: StackSize);           // Stack of size 32768 (can be larger, but this should be fine)
+        private readonly ObjectTable objectTable;
         private readonly IIO io;
         private readonly Lex lex;
 
