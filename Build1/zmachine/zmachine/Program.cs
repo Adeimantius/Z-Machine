@@ -48,7 +48,7 @@ namespace zmachine
             ConsoleIO io = new ConsoleIO();
             Machine machine = new Machine(
                 io: io,
-                filename: selectedFile);
+                programFilename: selectedFile);
 
             int numInstructionsProcessed = 0;
             while (!machine.Finished)

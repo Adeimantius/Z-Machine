@@ -29,16 +29,29 @@ namespace zmachine
         RoutineCallState[] callStack = new RoutineCallState[StackDepth];  // We could use a "Stack" here, as well, but we have lots of memory. According to the spec, there could be up to 90. But 128 is nice.
 
         // Class constructor : Loads in data from file and sets Program Counter
-        public Machine(IIO io, string filename)
+        public Machine(IIO io, string programFilename)
         {
-            memory.load(filename);
-            setProgramCounter();
+            this.memory.load(programFilename);
+            this.setProgramCounter();
 
             for (int i = 0; i < StackDepth; ++i)
-                callStack[i] = new RoutineCallState();
+                this.callStack[i] = new RoutineCallState();
 
-            objectTable = new ObjectTable(memory);
-            lex = new Lex(
+            this.objectTable = new ObjectTable(memory);
+            this.lex = new Lex(
+                io: io,
+                mem: memory);
+        }
+
+        public Machine(IIO io, CPUState initialState)
+        {
+            if (initialState is null)
+            {
+                throw new ArgumentNullException(nameof(initialState));
+            }
+            this.State = initialState;
+            this.objectTable = new ObjectTable(memory);
+            this.lex = new Lex(
                 io: io,
                 mem: memory);
         }
