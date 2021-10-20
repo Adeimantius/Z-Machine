@@ -88,7 +88,7 @@ namespace zmachine
             State = initialState;
         }
 
-        public void Terminate(string? error = null)
+        public Machine Terminate(string? error = null)
         {
             DebugWrite("Terminate called");
             if (error is not null)
@@ -96,6 +96,7 @@ namespace zmachine
                 DebugWrite("Error: " + error);
             }
             finish = true;
+            return this;
         }
 
         public ObjectTable ObjectTable => objectTable;
@@ -124,7 +125,7 @@ namespace zmachine
             return (uint)2 * address;
         }
 
-        public void pushRoutineData(List<ushort> operands)
+        public Machine pushRoutineData(List<ushort> operands)
         {
 
             // First check if we've gone too deep into our call stack:
@@ -132,7 +133,7 @@ namespace zmachine
             {
                 Debug.Assert(true, "Error: Call Stack Overflow"); //alert the user 
                 finish = true;
-                return;
+                return this;
             }
 
             ++callDepth;
@@ -156,9 +157,10 @@ namespace zmachine
 
             numLocals = (byte)System.Math.Max(operands.Count - 1, numLocals);
             callStack[callDepth].numLocalVars = numLocals;
+            return this;
         }
 
-        public void popRoutineData(ushort returnVal)
+        public Machine popRoutineData(ushort returnVal)
         {
             if (callDepth == 0)
             {
@@ -172,24 +174,27 @@ namespace zmachine
             --callDepth;
 
             setVar(pc_getByte(), returnVal);                                // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
+            return this;
         }
 
         /// <summary>
         /// Find the PC start point in the header file and set PC 
         /// Set PC by looking at pc start byte in header file
         /// </summary>
-        private void initializeProgramCounter()
+        private Machine initializeProgramCounter()
         {
             ProgramCounter = memory.getWord(Memory.ADDR_INITIALPC);
+            return this;
         }
 
-        public void ReadLex(List<ushort> operands)
+        public Machine ReadLex(List<ushort> operands)
         {
             if (operands.Count < 2)
             {
                 throw new Exception("insufficient operands");
             }
             lex.read(operands[0], operands[1]);
+            return this;
         }
 
         //In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
@@ -201,7 +206,7 @@ namespace zmachine
         /// <summary>
         /// Looks at pointer and returns instruction
         /// </summary>
-        public void processInstruction()
+        public Machine processInstruction()
         {
             pcStart = programCounter;
             ushort opcode;                              // Initialize variables
@@ -286,6 +291,7 @@ namespace zmachine
 
                     //return (byte) instruction;                 
             }
+            return this;
         }// end processInstruction
 
         public byte pc_getByte()
@@ -389,7 +395,7 @@ namespace zmachine
         }
         */
 
-        public void branch(bool condition)        // Check branch instructions
+        public Machine branch(bool condition)        // Check branch instructions
         {
             //             Debug.WriteLine("BRANCH: " + (condition ? "1" : "0"));
 
@@ -426,7 +432,7 @@ namespace zmachine
                     programCounter += offset - 2;
                 }
             }
-
+            return this;
         }
 
 

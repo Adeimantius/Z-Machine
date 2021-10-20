@@ -1,6 +1,5 @@
 ﻿namespace zmachine.Library.Extensions
 {
-    using System.Reflection;
     using zmachine.Library.Enumerations;
 
     /// <summary>
@@ -83,7 +82,7 @@
             fail_unimplemented(machine);
         }
 
-        public static void process0OP(this Machine machine, int opcode)
+        public static Machine process0OP(this Machine machine, int opcode)
         {
             if (!System.Enum.IsDefined(typeof(NoOperandOpcode), opcode))
             {
@@ -92,6 +91,55 @@
             }
 
             NoOperandOpcode noOperandOpcode = (NoOperandOpcode)opcode;
+            switch (noOperandOpcode)
+            {
+                case NoOperandOpcode.op_new_line:
+                    op_new_line(machine: machine);
+                    break;
+                case NoOperandOpcode.op_nop:
+                    op_nop(machine: machine);
+                    break;
+                case NoOperandOpcode.op_pop:
+                    op_pop(machine: machine);
+                    break;
+                case NoOperandOpcode.op_print:
+                    op_print(machine: machine);
+                    break;
+                case NoOperandOpcode.op_print_ret:
+                    op_print_ret(machine: machine);
+                    break;
+                case NoOperandOpcode.op_quit:
+                    op_quit(machine: machine);
+                    break;
+                case NoOperandOpcode.op_restart:
+                    op_restart(machine: machine);
+                    break;
+                case NoOperandOpcode.op_restore:
+                    op_restore(machine: machine);
+                    break;
+                case NoOperandOpcode.op_ret_popped:
+                    op_ret_popped(machine: machine);
+                    break;
+                case NoOperandOpcode.op_rfalse:
+                    op_rfalse(machine: machine);
+                    break;
+                case NoOperandOpcode.op_rtrue:
+                    op_rtrue(machine: machine);
+                    break;
+                case NoOperandOpcode.op_save:
+                    op_save(machine: machine);
+                    break;
+                case NoOperandOpcode.op_show_status:
+                    op_show_status(machine: machine);
+                    break;
+                case NoOperandOpcode.op_verify:
+                    break;
+                default:
+                    fail_unimplemented(machine: machine);
+                    break;
+            }
+            return machine;
+            /*
             string? opcodeName = noOperandOpcode.ToString();
 
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);
@@ -101,6 +149,7 @@
                 machine.DebugWrite(machine.ProgramCounterStart.ToString("X4") + "  " + machine.stateString() + " : [0OP/" + opcode.ToString("X2") + "] " + opcodeName);
             }
             opcodeMethod.Invoke(machine, new object[] { });
+            */
         }
     }
 }

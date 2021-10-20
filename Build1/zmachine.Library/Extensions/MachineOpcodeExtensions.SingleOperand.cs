@@ -1,6 +1,5 @@
 ﻿namespace zmachine.Library.Extensions
 {
-    using System.Reflection;
     using zmachine.Library.Enumerations;
 
     /// <summary>
@@ -96,7 +95,7 @@
             machine.setVar(machine.pc_getWord(), v1);
         }
 
-        public static void process1OP(this Machine machine, int opcode, ushort operand1)
+        public static Machine process1OP(this Machine machine, int opcode, ushort operand1)
         {
             if (!System.Enum.IsDefined(typeof(SingleOperandOpcodes), opcode))
             {
@@ -105,8 +104,57 @@
             }
 
             SingleOperandOpcodes singleOperandOpcode = (SingleOperandOpcodes)opcode;
+            switch (singleOperandOpcode)
+            {
+                case SingleOperandOpcodes.op_dec:
+                    op_dec(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_get_child:
+                    op_get_child(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_get_parent:
+                    op_get_parent(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_get_prop_len:
+                    op_get_prop_len(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_get_sibling:
+                    op_get_sibling(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_inc:
+                    op_inc(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_jump:
+                    op_jump(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_jz:
+                    op_jz(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_load:
+                    op_load(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_print_addr:
+                    op_print_addr(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_print_obj:
+                    op_print_obj(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_print_paddr:
+                    op_print_paddr(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_remove_obj:
+                    op_remove_obj(machine: machine, v1: operand1);
+                    break;
+                case SingleOperandOpcodes.op_ret:
+                    op_ret(machine: machine, v1: operand1);
+                    break;
+                default:
+                    fail_unimplemented(machine: machine);
+                    break;
+            }
+            return machine;
+            /*
             string? opcodeName = singleOperandOpcode.ToString();
-
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);
 
             if (machine.DebugEnabled)
@@ -114,6 +162,7 @@
                 machine.DebugWrite(machine.ProgramCounterStart.ToString("X4") + "  " + machine.stateString() + " : [1OP/" + opcode.ToString("X2") + "] " + opcodeName + " " + operand1.ToString());
             }
             opcodeMethod.Invoke(machine, new object[] { operand1 });
+            */
         }
     }
 }

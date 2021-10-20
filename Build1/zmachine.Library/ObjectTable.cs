@@ -170,7 +170,7 @@
 
             return attributes[attributeId];
         }
-        public void setObjectAttribute(int objectId, int attributeId, bool value)
+        public ObjectTable setObjectAttribute(int objectId, int attributeId, bool value)
         {
             byte a;                     // If can find the right byte in the memory, I can bitwise AND or NOT to fill or clear it.
             uint address = (uint)getObjectAddress(objectId);
@@ -190,9 +190,10 @@
             }
             //            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
             memory.setByte(address + attributeByte, a);
+            return this;
         }
 
-        public void setObjectProperty(int objectId, int property, ushort value)
+        public ObjectTable setObjectProperty(int objectId, int property, ushort value)
         {
             int propertyAddress = getObjectPropertyAddress(objectId, property);
 
@@ -210,21 +211,25 @@
             {
                 memory.setWord((uint)propertyAddress, value);
             }
+            return this;
         }
-        public void setParent(int objectId, int parentId)
+        public ObjectTable setParent(int objectId, int parentId)
         {
             tp = getObjectAddress(objectId) + 4;                           // move past object header (4 attribute bytes)
             memory.setByte((uint)tp, (byte)parentId);
+            return this;
         }
-        public void setSibling(int objectId, int siblingId)
+        public ObjectTable setSibling(int objectId, int siblingId)
         {
             tp = getObjectAddress(objectId) + 5;                           // move past object header (4 attribute bytes)
             memory.setByte((uint)tp, (byte)siblingId);
+            return this;
         }
-        public void setChild(int objectId, int childId)
+        public ObjectTable setChild(int objectId, int childId)
         {
             tp = getObjectAddress(objectId) + 6;                           // move past object header (4 attribute bytes + parent byte + sibling byte)
             memory.setByte((uint)tp, (byte)childId);
+            return this;
         }
 
         // -------------------------- 
@@ -260,13 +265,13 @@
             name = memory.getZSCII((uint)tp, (uint)textLength * 2).str;
             return name;
         }
-        public void unlinkObject(int objectId)
+        public ObjectTable unlinkObject(int objectId)
         {
             // Get parent of object. If no parent, no need to unlink it.
             int parentId = getParent(objectId);
             if (parentId == 0)
             {
-                return;
+                return this;
             }
 
             // Get next sibling
@@ -295,6 +300,7 @@
                 } while (sibId != objectId);
                 setSibling(lastSibId, nextSibling);
             }
+            return this;
         }
 
     }

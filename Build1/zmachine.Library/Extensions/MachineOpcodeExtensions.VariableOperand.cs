@@ -1,7 +1,5 @@
 ﻿namespace zmachine.Library.Extensions
 {
-    using System.Diagnostics;
-    using System.Reflection;
     using zmachine.Library.Enumerations;
 
     /// <summary>
@@ -67,7 +65,7 @@
             machine.setVar(machine.pc_getByte(), (ushort)value);  // If range is negative, the random number generator is seeded to that value and the return value is 0
         }
 
-        public static void op_pushun(this Machine machine, List<ushort> operands)
+        public static void op_push(this Machine machine, List<ushort> operands)
         {
             machine.setVar(0, operands[0]);
         }
@@ -111,7 +109,7 @@
             fail_unimplemented(machine);
         }
 
-        public static void processVAR(this Machine machine, int opcode, List<ushort> operands)
+        public static Machine processVAR(this Machine machine, int opcode, List<ushort> operands)
         {
             if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
             {
@@ -119,9 +117,52 @@
                   typeof(TwoOperandOpcode).FullName);
             }
 
-            TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)opcode;
+            VariableOperandOpcode variableOperandOpcode = (VariableOperandOpcode)opcode;
+            switch (variableOperandOpcode)
+            {
+                case VariableOperandOpcode.op_call:
+                    op_call(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_print_char:
+                    op_print_char(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_print_num:
+                    op_print_num(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_pull:
+                    op_pull(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_push:
+                    op_push(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_put_prop:
+                    op_put_prop(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_random:
+                    op_random(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_set_window:
+                    op_set_window(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_split_window:
+                    op_split_window(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_sread:
+                    op_sread(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_storeb:
+                    op_storeb(machine: machine, operands: operands);
+                    break;
+                case VariableOperandOpcode.op_storew:
+                    op_storew(machine: machine, operands: operands);
+                    break;
+                default:
+                    fail_unimplemented(machine: machine);
+                    break;
+            }
+            return machine;
+            /*
             string? opcodeName = twoOperandOpcode.ToString();
-
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);
 
             if (machine.DebugEnabled)
@@ -135,6 +176,7 @@
                 Debug.WriteLine("");
             }
             opcodeMethod.Invoke(machine, new object[] { operands });
+            */
         }
     }
 }

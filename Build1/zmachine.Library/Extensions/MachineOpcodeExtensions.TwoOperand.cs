@@ -1,7 +1,5 @@
 ﻿namespace zmachine.Library.Extensions
 {
-    using System.Diagnostics;
-    using System.Reflection;
     using zmachine.Library.Enumerations;
 
     public static partial class MachineOpcodeExtensions
@@ -95,10 +93,11 @@
         public static void op_insert_obj(this Machine machine, ushort v1, ushort v2)
         {
             int newSibling = machine.ObjectTable.getChild(v2); // 
-            machine.ObjectTable.unlinkObject(v1);
-            machine.ObjectTable.setChild(v2, v1);
-            machine.ObjectTable.setParent(v1, v2);
-            machine.ObjectTable.setSibling(v1, newSibling);
+            machine.ObjectTable
+                .unlinkObject(v1)
+                .setChild(v2, v1)
+                .setParent(v1, v2)
+                .setSibling(v1, newSibling);
             // after the operation the child of v2 is v1
             // and the sibling of v1 is whatever was previously the child of v2.
             // All children of v1 move with it. (Initially O can be at any point in the object tree; it may legally have parent zero.)    
@@ -161,7 +160,7 @@
             machine.setVar(machine.pc_getByte(), (ushort)Convert.ToInt32((short)v1 * (short)v2));
         }
 
-        public static void process2OP(this Machine machine, int opcode, List<ushort> operands)
+        public static Machine process2OP(this Machine machine, int opcode, List<ushort> operands)
         {
             if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
             {
@@ -170,8 +169,87 @@
             }
 
             TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)opcode;
+            switch (twoOperandOpcode)
+            {
+                case TwoOperandOpcode.op_add:
+                    op_add(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_and:
+                    op_and(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_clear_attr:
+                    op_clear_attr(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_dec_chk:
+                    op_dec_chk(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_div:
+                    op_div(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_get_next_addr:
+                    op_get_next_addr(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_get_prop:
+                    op_get_prop(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_get_prop_addr:
+                    op_get_prop_addr(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_inc_chk:
+                    op_inc_chk(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_insert_obj:
+                    op_insert_obj(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_je:
+                    op_je(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_jg:
+                    op_jg(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_jin:
+                    op_jin(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_jl:
+                    op_jl(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_loadb:
+                    op_loadb(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_loadw:
+                    op_loadw(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_mod:
+                    op_mod(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_mul:
+                    op_mul(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_or:
+                    op_or(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_set_attr:
+                    op_set_attr(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_store:
+                    op_store(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_sub:
+                    op_sub(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_test:
+                    op_test(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                case TwoOperandOpcode.op_test_attr:
+                    op_test_attr(machine: machine, v1: operands[0], v2: operands[1]);
+                    break;
+                default:
+                    fail_unimplemented(machine: machine);
+                    break;
+            }
+            return machine;
+            /*
             string? opcodeName = twoOperandOpcode.ToString();
-
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);
 
             if (machine.DebugEnabled)
@@ -185,6 +263,7 @@
                 Debug.WriteLine("");
             }
             opcodeMethod.Invoke(machine, new object[] { operands[0], operands[1] });
+            */
         }
     }
 }
