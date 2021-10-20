@@ -67,8 +67,8 @@ namespace zmachine
                 callStack[i] = new RoutineCallState();
             }
 
-            this.objectTable = new ObjectTable(memory);
-            this.lex = new Lex(
+            objectTable = new ObjectTable(memory);
+            lex = new Lex(
                 io: this.io,
                 mem: memory);
         }
@@ -80,12 +80,12 @@ namespace zmachine
                 throw new ArgumentNullException(nameof(initialState));
             }
             this.io = io;
-            this.objectTable = new ObjectTable(memory);
-            this.lex = new Lex(
+            objectTable = new ObjectTable(memory);
+            lex = new Lex(
                 io: this.io,
                 mem: memory,
                 mp: initialState.lexMemoryPointer);
-            this.State = initialState;
+            State = initialState;
         }
 
         public void Terminate(string? error = null)
@@ -117,7 +117,7 @@ namespace zmachine
             return this;
         }
 
-        public IIO IO => this.io;
+        public IIO IO => io;
 
         public uint unpackedAddress(ushort address)
         {

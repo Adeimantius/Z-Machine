@@ -4,9 +4,9 @@
     using System.Diagnostics;
     using System.IO;
 
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             string selectedFile;
             string userSelection;

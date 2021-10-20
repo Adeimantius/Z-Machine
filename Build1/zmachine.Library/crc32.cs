@@ -1,6 +1,6 @@
 ﻿public class Crc32
 {
-    readonly uint[] table;
+    private readonly uint[] table;
 
     public uint ComputeChecksum(byte[] bytes)
     {
