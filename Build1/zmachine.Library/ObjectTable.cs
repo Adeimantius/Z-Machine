@@ -4,7 +4,7 @@
     {
         private readonly Memory memory;
         private int tp = 0;                                 // pointer to move through tables
-        private int objectId = 0;                           // Object ID
+        private readonly int objectId = 0;                           // Object ID
 
 
 
@@ -15,14 +15,14 @@
 
         public int getDefaultProperty(int property)     // Start reading from the Program Defaults Table (before list of objects)
         {
-            tp = memory.getWord((uint)Memory.ADDR_OBJECTS);
+            tp = memory.getWord(Memory.ADDR_OBJECTS);
             tp += (property - 1) * 2;
             int defaultProperty = tp_getWord();
             return defaultProperty;
         }
         public int getObjectTable()                     // Set Table Pointer to the beginning of the object table. (After Default Properties)
         {
-            tp = memory.getWord((uint)Memory.ADDR_OBJECTS) + (31 * 2);
+            tp = memory.getWord(Memory.ADDR_OBJECTS) + (31 * 2);
             return tp;
         }
         public int getPropertyTableAddress(int objectId)// Return property table address for given object. Leaves Table Pointer at beginning of next property.
@@ -86,7 +86,9 @@
             propLen = getObjectPropertyLengthFromAddress(tp);
 
             if (sizeByte == 0)                    // No next property
+            {
                 return 0;
+            }
 
             tp += propLen;                            // Move pointer to start next property   
             nextPropertyId = tp_getByte() & 31;       // Read next property number
@@ -120,9 +122,13 @@
             int propLen = getObjectPropertyLengthFromAddress(propertyAddress);  // get size of property
 
             if (propLen == 1)                                   // Return size of property (byte or word)
+            {
                 propertyData = tp_getByte();
+            }
             else if (propLen == 2)
+            {
                 propertyData = tp_getWord();
+            }
             else
             {
                 propertyData = 0;
@@ -174,12 +180,12 @@
 
             if (value == true)
             {
-                a = memory.getByte(address + (uint)attributeByte);        // Read the byte given by the attribute segment our attribute Id is in.
+                a = memory.getByte(address + attributeByte);        // Read the byte given by the attribute segment our attribute Id is in.
                 a |= (byte)(1 << attributeShift);                      // Fill a bit at the given shift in that byte.
             }
             else
             {
-                a = memory.getByte(address + (uint)attributeByte);
+                a = memory.getByte(address + attributeByte);
                 a &= (byte)~(1 << attributeShift);
             }
             //            Debug.WriteLine("AFTER address: " + address + " " + memory.getByte(address) + "," + memory.getByte(address + 1) + "," + memory.getByte(address + 2) + "," + memory.getByte(address + 3));
@@ -197,9 +203,13 @@
             int propLen = getObjectPropertyLengthFromAddress(propertyAddress);  // get size of property
 
             if (propLen == 1)                                   // Check size of property
+            {
                 memory.setWord((uint)propertyAddress, (ushort)(value & 0xff));
+            }
             else if (propLen == 2)
+            {
                 memory.setWord((uint)propertyAddress, value);
+            }
         }
         public void setParent(int objectId, int parentId)
         {
@@ -222,7 +232,7 @@
         {
             byte next = memory.getByte((uint)tp);
             tp++;
-            return (byte)next;
+            return next;
         }
 
         public ushort tp_getWord()
@@ -255,7 +265,9 @@
             // Get parent of object. If no parent, no need to unlink it.
             int parentId = getParent(objectId);
             if (parentId == 0)
+            {
                 return;
+            }
 
             // Get next sibling
             int nextSibling = getSibling(objectId);
@@ -269,7 +281,9 @@
 
             // Remove object from the list of siblings
             if (firstSibling == objectId)   // If this object is the first child, just set it to the next child.
+            {
                 setChild(parentId, nextSibling);
+            }
             else
             {
                 int sibId = firstSibling;

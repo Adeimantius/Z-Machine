@@ -19,19 +19,19 @@
         public Memory(int size)
         {
             // Class constructor
-            this.memory = new byte[size];
+            memory = new byte[size];
         }
 
-        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
+        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(memory);
 
         public void load(ReadOnlyMemory<byte> contents)
         {
-            this.memory = contents.ToArray();
+            memory = contents.ToArray();
         }
 
         public void load(byte[] contents)
         {
-            this.memory = contents;
+            memory = contents;
         }
 
         //input byte array [] from file, output size specified byte array []
@@ -64,7 +64,7 @@
         //access given byte location & return byte stored in data
         public byte getByte(uint address)
         {
-            return (byte)memory[address];
+            return memory[address];
         }
 
 
@@ -115,19 +115,31 @@
         public char getZChar(int zchar)
         {
             if (zchar == 0)         // null char
+            {
                 return (char)0;
+            }
             else if (zchar == 8)    // delete char
+            {
                 return (char)0;
+            }
             else if (zchar == 13)   // newline char
+            {
                 return '\n';
+            }
             else if (zchar == 27)
+            {
                 return (char)0;
+            }
             else if (zchar >= 129 && zchar <= 154)
+            {
                 return (char)0;
+            }
             else if (
                 zchar >= 32 && zchar <= 126 || // standard ascii
                 zchar >= 155 && zchar <= 251)         // Take in 10-bit zscii and return ascii
+            {
                 return (char)zchar;
+            }
             else
             {
                 Debug.WriteLine("Invalid 10-bit char: " + (char)zchar);
@@ -155,7 +167,10 @@
             {
                 //Get another word from memory
                 ushort word = getWord(address);
-                if (((word >> 15) & 0x1) == 1) stringComplete = true;
+                if (((word >> 15) & 0x1) == 1)
+                {
+                    stringComplete = true;
+                }
 
                 int[] c = new int[3];        // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
 
@@ -239,9 +254,13 @@
                         abbrevSet = c[i];
                     }
                     else if (c[i] == 4) //Change currentAlphabet = Uppercase (A1)
+                    {
                         currentAlphabet = 1;
+                    }
                     else if (c[i] == 5) //Change currentAlphabet = Punctuation (A2)
+                    {
                         currentAlphabet = 2;
+                    }
                     else if (c[i] == 6 && currentAlphabet == 2)
                     {
                         read10Bit = 2;
@@ -272,9 +291,11 @@
 
             }
 
-            StringAndReadLength ret = new StringAndReadLength();
-            ret.bytesRead = bytesRead;
-            ret.str = output;
+            StringAndReadLength ret = new StringAndReadLength
+            {
+                bytesRead = bytesRead,
+                str = output
+            };
             return ret;
         }
 

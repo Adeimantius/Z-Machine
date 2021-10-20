@@ -1,9 +1,10 @@
-﻿namespace zmachine
+﻿
+namespace zmachine
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using zmachine.Library.Opcodes;
+    using static zmachine.Library.Extensions.MachineOpcodeExtensions;
 
     /// <summary>
     /// This class moves through the input file and extracts bytes to deconstruct instructions in the code
@@ -18,6 +19,7 @@
         public const int StackSize = 1024 * 32;
 
         private readonly Memory memory = new Memory(size: MemorySize);
+        public Memory Memory => memory;
         private readonly Memory stack = new Memory(size: StackSize);
         private readonly ObjectTable objectTable;
         private readonly IIO io;
@@ -29,10 +31,20 @@
         /// Program Counter to step through memory
         /// </summary>
         private uint programCounter = 0;
+
+        public uint ProgramCounter
+        {
+            get => programCounter;
+            set => programCounter = value;
+        }
+
         /// <summary>
         /// Program Counter at the beginning of executing the instruction
         /// </summary>
         private uint pcStart = 0;
+
+        public uint ProgramCounterStart => pcStart;
+
         /// <summary>
         /// Flag to say "finish processing. We're done".
         /// </summary>
@@ -47,11 +59,13 @@
         public Machine(IIO io, string programFilename)
         {
             this.io = io;
-            this.memory.load(programFilename);
-            this.setProgramCounter();
+            memory.load(programFilename);
+            initializeProgramCounter();
 
             for (int i = 0; i < StackDepth; ++i)
-                this.callStack[i] = new RoutineCallState();
+            {
+                callStack[i] = new RoutineCallState();
+            }
 
             this.objectTable = new ObjectTable(memory);
             this.lex = new Lex(
@@ -74,27 +88,36 @@
             this.State = initialState;
         }
 
-        public void Terminate(string error = null)
+        public void Terminate(string? error = null)
         {
-            if (debug == true)
-            {
-                Debug.WriteLine("Terminate called");
-            }
+            DebugWrite("Terminate called");
             if (error is not null)
             {
-                Debug.WriteLine("Error: " + error);
+                DebugWrite("Error: " + error);
             }
-            this.finish = true;
+            finish = true;
         }
 
-        public ObjectTable ObjectTable => this.objectTable;
+        public ObjectTable ObjectTable => objectTable;
 
         public bool Finished => finish;
 
-        public bool DebugEnabled
+        public bool DebugEnabled => debug;
+
+        public Machine DebugWrite(params object[] args)
         {
-            get => debug;
+            if (DebugEnabled)
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    Debug.Write(args[i] + " ");
+                }
+                Debug.WriteLine("");
+            }
+            return this;
         }
+
+        public IIO IO => this.io;
 
         public uint unpackedAddress(ushort address)
         {
@@ -153,10 +176,20 @@
 
         /// <summary>
         /// Find the PC start point in the header file and set PC 
+        /// Set PC by looking at pc start byte in header file
         /// </summary>
-        public void setProgramCounter()
+        private void initializeProgramCounter()
         {
-            programCounter = memory.getWord(Memory.ADDR_INITIALPC);               // Set PC by looking at pc start byte in header file
+            ProgramCounter = memory.getWord(Memory.ADDR_INITIALPC);
+        }
+
+        public void ReadLex(List<ushort> operands)
+        {
+            if (operands.Count < 2)
+            {
+                throw new Exception("insufficient operands");
+            }
+            lex.read(operands[0], operands[1]);
         }
 
         //In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
@@ -186,14 +219,14 @@
                     {
                         //                    Debug.WriteLine("\tInstruction Form : Long");
                         opcode = (ushort)(instruction & 0x1f);
-                        int opTypeA = (int)(instruction >> 6) & 1;//6th bit
-                        int opTypeB = (int)(instruction >> 5) & 1;//5th bit
-                                                                  // Value of 0 means variable, value of 1 means small
+                        int opTypeA = instruction >> 6 & 1;//6th bit
+                        int opTypeB = instruction >> 5 & 1;//5th bit
+                                                           // Value of 0 means variable, value of 1 means small
 
                         // load both operands of long form instruction
                         operandList.Add(loadOperand(opTypeA == 0 ? OperandType.Small : OperandType.Var));
                         operandList.Add(loadOperand(opTypeB == 0 ? OperandType.Small : OperandType.Var));
-                        process2OP(opcode, operandList);
+                        this.process2OP(opcode, operandList);
                     }
                     break;
 
@@ -205,12 +238,12 @@
 
                         if (opType == (int)OperandType.Omit)
                         {
-                            process0OP(opcode);
+                            this.process0OP(opcode);
                         }
                         else
                         {
                             ushort op1 = loadOperand((OperandType)opType);
-                            process1OP(opcode, op1);
+                            this.process1OP(opcode, op1);
                         }
                     }
                     break;
@@ -221,7 +254,7 @@
                         //                        Debug.WriteLine("\tInstruction Form : Variable");
                         opcode = (ushort)(instruction & 0x1f);          // Grab bottom 5 bits. 
                         int type = ((instruction >> 5) & 1);            // Store type of opcode (2OP, VAR)          
-                        byte operandTypes = (byte)pc_getByte();
+                        byte operandTypes = pc_getByte();
 
                         for (int i = 0; i < 4; i++)
                         {
@@ -229,7 +262,9 @@
 
                             ushort op = loadOperand(opType);
                             if (opType != OperandType.Omit)
+                            {
                                 operandList.Add(op);
+                            }
 
                             operandTypes <<= 2;   // Shift two to the left
                         }
@@ -237,11 +272,11 @@
 
                         if (type == 0)
                         {
-                            process2OP(opcode, operandList);           // Need to pass in two operands?
+                            this.process2OP(opcode, operandList);           // Need to pass in two operands?
                         }
                         else
                         {
-                            processVAR(opcode, operandList);
+                            this.processVAR(opcode, operandList);
 
                         }
                     }
@@ -257,7 +292,7 @@
         {
             byte next = memory.getByte(programCounter);
             programCounter++;
-            return (byte)next;
+            return next;
         }
         public ushort pc_getWord()
         {
@@ -295,44 +330,64 @@
             }
         }
 
-        void process2OP(int opcode, List<ushort> operands)
+        /*
+        private void process2OP(int opcode, List<ushort> operands)
         {
-            OpcodeHandler_2OP op = OP2opcodes[opcode];
+            string? callingFunctionName = new StackTrace().GetFrame(1)!.GetMethod()!.Name;
+
+            Action op = OP2opcodes[opcode];
             if (debug)
             {
-                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [2OP/" + opcode.ToString("X2") + "] " + op.name());
+                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [2OP/" + opcode.ToString("X2") + "] " + callingFunctionName);
                 foreach (ushort v in operands)
+                {
                     Debug.Write(" " + v);
+                }
+
                 Debug.WriteLine("");
             }
-            op.run(this, operands);
+            op.DynamicInvoke(operands);
         }
+
         void process1OP(int opcode, ushort operand1)
         {
-            OpcodeHandler_1OP op = OP1opcodes[opcode];
+            string? callingFunctionName = new StackTrace().GetFrame(1)!.GetMethod()!.Name;
+            Action op = OP1opcodes[opcode];
             if (debug)
-                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [1OP/" + opcode.ToString("X2") + "] " + op.name() + " " + operand1.ToString());
-            op.run(this, operand1);
+            {
+                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [1OP/" + opcode.ToString("X2") + "] " + callingFunctionName + " " + operand1.ToString());
+            }
+
+            op.DynamicInvoke(operand1);
         }
         void process0OP(int opcode)
         {
-            OpcodeHandler_0OP op = OP0opcodes[opcode];
+            string? callingFunctionName = new StackTrace().GetFrame(1)!.GetMethod()!.Name;
+            Action op = OP0opcodes[opcode];
             if (debug)
-                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [0OP/" + opcode.ToString("X2") + "] " + op.name());
-            op.run(this);
+            {
+                Debug.WriteLine(pcStart.ToString("X4") + "  " + stateString() + " : [0OP/" + opcode.ToString("X2") + "] " + callingFunctionName);
+            }
+
+            op.Invoke();
         }
         void processVAR(int opcode, List<ushort> operands)
         {
-            OpcodeHandler_OPVAR op = VARopcodes[opcode];
+            string? callingFunctionName = new StackTrace().GetFrame(1)!.GetMethod()!.Name;
+            Action op = VARopcodes[opcode];
             if (debug)
             {
-                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [VAR/" + opcode.ToString("X2") + "] " + op.name());
+                Debug.Write(pcStart.ToString("X4") + "  " + stateString() + " : [VAR/" + opcode.ToString("X2") + "] " + callingFunctionName);
                 foreach (ushort v in operands)
+                {
                     Debug.Write(" " + v);
+                }
+
                 Debug.WriteLine("");
             }
-            op.run(this, operands);
+            op.DynamicInvoke(operands);
         }
+        */
 
         public void branch(bool condition)        // Check branch instructions
         {
@@ -344,13 +399,16 @@
             uint offset = (uint)(branchInfo & 0x3f); // the "offset" is in the range 0 to 63, given in the bottom 6 bits.
 
             if (branchOn == 0)
+            {
                 condition = !condition;
+            }
 
             if (branchSmall == 0)
             {                            // If bit 6 is clear the offset is a signed 14-bit number given
                 if (offset > 31)
+                {
                     offset -= 64;          // Convert offset to signed
-
+                }
 
                 offset <<= 8;              // Shift bits 8 left before adding next 6 to make a 14-bit number.
 
@@ -364,14 +422,16 @@
                     popRoutineData((ushort)offset);
                 }
                 else
+                {
                     programCounter += offset - 2;
+                }
             }
 
         }
 
 
         // Put a value onto the top of the stack.
-        public void setVar(ushort variable, ushort value)
+        public Machine setVar(ushort variable, ushort value)
         {
             if (variable == 0)                   // Variable number $00 refers to the top of the stack
             {
@@ -388,6 +448,8 @@
                 uint address = (uint)(memory.getWord(Memory.ADDR_GLOBALS) + ((variable - 16) * 2));                 // Set value in global variable table (variable 16 -> index 0)
                 memory.setWord(address, value);
             }
+
+            return this;
         }
 
         // Get a value from the top of the stack.

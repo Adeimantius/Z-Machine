@@ -7,33 +7,30 @@
 
         public CPUState State
         {
-            get
-            {
-                return new CPUState(
-                    memory: this.memory.Contents,
-                    stack: this.stack.Contents,
-                    lexMemoryPointer: this.lex.MemoryPointer,
-                    pc: this.programCounter,
-                    pcStart: this.pcStart,
-                    sp: this.stackPointer,
-                    callDepth: this.callDepth,
-                    callStack: this.callStack,
-                    finish: this.finish);
-            }
+            get => new CPUState(
+                    memory: memory.Contents,
+                    stack: stack.Contents,
+                    lexMemoryPointer: lex.MemoryPointer,
+                    pc: programCounter,
+                    pcStart: pcStart,
+                    sp: stackPointer,
+                    callDepth: callDepth,
+                    callStack: callStack,
+                    finish: finish);
             set
             {
-                this.memory.load(value.memory);
-                this.stack.load(value.stack);
-                this.lex.MemoryPointer = value.lexMemoryPointer;
-                this.programCounter = value.programCounter;
-                this.pcStart = value.pcStart;
-                this.stackPointer = value.stackPointer;
-                this.callDepth = value.callDepth;
+                memory.load(value.memory);
+                stack.load(value.stack);
+                lex.MemoryPointer = value.lexMemoryPointer;
+                programCounter = value.programCounter;
+                pcStart = value.pcStart;
+                stackPointer = value.stackPointer;
+                callDepth = value.callDepth;
                 Array.Copy(
                     sourceArray: value.callStack,
-                    destinationArray: this.callStack,
+                    destinationArray: callStack,
                     length: StackDepth);
-                this.finish = value.finish;
+                finish = value.finish;
             }
         }
 

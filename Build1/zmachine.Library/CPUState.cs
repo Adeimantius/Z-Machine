@@ -28,9 +28,9 @@
             this.memory = memory.ToArray();
             this.lexMemoryPointer = lexMemoryPointer;
             this.stack = stack.ToArray();
-            this.programCounter = pc;
+            programCounter = pc;
             this.pcStart = pcStart;
-            this.stackPointer = sp;
+            stackPointer = sp;
             this.callDepth = callDepth;
             this.callStack = callStack;
             this.finish = finish;

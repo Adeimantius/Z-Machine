@@ -199,7 +199,6 @@ namespace zmachine
                                     if (debug == true)
                                     {
                                         debugOutput += getZChar(zchar10); z++;
-                                        Console.WriteLine("\n" + debugOutput + "(" + z + ")");
                                     }
                                     break;
                                 }

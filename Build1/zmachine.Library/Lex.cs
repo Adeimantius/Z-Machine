@@ -6,7 +6,7 @@
     public class Lex
     {
         private readonly Memory memory;
-        private uint dictionaryAddress;
+        private readonly uint dictionaryAddress;
         private readonly List<ushort> separators = new List<ushort>();
         private readonly List<string> dictionary = new List<string>();
         private readonly List<uint> dictionaryIndex = new List<uint>();
@@ -20,26 +20,29 @@
         public Lex(IIO io, Memory mem, uint mp = 0)
         {
             this.io = io;
-            this.memory = mem;
-            this.memoryPointer = mp;
-            this.dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
+            memory = mem;
+            memoryPointer = mp;
+            dictionaryAddress = memory.getWord(Memory.ADDR_DICT);
         }
 
         public uint MemoryPointer
         {
-            get => this.memoryPointer;
-            set => this.memoryPointer = value;
+            get => memoryPointer;
+            set => memoryPointer = value;
         }
 
         public void read(int textBufferAddress, uint parseBufferAddress)
         {
             int maxInputLength = memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
-            int parseBufferLength = memory.getByte((uint)parseBufferAddress);
+            int parseBufferLength = memory.getByte(parseBufferAddress);
             memoryPointer = parseBufferAddress + 2;
             string input = io.ReadLine();                                   // Get initial input from io terminal
 
             if (input.Length > maxInputLength)
+            {
                 input = input.Remove(maxInputLength);                            // Limit input to size of text-buffer
+            }
+
             input.TrimEnd('\n');                                                 // Remove carriage return from end of string  
             input = input.ToLower();                                             // Convert to lowercase
 
@@ -67,12 +70,12 @@
                     //                    if (4 * (i + 1) < parseBufferLength)
                     //                    {                            
                     int wordLength = wordArray[i].Length;
-                    memory.setWord((uint)(memoryPointer), (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
-                    memory.setByte((uint)(memoryPointer + 2), (byte)wordLength);     // # of letters in parsed word 
-                    memory.setByte((uint)(memoryPointer + 3), (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
-                                                                                        //                     }
+                    memory.setWord(memoryPointer, (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
+                    memory.setByte(memoryPointer + 2, (byte)wordLength);     // # of letters in parsed word 
+                    memory.setByte(memoryPointer + 3, (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                                                                                //                     }
                     memoryPointer += 4;
-                    memory.setByte((uint)memoryPointer, 0);
+                    memory.setByte(memoryPointer, 0);
                 }
             }
 
@@ -119,7 +122,9 @@
         public uint compare(string word, int dictionaryFlag = 0)
         {
             if (word.Length > 6)
+            {
                 word = word.Remove(6);
+            }
             // search dictionary for comparisons
             for (int i = 0; i < dictionary.Count; i++)
             {
@@ -163,7 +168,9 @@
             // Convert into Zchar from ZSCII char
             // Note: ASCII 'a' = int 97
             if (letter == ' ')
+            {
                 return 0;
+            }
             else if (zalphabets[0].IndexOf(letter) != -1)       // Take in ZSCII letter and return 5-bit Zchar
             {
                 // io.WriteLine("Recognized character: " + (int)letter);

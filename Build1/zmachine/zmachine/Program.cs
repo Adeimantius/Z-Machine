@@ -54,7 +54,10 @@
             while (!machine.Finished)
             {
                 if (machine.DebugEnabled)
+                {
                     Debug.Write("" + numInstructionsProcessed + " : ");
+                }
+
                 machine.processInstruction();
                 ++numInstructionsProcessed;
             }

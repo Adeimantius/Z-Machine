@@ -10,23 +10,23 @@
 
         public StaticIO(string initialInput)
         {
-            this.inputReader = new StringReader(s: initialInput);
-            this.outputWriter = new StringWriter();
+            inputReader = new StringReader(s: initialInput);
+            outputWriter = new StringWriter();
         }
 
         public string ReadLine()
         {
-            return this.inputReader.ReadLine();
+            return inputReader.ReadLine();
         }
 
         public void Write(string str)
         {
-            this.outputWriter.Write(str);
+            outputWriter.Write(str);
         }
 
         public void WriteLine(string str)
         {
-            this.outputWriter.WriteLine(str);
+            outputWriter.WriteLine(str);
         }
 
         /// <summary>
@@ -37,12 +37,12 @@
         public System.ConsoleKeyInfo ReadKey()
         {
             char[] key = new char[1];
-            this.inputReader.Read(key, 0, 1);
+            inputReader.Read(key, 0, 1);
 
             if ((key[0] >= 'a' && key[0] <= 'z') || (key[0] >= '0' && key[0] <= '9'))
             {
-                var ucase = key.ToString().ToUpperInvariant().ToCharArray();
-                var console = (ConsoleKey)Enum.Parse(
+                char[]? ucase = key.ToString().ToUpperInvariant().ToCharArray();
+                ConsoleKey console = (ConsoleKey)Enum.Parse(
                     enumType: typeof(ConsoleKey),
                     value: new ReadOnlySpan<char>(
                         array: ucase,
@@ -58,7 +58,7 @@
             }
             else if (key[0] >= 'A' && key[0] <= 'Z')
             {
-                var console = (ConsoleKey)Enum.Parse(
+                ConsoleKey console = (ConsoleKey)Enum.Parse(
                     enumType: typeof(ConsoleKey),
                     value: new ReadOnlySpan<char>(
                         array: key,
