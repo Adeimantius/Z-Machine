@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
     using System.Diagnostics;
@@ -24,18 +24,20 @@
 
         public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(memory);
 
-        public void load(ReadOnlyMemory<byte> contents)
+        public Memory load(ReadOnlyMemory<byte> contents)
         {
             memory = contents.ToArray();
+            return this;
         }
 
-        public void load(byte[] contents)
+        public Memory load(byte[] contents)
         {
             memory = contents;
+            return this;
         }
 
         //input byte array [] from file, output size specified byte array []
-        public void load(string filename)
+        public Memory load(string filename)
         {
             //Load data into temp variable, copy into specified byte array
 
@@ -52,12 +54,13 @@
                     i++;
                 }
             }
-
+            return this;
         }
         //assign given byte value @ hex address location
-        public void setByte(uint address, byte val)
+        public Memory setByte(uint address, byte val)
         {
             memory[address] = val;
+            return this;
         }
 
 
@@ -69,7 +72,7 @@
 
 
         //assign 16-bit value from given 16-bit memory address
-        public void setWord(uint address, ushort val)
+        public Memory setWord(uint address, ushort val)
         {
             byte a = (byte)((val >> 8) & 0xff);
             byte b = (byte)(val & 0xff);
@@ -80,6 +83,7 @@
             // first <<= 8;                             // shift first byte up 8 bits
             memory[address] = a;
             memory[address + 1] = b;
+            return this;
         }
 
 
@@ -300,14 +304,14 @@
         }
 
         // Print the file header
-        public void dumpHeader()
+        public Memory dumpHeader()
         {
             Debug.WriteLine("Type : " + getByte(ADDR_VERSION));
             Debug.WriteLine("Base : " + getWord(ADDR_HIGH));
             Debug.WriteLine("PC   : " + getWord(ADDR_INITIALPC));
             Debug.WriteLine("Dict : " + getWord(ADDR_DICT));
             Debug.WriteLine("Obj  : " + getWord(ADDR_OBJECTS));
-
+            return this;
         }
 
         public uint getCrc32()

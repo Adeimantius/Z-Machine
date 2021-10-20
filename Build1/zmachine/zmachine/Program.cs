@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using zmachine.Library;
 
     internal class Program
     {

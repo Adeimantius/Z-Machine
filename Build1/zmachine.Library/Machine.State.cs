@@ -1,10 +1,9 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
 
     public partial class Machine
     {
-
         public CPUState State
         {
             get => new CPUState(
@@ -16,7 +15,7 @@
                     sp: stackPointer,
                     callDepth: callDepth,
                     callStack: callStack,
-                    finish: finish);
+                    finish: finishProcessing);
             set
             {
                 memory.load(value.memory);
@@ -30,7 +29,7 @@
                     sourceArray: value.callStack,
                     destinationArray: callStack,
                     length: StackDepth);
-                finish = value.finish;
+                finishProcessing = value.finish;
             }
         }
 

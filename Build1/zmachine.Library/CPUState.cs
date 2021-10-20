@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
 
@@ -13,6 +13,19 @@
         public uint callDepth;
         public RoutineCallState[] callStack;
         public bool finish;
+
+        public CPUState() : this(
+            memory: new byte[Machine.MemorySize],
+            stack: new byte[Machine.StackSize],
+            lexMemoryPointer: 0,
+            pc: 0,
+            pcStart: 0,
+            sp: 0,
+            callDepth: 0,
+            callStack: new RoutineCallState[Machine.StackDepth],
+            finish: false)
+        {
+        }
 
         public CPUState(
             ReadOnlyMemory<byte> memory,

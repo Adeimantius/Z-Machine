@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
     using System.Collections.Generic;
@@ -70,10 +70,11 @@
                     //                    if (4 * (i + 1) < parseBufferLength)
                     //                    {                            
                     int wordLength = wordArray[i].Length;
-                    memory.setWord(memoryPointer, (ushort)matchedWords[i]);      // Address in dictionary of matches (either from dictionary or 0)
-                    memory.setByte(memoryPointer + 2, (byte)wordLength);     // # of letters in parsed word 
-                    memory.setByte(memoryPointer + 3, (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
-                                                                                //                     }
+                    memory
+                        .setWord(memoryPointer, (ushort)matchedWords[i])      // Address in dictionary of matches (either from dictionary or 0)
+                        .setByte(memoryPointer + 2, (byte)wordLength)         // # of letters in parsed word 
+                        .setByte(memoryPointer + 3, (byte)wordStartIndex[i]); // Corresponding word position in text buffer 
+                    //                     }
                     memoryPointer += 4;
                     memory.setByte(memoryPointer, 0);
                 }
@@ -82,7 +83,7 @@
         }
 
         // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
-        public void writeToBuffer(string input, int address)
+        public Lex writeToBuffer(string input, int address)
         {
             int i;
             for (i = 0; i < input.Length; i++)
@@ -95,9 +96,10 @@
 
             memory.setByte((uint)(address + i + 1), 0);       // Write empty byte to terminate after read is complete.
                                                               // io.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
+            return this;
         }
 
-        public void buildDict()
+        public Lex buildDict()
         {
             // build the dictionary into class variable
             uint separatorLength = memory.getByte(dictionaryAddress);                           // Number of separators
@@ -117,6 +119,7 @@
                 //                  Debug.WriteLine(dictEntry.str);
                 dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
             }
+            return this;
         }
 
         public uint compare(string word, int dictionaryFlag = 0)

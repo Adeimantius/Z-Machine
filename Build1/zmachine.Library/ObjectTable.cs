@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     public class ObjectTable
     {

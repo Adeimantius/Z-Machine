@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
     using System.IO;
@@ -8,13 +8,13 @@
         private readonly StringReader inputReader;
         private readonly StringWriter outputWriter;
 
-        public StaticIO(string initialInput)
+        public StaticIO(string? initialInput = null)
         {
-            inputReader = new StringReader(s: initialInput);
+            inputReader = new StringReader(s: initialInput is not null ? initialInput : "");
             outputWriter = new StringWriter();
         }
 
-        public string ReadLine()
+        public string? ReadLine()
         {
             return inputReader.ReadLine();
         }

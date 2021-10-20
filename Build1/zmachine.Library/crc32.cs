@@ -1,43 +1,46 @@
-﻿public class Crc32
+﻿namespace zmachine.Library
 {
-    private readonly uint[] table;
-
-    public uint ComputeChecksum(byte[] bytes)
+    public class Crc32
     {
-        uint crc = 0xffffffff;
-        for (int i = 0; i < bytes.Length; ++i)
+        private readonly uint[] table;
+
+        public uint ComputeChecksum(byte[] bytes)
         {
-            byte index = (byte)(((crc) & 0xff) ^ bytes[i]);
-            crc = (crc >> 8) ^ table[index];
-        }
-        return ~crc;
-    }
-
-    public byte[] ComputeChecksumBytes(byte[] bytes)
-    {
-        return BitConverter.GetBytes(ComputeChecksum(bytes));
-    }
-
-    public Crc32()
-    {
-        uint poly = 0xedb88320;
-        table = new uint[256];
-        uint temp = 0;
-        for (uint i = 0; i < table.Length; ++i)
-        {
-            temp = i;
-            for (int j = 8; j > 0; --j)
+            uint crc = 0xffffffff;
+            for (int i = 0; i < bytes.Length; ++i)
             {
-                if ((temp & 1) == 1)
-                {
-                    temp = (temp >> 1) ^ poly;
-                }
-                else
-                {
-                    temp >>= 1;
-                }
+                byte index = (byte)(((crc) & 0xff) ^ bytes[i]);
+                crc = (crc >> 8) ^ table[index];
             }
-            table[i] = temp;
+            return ~crc;
+        }
+
+        public byte[] ComputeChecksumBytes(byte[] bytes)
+        {
+            return BitConverter.GetBytes(ComputeChecksum(bytes));
+        }
+
+        public Crc32()
+        {
+            uint poly = 0xedb88320;
+            table = new uint[256];
+            uint temp = 0;
+            for (uint i = 0; i < table.Length; ++i)
+            {
+                temp = i;
+                for (int j = 8; j > 0; --j)
+                {
+                    if ((temp & 1) == 1)
+                    {
+                        temp = (temp >> 1) ^ poly;
+                    }
+                    else
+                    {
+                        temp >>= 1;
+                    }
+                }
+                table[i] = temp;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library.Enumerations
 {
     public enum OperandType
     {

@@ -1,9 +1,9 @@
-﻿namespace zmachine
+﻿namespace zmachine.Library
 {
     using System;
     public class ConsoleIO : IIO
     {
-        public string ReadLine()
+        public string? ReadLine()
         {
             return Console.ReadLine();
         }
