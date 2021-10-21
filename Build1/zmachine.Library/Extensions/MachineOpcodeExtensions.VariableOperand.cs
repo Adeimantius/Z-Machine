@@ -111,13 +111,13 @@
 
         public static Machine processVAR(this Machine machine, int opcode, List<ushort> operands)
         {
-            if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
+            if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), (byte)opcode))
             {
                 throw new InvalidCastException(opcode + " is not a defined value for enum type " +
                   typeof(TwoOperandOpcode).FullName);
             }
 
-            VariableOperandOpcode variableOperandOpcode = (VariableOperandOpcode)opcode;
+            VariableOperandOpcode variableOperandOpcode = (VariableOperandOpcode)(byte)opcode;
             switch (variableOperandOpcode)
             {
                 case VariableOperandOpcode.op_call:

@@ -162,13 +162,13 @@
 
         public static Machine process2OP(this Machine machine, int opcode, List<ushort> operands)
         {
-            if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
+            if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), (byte)opcode))
             {
                 throw new InvalidCastException(opcode + " is not a defined value for enum type " +
                   typeof(TwoOperandOpcode).FullName);
             }
 
-            TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)opcode;
+            TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)(byte)opcode;
             switch (twoOperandOpcode)
             {
                 case TwoOperandOpcode.op_add:

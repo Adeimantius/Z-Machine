@@ -97,13 +97,13 @@
 
         public static Machine process1OP(this Machine machine, int opcode, ushort operand1)
         {
-            if (!System.Enum.IsDefined(typeof(SingleOperandOpcodes), opcode))
+            if (!System.Enum.IsDefined(typeof(SingleOperandOpcodes), (byte)opcode))
             {
                 throw new InvalidCastException(opcode + " is not a defined value for enum type " +
                   typeof(SingleOperandOpcodes).FullName);
             }
 
-            SingleOperandOpcodes singleOperandOpcode = (SingleOperandOpcodes)opcode;
+            SingleOperandOpcodes singleOperandOpcode = (SingleOperandOpcodes)(byte)opcode;
             switch (singleOperandOpcode)
             {
                 case SingleOperandOpcodes.op_dec:

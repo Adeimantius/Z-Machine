@@ -84,13 +84,13 @@
 
         public static Machine process0OP(this Machine machine, int opcode)
         {
-            if (!System.Enum.IsDefined(typeof(NoOperandOpcode), opcode))
+            if (!System.Enum.IsDefined(typeof(NoOperandOpcode), (byte)opcode))
             {
                 throw new InvalidCastException(opcode + " is not a defined value for enum type " +
                   typeof(NoOperandOpcode).FullName);
             }
 
-            NoOperandOpcode noOperandOpcode = (NoOperandOpcode)opcode;
+            NoOperandOpcode noOperandOpcode = (NoOperandOpcode)(byte)opcode;
             switch (noOperandOpcode)
             {
                 case NoOperandOpcode.op_new_line:
