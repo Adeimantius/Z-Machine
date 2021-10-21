@@ -25,12 +25,12 @@
                 .branch(value > v2);
         }
 
-        public static new void op_je(this Machine machine, ushort v1, ushort v2)
+        public static void op_je(this Machine machine, ushort v1, ushort v2)
         {
             machine.branch(v1 == v2);
         }
 
-        public static new void op_je(this Machine machine, List<ushort> operands)
+        public static void op_je(this Machine machine, List<ushort> operands)
         {
             bool branchOn = false;
             for (int i = 1; i < operands.Count; i++)
