@@ -1,13 +1,13 @@
-﻿using System;
-using System.IO;
-using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-
-namespace zmachine
+﻿namespace zmachine
 {
+    using System;
+    using System.IO;
+    using UnityEngine;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading;
+
     public class Memory
     {
         private byte[] memory;
@@ -199,6 +199,7 @@ namespace zmachine
                                     if (debug == true)
                                     {
                                         debugOutput += getZChar(zchar10); z++;
+                                        Debug.WriteLine("\n" + debugOutput + "(" + z + ")");
                                     }
                                     break;
                                 }
