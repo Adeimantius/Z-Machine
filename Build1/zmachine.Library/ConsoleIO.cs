@@ -9,11 +9,11 @@
         }
         public void Write(string str)
         {
-            Console.WriteLine(str); // write/writeline came reversed in the fork.... -JM
+            Console.Write(str);
         }
         public void WriteLine(string str)
         {
-            Console.Write(str);
+            Console.WriteLine(str);
         }
         public System.ConsoleKeyInfo ReadKey()
         {

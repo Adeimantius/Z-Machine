@@ -217,18 +217,17 @@
         /// Looks at pointer and returns instruction
         /// Returns whether input is required before proceeding
         /// </summary>
-        public BreakpointType processInstruction(ulong? instructionNumber = null, IEnumerable<BreakpointType>? breakOn = null)
+        public BreakpointType processInstruction(ulong? instructionNumber = null)
         {
             if (instructionNumber is not null)
             {
                 this.InstructionCounter = instructionNumber.Value;
             }   
 
-            BreakpointType[] breakpointTypes = breakOn is null ? new BreakpointType[] { } : breakOn!.ToArray();
             if (Finished)
             {
                 DebugWrite("Warning: processInstruction called after termination.");
-                if (breakpointTypes.Contains(BreakpointType.Terminate))
+                if (this.BreakOn.Contains(BreakpointType.Terminate))
                 {
                     // we are breaking before executing, instruction counter does not increment
                     return BreakpointType.Terminate;
@@ -322,7 +321,7 @@
             // increment the completed instruction counter
             this.InstructionCounter++;
 
-            if (BreakpointsReached.Any())
+            if (this.BreakAfter > this.InstructionCounter && BreakpointsReached.Any())
             {
                 return BreakpointsReached.Last().breakpoint;
             }

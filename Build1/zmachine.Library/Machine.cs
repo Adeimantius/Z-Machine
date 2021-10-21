@@ -60,6 +60,8 @@
 
         public List<(ulong instruction, Enumerations.BreakpointType breakpoint)> BreakpointsReached;
 
+        public ulong BreakAfter = 0;
+
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
         /// </summary>
