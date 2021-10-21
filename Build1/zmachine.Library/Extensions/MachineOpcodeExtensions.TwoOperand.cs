@@ -149,6 +149,7 @@
             {
                 // Interpreter cannot div by 0
                 machine.Terminate("Division by zero");
+                return;
             }
 
             int result = (short)v1 % (short)v2;
