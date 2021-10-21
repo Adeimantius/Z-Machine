@@ -7,7 +7,7 @@
         public CPUState State
         {
             get => new CPUState(
-                    memory: memory.Contents,
+                    memory: Memory.Contents,
                     stack: stack.Contents,
                     lexMemoryPointer: lex.MemoryPointer,
                     pc: programCounter,
@@ -18,7 +18,7 @@
                     finish: finishProcessing);
             set
             {
-                memory.load(value.memory);
+                Memory.load(value.memory);
                 stack.load(value.stack);
                 lex.MemoryPointer = value.lexMemoryPointer;
                 programCounter = value.programCounter;
@@ -35,7 +35,7 @@
 
         public string stateString()
         {
-            string s = "M: " + memory.getCrc32() + " S: " + stack.getCrc32();
+            string s = "M: " + Memory.getCrc32() + " S: " + stack.getCrc32();
             //            for (ushort i = 1; i < 256; ++i)
             //                s += " " + getVar(i);
             return s;

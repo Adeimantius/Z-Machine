@@ -6,9 +6,9 @@
         private int tp = 0;                                 // pointer to move through tables
         private readonly int objectId = 0;                           // Object ID
 
+        private ObjectTable() { throw new NotImplementedException(); }
 
-
-        public ObjectTable(Memory mem)
+        public ObjectTable(ref Memory mem)
         {
             memory = mem;
         }

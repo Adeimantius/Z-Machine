@@ -17,7 +17,7 @@
         /// </summary>
         private uint memoryPointer;
 
-        public Lex(IIO io, Memory mem, uint mp = 0)
+        public Lex(IIO io, ref Memory mem, uint mp = 0)
         {
             this.io = io;
             memory = mem;
