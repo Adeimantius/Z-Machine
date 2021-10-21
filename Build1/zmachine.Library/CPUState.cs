@@ -13,6 +13,7 @@
         public uint callDepth;
         public RoutineCallState[] callStack;
         public bool finish;
+        public ulong instructionCounter;
 
         public CPUState() : this(
             memory: new byte[Machine.MemorySize],
@@ -23,7 +24,8 @@
             sp: 0,
             callDepth: 0,
             callStack: new RoutineCallState[Machine.StackDepth],
-            finish: false)
+            finish: false,
+            instructionCounter: 0)
         {
         }
 
@@ -36,7 +38,8 @@
             uint sp,
             uint callDepth,
             RoutineCallState[] callStack,
-            bool finish)
+            bool finish,
+            ulong instructionCounter = 0)
         {
             this.memory = memory.ToArray();
             this.lexMemoryPointer = lexMemoryPointer;

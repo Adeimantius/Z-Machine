@@ -15,7 +15,8 @@
                     sp: stackPointer,
                     callDepth: callDepth,
                     callStack: callStack,
-                    finish: finishProcessing);
+                    finish: finishProcessing,
+                    instructionCounter: InstructionCounter);
             set
             {
                 Memory.load(value.memory);
@@ -30,6 +31,7 @@
                     destinationArray: callStack,
                     length: StackDepth);
                 finishProcessing = value.finish;
+                InstructionCounter = value.instructionCounter;
             }
         }
 

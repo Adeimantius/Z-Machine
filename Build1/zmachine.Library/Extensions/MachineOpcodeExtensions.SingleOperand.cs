@@ -95,7 +95,7 @@
             machine.setVar(machine.pc_getWord(), v1);
         }
 
-        public static Machine process1OP(this Machine machine, int opcode, ushort operand1)
+        public static BreakpointType process1OP(this Machine machine, int opcode, ushort operand1)
         {
             if (!System.Enum.IsDefined(typeof(SingleOperandOpcodes), opcode))
             {
@@ -149,10 +149,9 @@
                     op_ret(machine: machine, v1: operand1);
                     break;
                 default:
-                    fail_unimplemented(machine: machine);
-                    break;
+                    return fail_unimplemented(machine: machine);
             }
-            return machine;
+            return BreakpointType.None;
             /*
             string? opcodeName = singleOperandOpcode.ToString();
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);

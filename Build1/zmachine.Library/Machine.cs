@@ -34,6 +34,11 @@
         }
 
         /// <summary>
+        /// Number of instructions since power on
+        /// </summary>
+        public ulong InstructionCounter;
+
+        /// <summary>
         /// Program Counter at the beginning of executing the instruction
         /// </summary>
         private uint pcStart = 0;
@@ -51,6 +56,10 @@
         /// </summary>
         private readonly RoutineCallState[] callStack = new RoutineCallState[StackDepth];
 
+        public List<Enumerations.BreakpointType> BreakOn;
+
+        public List<(ulong instruction, Enumerations.BreakpointType breakpoint)> BreakpointsReached;
+
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
         /// </summary>
@@ -58,6 +67,8 @@
         /// <param name="programFilename"></param>
         public Machine(IIO io, string programFilename)
         {
+            this.BreakOn = new List<Enumerations.BreakpointType> {  };
+            this.BreakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
             finishProcessing = false;
             Memory.load(programFilename);

@@ -51,18 +51,16 @@
                 io: io,
                 programFilename: selectedFile);
 
-            int numInstructionsProcessed = 0;
             while (!machine.Finished)
             {
                 if (machine.DebugEnabled)
                 {
-                    Debug.Write("" + numInstructionsProcessed + " : ");
+                    Debug.Write("" + machine.InstructionCounter + " : ");
                 }
 
                 machine.processInstruction();
-                ++numInstructionsProcessed;
             }
-            Debug.WriteLine("Instructions processed: " + numInstructionsProcessed);
+            Debug.WriteLine("Instructions processed: " + machine.InstructionCounter);
         }
 
     }

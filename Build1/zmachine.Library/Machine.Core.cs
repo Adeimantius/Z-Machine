@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
-        public Machine Terminate(string? error = null)
+        public BreakpointType Terminate(string? error = null)
         {
             DebugWrite("Terminate called");
             if (error is not null)
@@ -32,7 +32,8 @@
                 DebugWrite("Error: " + error);
             }
             finishProcessing = true;
-            return this;
+            this.BreakpointsReached.Add((InstructionCounter, BreakpointType.Terminate));
+            return BreakpointType.Terminate;
         }
 
         public uint unpackedAddress(ushort address)
@@ -214,13 +215,24 @@
 
         /// <summary>
         /// Looks at pointer and returns instruction
+        /// Returns whether input is required before proceeding
         /// </summary>
-        public Machine processInstruction()
+        public BreakpointType processInstruction(ulong? instructionNumber = null, IEnumerable<BreakpointType>? breakOn = null)
         {
+            if (instructionNumber is not null)
+            {
+                this.InstructionCounter = instructionNumber.Value;
+            }   
+
+            BreakpointType[] breakpointTypes = breakOn is null ? new BreakpointType[] { } : breakOn!.ToArray();
             if (Finished)
             {
                 DebugWrite("Warning: processInstruction called after termination.");
-                // throw new Exception();
+                if (breakpointTypes.Contains(BreakpointType.Terminate))
+                {
+                    // we are breaking before executing, instruction counter does not increment
+                    return BreakpointType.Terminate;
+                }
             }
 
             pcStart = programCounter;
@@ -306,7 +318,16 @@
 
                     //return (byte) instruction;                 
             }
-            return this;
+
+            // increment the completed instruction counter
+            this.InstructionCounter++;
+
+            if (BreakpointsReached.Any())
+            {
+                return BreakpointsReached.Last().breakpoint;
+            }
+
+            return BreakpointType.None;
         }// end processInstruction
 
         public byte pc_getByte()
