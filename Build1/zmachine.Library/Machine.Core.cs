@@ -318,13 +318,13 @@
                     //return (byte) instruction;                 
             }
 
-            // increment the completed instruction counter
-            this.InstructionCounter++;
-
-            if (this.BreakAfter > this.InstructionCounter && BreakpointsReached.Any())
+            if (BreakpointsReached.Any() && (this.BreakAfter < this.InstructionCounter))
             {
                 return BreakpointsReached.Last().breakpoint;
             }
+
+            // increment the completed instruction counter
+            this.InstructionCounter++;
 
             return BreakpointType.None;
         }// end processInstruction

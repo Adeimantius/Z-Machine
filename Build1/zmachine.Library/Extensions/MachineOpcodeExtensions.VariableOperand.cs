@@ -148,7 +148,7 @@
                     op_split_window(machine: machine, operands: operands);
                     break;
                 case VariableOperandOpcode.op_sread:
-                    if (machine.BreakOn.Contains(BreakpointType.InputRequired) && machine.BreakAfter > machine.InstructionCounter)
+                    if (machine.BreakOn.Contains(BreakpointType.InputRequired) && machine.InstructionCounter > machine.BreakAfter)
                     {
                         machine.BreakpointsReached.Add((machine.InstructionCounter, BreakpointType.InputRequired));
                         return machine;
