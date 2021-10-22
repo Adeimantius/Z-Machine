@@ -58,5 +58,36 @@ namespace zmachine.Library.Tests
             Assert.AreEqual(expected: Screens[0], actual: identicalOutput);
             Assert.AreEqual(expected: "", actual: emptyOutput);
         }
+
+        [TestMethod]
+        public void TestScore()
+        {
+            StaticIO staticIO = new StaticIO("score\n");
+            Machine machine = new Machine(
+                io: staticIO,
+                programFilename: ZorkPath,
+                breakpointTypes: new BreakpointType[]
+                {
+                    BreakpointType.InputRequired,
+                    BreakpointType.Terminate
+                });
+
+            // skip the first screen
+            machine.BreakAfter = 387;
+
+            while (!machine.Finished)
+            {
+                var breakpoint = machine.processInstruction();
+                if (breakpoint != BreakpointType.None)
+                {
+                    Assert.AreEqual(expected: BreakpointType.InputRequired, actual: breakpoint);
+                    break;
+                }
+            }
+            var scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: Screens[0].Length);
+            Assert.AreEqual(
+                expected: "Your score is 0 (total of 350 points), in 0 moves.\r\nThis gives you the rank of Beginner.\r\n\r\n>",
+                actual: scoreScreen);
+        }
     }
 }

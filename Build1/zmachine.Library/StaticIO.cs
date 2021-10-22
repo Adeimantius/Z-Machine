@@ -5,7 +5,7 @@
 
     public class StaticIO : IIO
     {
-        private readonly StringReader inputReader;
+        private StringReader inputReader;
         private StringWriter outputWriter;
 
         public string GetOutput(bool keepContents = false)
@@ -24,6 +24,11 @@
         {
             inputReader = new StringReader(s: initialInput is not null ? initialInput : "");
             outputWriter = new StringWriter();
+        }
+
+        public void SetInput(string value)
+        {
+            this.inputReader = new StringReader(value);
         }
 
         public string? ReadLine()
