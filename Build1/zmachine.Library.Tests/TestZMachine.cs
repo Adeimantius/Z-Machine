@@ -37,7 +37,6 @@ namespace zmachine.Library.Tests
                 breakpointTypes: new BreakpointType[]
                 {
                     BreakpointType.InputRequired,
-                    BreakpointType.Terminate
                 });
 
             while (!machine.Finished)
@@ -69,7 +68,6 @@ namespace zmachine.Library.Tests
                 breakpointTypes: new BreakpointType[]
                 {
                     BreakpointType.InputRequired,
-                    BreakpointType.Terminate
                 });
 
             // skip the first screen

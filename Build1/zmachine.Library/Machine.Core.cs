@@ -234,11 +234,7 @@
             if (Finished)
             {
                 DebugWrite("Warning: processInstruction called after termination.");
-                if (this.BreakFor.Contains(BreakpointType.Terminate))
-                {
-                    // we are breaking before executing, instruction counter does not increment
-                    return BreakpointType.Terminate;
-                }
+                return BreakpointType.Terminate;
             }
 
             pcStart = programCounter;

@@ -73,9 +73,11 @@
             }
         }
 
+        public static readonly BreakpointType[] EndProgramBreakpoints = { BreakpointType.Complete, BreakpointType.Terminate }; 
+
         public bool ShouldBreakFor(BreakpointType breakpointType)
         {
-            if ((breakpointType == BreakpointType.Complete) || (breakpointType == BreakpointType.Terminate))
+            if (EndProgramBreakpoints.Contains(breakpointType))
             {
                 // always break for termination
                 return true;
