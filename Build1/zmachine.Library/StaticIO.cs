@@ -6,14 +6,16 @@
     public class StaticIO : IIO
     {
         private readonly StringReader inputReader;
-        private readonly StringWriter outputWriter;
+        private StringWriter outputWriter;
 
         public string GetOutput(bool keepContents = false)
         {
+            this.outputWriter.Flush();
             var output = this.outputWriter.ToString();
             if (!keepContents)
             {
-                this.outputWriter.Flush();
+                this.outputWriter.Dispose();
+                this.outputWriter = new StringWriter();
             }
             return output;
         }

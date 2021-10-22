@@ -48,9 +48,15 @@ namespace zmachine.Library.Tests
                     break;
                 }
             }
-            var actualOutput = staticIO.GetOutput();
+            
+            var actualOutput = staticIO.GetOutput(keepContents: true);
+            var identicalOutput = staticIO.GetOutput(keepContents: false);
+            var emptyOutput = staticIO.GetOutput(keepContents: false);
+         
             Assert.AreEqual(expected: 386U, actual: machine.InstructionCounter);
             Assert.AreEqual(expected: Screens[0], actual: actualOutput);
+            Assert.AreEqual(expected: Screens[0], actual: identicalOutput);
+            Assert.AreEqual(expected: "", actual: emptyOutput);
         }
     }
 }
