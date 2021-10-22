@@ -8,6 +8,16 @@
         private readonly StringReader inputReader;
         private readonly StringWriter outputWriter;
 
+        public string GetOutput(bool keepContents = false)
+        {
+            var output = this.outputWriter.ToString();
+            if (!keepContents)
+            {
+                this.outputWriter.Flush();
+            }
+            return output;
+        }
+
         public StaticIO(string? initialInput = null)
         {
             inputReader = new StringReader(s: initialInput is not null ? initialInput : "");
