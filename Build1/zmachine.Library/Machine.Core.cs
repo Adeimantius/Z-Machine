@@ -19,6 +19,13 @@
             return this;
         }
 
+        public BreakpointType QuitNicely()
+        {
+            this.finishProcessing = true;
+            this.Break(BreakpointType.Complete);
+            return BreakpointType.Complete;
+        }
+
         /// <summary>
         /// Terminates execution of the program.
         /// </summary>
@@ -320,7 +327,13 @@
 
             if (this.ShouldBreak)
             {
-                return BreakpointsReached.Last().breakpointType;
+                var lastBreak = BreakpointsReached.Last().breakpointType;
+                // Completion is the only type of breakpoint we increment after
+                if (lastBreak == BreakpointType.Complete)
+                {
+                    this.InstructionCounter++;
+                }
+                return lastBreak;
             }
 
             // increment the completed instruction counter

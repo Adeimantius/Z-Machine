@@ -5,5 +5,6 @@
         None,
         InputRequired,
         Terminate,
+        Complete,
     }
 }

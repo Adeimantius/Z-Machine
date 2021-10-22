@@ -64,7 +64,7 @@
 
         public static void op_quit(this Machine machine)
         {
-            machine.Terminate(nameof(op_quit));
+            machine.QuitNicely();
         }
 
         public static void op_new_line(this Machine machine)

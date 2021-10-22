@@ -75,6 +75,11 @@
 
         public bool ShouldBreakFor(BreakpointType breakpointType)
         {
+            if ((breakpointType == BreakpointType.Complete) || (breakpointType == BreakpointType.Terminate))
+            {
+                // always break for termination
+                return true;
+            }
             return (this.InstructionCounter > this.BreakAfter) && 
                 this.BreakFor.Contains(breakpointType);
         }
