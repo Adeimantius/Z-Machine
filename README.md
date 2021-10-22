@@ -14,5 +14,6 @@ I included the primary documentation files I used as reference, and more informa
 
 # Resources
 - http://inform-fiction.org/zmachine/standards/z1point1/index.html
+- http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
 - https://hansprestige.com/inform/zmachine_versions.html
 - https://medium.com/swlh/zork-the-great-inner-workings-b68012952bdc
