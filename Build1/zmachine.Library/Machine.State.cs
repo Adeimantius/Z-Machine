@@ -9,7 +9,7 @@
             get => new CPUState(
                     memory: Memory.Contents,
                     stack: stack.Contents,
-                    lexMemoryPointer: lex.MemoryPointer,
+                    lexMemoryPointer: Lex.MemoryPointer,
                     pc: programCounter,
                     pcStart: pcStart,
                     sp: stackPointer,
@@ -21,7 +21,7 @@
             {
                 Memory.load(value.memory);
                 stack.load(value.stack);
-                lex.MemoryPointer = value.lexMemoryPointer;
+                Lex.MemoryPointer = value.lexMemoryPointer;
                 programCounter = value.programCounter;
                 pcStart = value.pcStart;
                 stackPointer = value.stackPointer;

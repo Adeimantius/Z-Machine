@@ -32,7 +32,7 @@
                 DebugWrite("Error: " + error);
             }
             finishProcessing = true;
-            this.BreakpointsReached.Add((InstructionCounter, BreakpointType.Terminate));
+            this.Break(BreakpointType.Terminate);
             return BreakpointType.Terminate;
         }
 
@@ -203,7 +203,7 @@
             {
                 throw new Exception("insufficient operands");
             }
-            lex.read(operands[0], operands[1]);
+            Lex.read(operands[0], operands[1]);
             return this;
         }
 
@@ -227,7 +227,7 @@
             if (Finished)
             {
                 DebugWrite("Warning: processInstruction called after termination.");
-                if (this.BreakOn.Contains(BreakpointType.Terminate))
+                if (this.BreakFor.Contains(BreakpointType.Terminate))
                 {
                     // we are breaking before executing, instruction counter does not increment
                     return BreakpointType.Terminate;
@@ -318,9 +318,9 @@
                     //return (byte) instruction;                 
             }
 
-            if (BreakpointsReached.Any() && (this.BreakAfter < this.InstructionCounter))
+            if (this.ShouldBreak)
             {
-                return BreakpointsReached.Last().breakpoint;
+                return BreakpointsReached.Last().breakpointType;
             }
 
             // increment the completed instruction counter

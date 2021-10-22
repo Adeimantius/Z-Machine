@@ -1,6 +1,7 @@
 ﻿namespace zmachine.Library
 {
     using System;
+    using zmachine.Library.Enumerations;
 
     /// <summary>
     /// This class moves through the input file and extracts bytes to deconstruct instructions in the code
@@ -18,7 +19,7 @@
         private readonly Memory stack = new Memory(size: StackSize);
         public readonly ObjectTable ObjectTable;
         private readonly IIO io;
-        private readonly Lex lex;
+        private readonly Lex Lex;
 
         private readonly bool debug = false;
 
@@ -56,23 +57,78 @@
         /// </summary>
         private readonly RoutineCallState[] callStack = new RoutineCallState[StackDepth];
 
-        public List<Enumerations.BreakpointType> BreakOn;
+        private List<Enumerations.BreakpointType> BreakFor;
 
-        public List<(ulong instruction, Enumerations.BreakpointType breakpoint)> BreakpointsReached;
+        private List<(ulong instruction, Enumerations.BreakpointType breakpointType)> breakpointsReached;
+
+        public IEnumerable<(ulong instruction, Enumerations.BreakpointType breakpointType)> BreakpointsReached => breakpointsReached.ToArray();
 
         public ulong BreakAfter = 0;
+
+        public bool ShouldBreak
+        {
+            get
+            {
+                return (this.InstructionCounter > this.BreakAfter) && this.breakpointsReached.Any();
+            }
+        }
+
+        public bool ShouldBreakFor(BreakpointType breakpointType)
+        {
+            return (this.InstructionCounter > this.BreakAfter) && 
+                this.BreakFor.Contains(breakpointType);
+        }
+
+        public bool BreakpointReached(BreakpointType breakpointType) =>
+            this.breakpointsReached
+                .Select(t => t.breakpointType)
+                .Contains(breakpointType);
+        
+        public Machine AddBreakpoint(BreakpointType breakpointType, ulong? afterInstruction = null)
+        {
+            if (!this.BreakFor.Contains(breakpointType))
+            {
+                this.BreakFor.Add(breakpointType);
+            }
+            if (afterInstruction is not null && (this.BreakAfter < afterInstruction.Value))
+            {
+                this.BreakAfter = afterInstruction.Value;
+            }
+            return this;
+        }
+
+        public Machine RemoveBreakpoint(BreakpointType breakpointType)
+        {
+            if (this.BreakFor.Contains(breakpointType))
+            {
+                this.BreakFor.Remove(breakpointType);
+            }
+            return this;
+        }
+
+        public bool Break(BreakpointType breakpointType)
+        {
+            if (!this.ShouldBreakFor(breakpointType))
+            {
+                return false;
+            }
+            this.breakpointsReached.Add((
+                instruction: this.InstructionCounter,
+                breakpointType: breakpointType));
+            return true;
+        }
 
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
         /// </summary>
         /// <param name="io"></param>
         /// <param name="programFilename"></param>
-        public Machine(IIO io, string programFilename)
+        public Machine(IIO io, string programFilename, IEnumerable<BreakpointType>? breakpointTypes = null)
         {
-            this.BreakOn = new List<Enumerations.BreakpointType> {  };
-            this.BreakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
+            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> {  };
+            this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
-            finishProcessing = false;
+            this.finishProcessing = false;
             Memory.load(programFilename);
             initializeProgramCounter();
 
@@ -81,8 +137,8 @@
                 callStack[i] = new RoutineCallState();
             }
 
-            ObjectTable = new ObjectTable(ref Memory);
-            lex = new Lex(
+            this.ObjectTable = new ObjectTable(ref Memory);
+            this.Lex = new Lex(
                 io: this.io,
                 mem: ref Memory);
         }
@@ -93,20 +149,22 @@
         /// <param name="io"></param>
         /// <param name="initialState"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public Machine(IIO io, CPUState initialState)
+        public Machine(IIO io, CPUState initialState, IEnumerable<BreakpointType>? breakpointTypes = null)
         {
             if (initialState is null)
             {
                 throw new ArgumentNullException(nameof(initialState));
             }
+            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> { };
+            this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
-            finishProcessing = false;
-            ObjectTable = new ObjectTable(ref Memory);
-            lex = new Lex(
+            this.finishProcessing = false;
+            this.ObjectTable = new ObjectTable(ref Memory);
+            this.Lex = new Lex(
                 io: this.io,
                 mem: ref Memory,
                 mp: initialState.lexMemoryPointer);
-            State = initialState;
+            this.State = initialState;
         }
 
         public bool Finished => finishProcessing;
