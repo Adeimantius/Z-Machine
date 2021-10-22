@@ -50,6 +50,7 @@
             this.callDepth = callDepth;
             this.callStack = callStack;
             this.finish = finish;
+            this.instructionCounter = instructionCounter;
         }
     }
 }
