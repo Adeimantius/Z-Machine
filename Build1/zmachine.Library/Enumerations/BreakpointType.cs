@@ -4,6 +4,7 @@
     {
         None,
         InputRequired,
+        Opcode,
         Terminate,
         Complete,
     }

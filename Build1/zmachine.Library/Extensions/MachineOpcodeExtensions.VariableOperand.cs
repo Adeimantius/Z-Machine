@@ -118,6 +118,14 @@
             }
 
             VariableOperandOpcode variableOperandOpcode = (VariableOperandOpcode)opcode;
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(variableOperandOpcode))
+            {
+                machine.Break(breakpointType: BreakpointType.Opcode);
+                if (machine.OpcodeBreakpoints[variableOperandOpcode] == BreakpointAction.Halt)
+                {
+                    return variableOperandOpcode;
+                }
+            }
             switch (variableOperandOpcode)
             {
                 case VariableOperandOpcode.op_call:
@@ -152,7 +160,7 @@
                     {
                         machine.Break(BreakpointType.InputRequired);
                     }
-                    else
+                    if (machine.ShouldContinueFor(BreakpointType.InputRequired))
                     {
                         op_sread(machine: machine, operands: operands);
                     }

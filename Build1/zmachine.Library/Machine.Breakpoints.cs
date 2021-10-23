@@ -14,7 +14,12 @@
                 return true;
             }
             return (this.InstructionCounter > this.BreakAfter) &&
-                this.BreakFor.Contains(breakpointType);
+                this.BreakFor.ContainsKey(breakpointType);
+        }
+
+        public bool ShouldContinueFor(BreakpointType breakpointType)
+        {
+            return this.BreakFor.ContainsKey(breakpointType) && this.BreakFor[breakpointType] == BreakpointAction.Continue;
         }
 
         public bool BreakpointReached(BreakpointType breakpointType)
@@ -24,11 +29,21 @@
 .Contains(breakpointType);
         }
 
-        public Machine AddBreakpoint(BreakpointType breakpointType, ulong? afterInstruction = null)
+        public Machine ClearBreakpointsReached()
         {
-            if (!this.BreakFor.Contains(breakpointType))
+            this.breakpointsReached.Clear();
+            return this;
+        }
+
+        public Machine AddBreakpoint(BreakpointType breakpointType, BreakpointAction breakpointAction, ulong? afterInstruction = null)
+        {
+            if (this.BreakFor.ContainsKey(breakpointType))
             {
-                this.BreakFor.Add(breakpointType);
+                this.BreakFor[breakpointType] = breakpointAction;
+            } 
+            else
+            {
+                this.BreakFor.Add(breakpointType, breakpointAction);
             }
             if (afterInstruction is not null && (this.BreakAfter < afterInstruction.Value))
             {
@@ -39,7 +54,7 @@
 
         public Machine RemoveBreakpoint(BreakpointType breakpointType)
         {
-            if (this.BreakFor.Contains(breakpointType))
+            if (this.BreakFor.ContainsKey(breakpointType))
             {
                 this.BreakFor.Remove(breakpointType);
             }
@@ -57,7 +72,5 @@
                 breakpointType: breakpointType));
             return true;
         }
-
-
     }
 }

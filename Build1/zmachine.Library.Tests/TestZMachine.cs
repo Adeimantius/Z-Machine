@@ -38,9 +38,9 @@
             Machine machine = new Machine(
                 io: staticIO,
                 programFilename: ZorkPath,
-                breakpointTypes: new BreakpointType[]
+                breakpointTypes: new Dictionary<BreakpointType,BreakpointAction>
                 {
-                    BreakpointType.InputRequired,
+                    { BreakpointType.InputRequired, BreakpointAction.Halt },
                 });
 
             while (!machine.Finished)
@@ -69,9 +69,9 @@
             Machine machine = new Machine(
                 io: staticIO,
                 programFilename: ZorkPath,
-                breakpointTypes: new BreakpointType[]
+                breakpointTypes: new Dictionary<BreakpointType, BreakpointAction>
                 {
-                    BreakpointType.InputRequired,
+                    { BreakpointType.InputRequired, BreakpointAction.Halt },
                 })
             {
 
@@ -102,9 +102,13 @@
             Machine machine = new Machine(
                 io: staticIO,
                 programFilename: ZorkPath,
-                breakpointTypes: new BreakpointType[]{})
+                breakpointTypes: new Dictionary<BreakpointType, BreakpointAction>{
+                    //{ BreakpointType.Opcode, BreakpointAction.Halt }
+                });
             {
             };
+            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_save, BreakpointAction.Continue);
+            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_show_status, BreakpointAction.Continue);
 
             List<(InstructionInfo instructionInfo, string output)> stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
             while (!machine.Finished)

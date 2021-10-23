@@ -91,6 +91,14 @@
             }
 
             NoOperandOpcode noOperandOpcode = (NoOperandOpcode)opcode;
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(noOperandOpcode))
+            {
+                machine.Break(breakpointType: BreakpointType.Opcode);
+                if (machine.OpcodeBreakpoints[noOperandOpcode] == BreakpointAction.Halt)
+                {
+                    return noOperandOpcode;
+                }
+            }
             switch (noOperandOpcode)
             {
                 case NoOperandOpcode.op_new_line:

@@ -170,6 +170,14 @@
             }
 
             TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)opcode;
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(twoOperandOpcode))
+            {
+                machine.Break(breakpointType: BreakpointType.Opcode);
+                if (machine.OpcodeBreakpoints[twoOperandOpcode] == BreakpointAction.Halt)
+                {
+                    return twoOperandOpcode;
+                }
+            }
             switch (twoOperandOpcode)
             {
                 case TwoOperandOpcode.op_add:

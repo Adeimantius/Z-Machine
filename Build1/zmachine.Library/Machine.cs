@@ -82,7 +82,7 @@
         /// <summary>
         /// Breakpoint types besides complete/terminate to break for
         /// </summary>
-        private readonly List<Enumerations.BreakpointType> BreakFor;
+        private readonly Dictionary<Enumerations.BreakpointType, BreakpointAction> BreakFor;
 
         /// <summary>
         /// Breakpoints reached and their instruction number
@@ -99,18 +99,21 @@
         /// </summary>
         public static readonly BreakpointType[] EndProgramBreakpoints = { BreakpointType.Complete, BreakpointType.Terminate };
 
+        public readonly Dictionary<Enum, BreakpointAction> OpcodeBreakpoints; 
+
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
         /// </summary>
         /// <param name="io"></param>
         /// <param name="programFilename"></param>
-        public Machine(IIO io, string programFilename, IEnumerable<BreakpointType>? breakpointTypes = null)
+        public Machine(IIO io, string programFilename, Dictionary<BreakpointType, BreakpointAction>? breakpointTypes = null)
         {
             this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
             this.stack = new Memory(size: StackSize);
             this.CPUStates = new LinkedList<CPUState>();
+            this.OpcodeBreakpoints = new Dictionary<Enum, BreakpointAction>();
             this.BreakAfter = 0;
-            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> { };
+            this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
             this.finishProcessing = false;
@@ -134,7 +137,7 @@
         /// <param name="io"></param>
         /// <param name="initialState"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public Machine(IIO io, CPUState initialState, IEnumerable<BreakpointType>? breakpointTypes = null)
+        public Machine(IIO io, CPUState initialState, Dictionary<BreakpointType, BreakpointAction>? breakpointTypes = null)
         {
             if (initialState is null)
             {
@@ -143,8 +146,9 @@
             this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
             this.stack = new Memory(size: StackSize);
             this.CPUStates = new LinkedList<CPUState>();
+            this.OpcodeBreakpoints = new Dictionary<Enum, BreakpointAction>();
             this.BreakAfter = 0;
-            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> { };
+            this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
             this.finishProcessing = false;

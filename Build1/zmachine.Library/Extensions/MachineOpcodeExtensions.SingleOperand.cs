@@ -104,6 +104,14 @@
             }
 
             SingleOperandOpcodes singleOperandOpcode = (SingleOperandOpcodes)opcode;
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(singleOperandOpcode))
+            {
+                machine.Break(breakpointType: BreakpointType.Opcode);
+                if(machine.OpcodeBreakpoints[singleOperandOpcode] == BreakpointAction.Halt)
+                {
+                    return singleOperandOpcode;
+                }
+            }
             switch (singleOperandOpcode)
             {
                 case SingleOperandOpcodes.op_dec:
