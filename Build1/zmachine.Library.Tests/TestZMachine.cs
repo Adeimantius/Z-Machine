@@ -103,12 +103,12 @@
                 io: staticIO,
                 programFilename: ZorkPath,
                 breakpointTypes: new Dictionary<BreakpointType, BreakpointAction>{
-                    //{ BreakpointType.Opcode, BreakpointAction.Halt }
+                    //{ BreakpointType.Opcode, BreakpointAction.Continue }
                 });
             {
             };
-            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_save, BreakpointAction.Continue);
-            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_show_status, BreakpointAction.Continue);
+            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_save);
+            machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_show_status);
 
             List<(InstructionInfo instructionInfo, string output)> stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
             while (!machine.Finished)

@@ -118,10 +118,10 @@
             }
 
             VariableOperandOpcode variableOperandOpcode = (VariableOperandOpcode)opcode;
-            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(variableOperandOpcode))
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.Contains(variableOperandOpcode))
             {
                 machine.Break(breakpointType: BreakpointType.Opcode);
-                if (machine.OpcodeBreakpoints[variableOperandOpcode] == BreakpointAction.Halt)
+                if (!machine.ShouldContinueFor(BreakpointType.Opcode))
                 {
                     return variableOperandOpcode;
                 }

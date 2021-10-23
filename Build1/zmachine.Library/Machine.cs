@@ -99,7 +99,7 @@
         /// </summary>
         public static readonly BreakpointType[] EndProgramBreakpoints = { BreakpointType.Complete, BreakpointType.Terminate };
 
-        public readonly Dictionary<Enum, BreakpointAction> OpcodeBreakpoints; 
+        public readonly List<Enum> OpcodeBreakpoints; 
 
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
@@ -111,7 +111,7 @@
             this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
             this.stack = new Memory(size: StackSize);
             this.CPUStates = new LinkedList<CPUState>();
-            this.OpcodeBreakpoints = new Dictionary<Enum, BreakpointAction>();
+            this.OpcodeBreakpoints = new List<Enum>();
             this.BreakAfter = 0;
             this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
@@ -146,7 +146,7 @@
             this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
             this.stack = new Memory(size: StackSize);
             this.CPUStates = new LinkedList<CPUState>();
-            this.OpcodeBreakpoints = new Dictionary<Enum, BreakpointAction>();
+            this.OpcodeBreakpoints = new List<Enum>();
             this.BreakAfter = 0;
             this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };

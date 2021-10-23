@@ -91,10 +91,10 @@
             }
 
             NoOperandOpcode noOperandOpcode = (NoOperandOpcode)opcode;
-            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(noOperandOpcode))
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.Contains(noOperandOpcode))
             {
                 machine.Break(breakpointType: BreakpointType.Opcode);
-                if (machine.OpcodeBreakpoints[noOperandOpcode] == BreakpointAction.Halt)
+                if (!machine.ShouldContinueFor(BreakpointType.Opcode))
                 {
                     return noOperandOpcode;
                 }

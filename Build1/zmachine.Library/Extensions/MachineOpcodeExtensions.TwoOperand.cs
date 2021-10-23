@@ -170,10 +170,10 @@
             }
 
             TwoOperandOpcode twoOperandOpcode = (TwoOperandOpcode)opcode;
-            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.ContainsKey(twoOperandOpcode))
+            if (machine.ShouldBreakFor(BreakpointType.Opcode) && machine.OpcodeBreakpoints.Contains(twoOperandOpcode))
             {
                 machine.Break(breakpointType: BreakpointType.Opcode);
-                if (machine.OpcodeBreakpoints[twoOperandOpcode] == BreakpointAction.Halt)
+                if (!machine.ShouldContinueFor(BreakpointType.Opcode))
                 {
                     return twoOperandOpcode;
                 }
