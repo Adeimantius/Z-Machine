@@ -11,7 +11,7 @@
         public string GetOutput(bool keepContents = false)
         {
             this.outputWriter.Flush();
-            var output = this.outputWriter.ToString();
+            string? output = this.outputWriter.ToString();
             if (!keepContents)
             {
                 this.outputWriter.Dispose();
@@ -22,8 +22,8 @@
 
         public StaticIO(string? initialInput = null)
         {
-            inputReader = new StringReader(s: initialInput is not null ? initialInput : "");
-            outputWriter = new StringWriter();
+            this.inputReader = new StringReader(s: initialInput is not null ? initialInput : "");
+            this.outputWriter = new StringWriter();
         }
 
         public void SetInput(string value)
@@ -33,17 +33,17 @@
 
         public string? ReadLine()
         {
-            return inputReader.ReadLine();
+            return this.inputReader.ReadLine();
         }
 
         public void Write(string str)
         {
-            outputWriter.Write(str);
+            this.outputWriter.Write(str);
         }
 
         public void WriteLine(string str)
         {
-            outputWriter.WriteLine(str);
+            this.outputWriter.WriteLine(str);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         public System.ConsoleKeyInfo ReadKey()
         {
             char[] key = new char[1];
-            inputReader.Read(key, 0, 1);
+            this.inputReader.Read(key, 0, 1);
 
             if ((key[0] >= 'a' && key[0] <= 'z') || (key[0] >= '0' && key[0] <= '9'))
             {

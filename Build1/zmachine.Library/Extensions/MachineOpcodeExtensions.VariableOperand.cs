@@ -109,7 +109,7 @@
             fail_unimplemented(machine);
         }
 
-        public static Machine processVAR(this Machine machine, int opcode, List<ushort> operands)
+        public static VariableOperandOpcode processVAR(this Machine machine, int opcode, List<ushort> operands)
         {
             if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
             {
@@ -151,9 +151,11 @@
                     if (machine.ShouldBreakFor(BreakpointType.InputRequired))
                     {
                         machine.Break(BreakpointType.InputRequired);
-                        return machine;
                     }
-                    op_sread(machine: machine, operands: operands);
+                    else
+                    {
+                        op_sread(machine: machine, operands: operands);
+                    }
                     break;
                 case VariableOperandOpcode.op_storeb:
                     op_storeb(machine: machine, operands: operands);
@@ -165,7 +167,7 @@
                     fail_unimplemented(machine: machine);
                     break;
             }
-            return machine;
+            return variableOperandOpcode;
             /*
             string? opcodeName = twoOperandOpcode.ToString();
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);

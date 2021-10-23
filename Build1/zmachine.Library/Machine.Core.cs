@@ -8,7 +8,7 @@
     {
         public Machine DebugWrite(params object[] args)
         {
-            if (DebugEnabled)
+            if (this.DebugEnabled)
             {
                 for (int i = 0; i < args.Length; i++)
                 {
@@ -19,6 +19,13 @@
             return this;
         }
 
+        public BreakpointType QuitNicely()
+        {
+            this.finishProcessing = true;
+            this.Break(BreakpointType.Complete);
+            return BreakpointType.Complete;
+        }
+
         /// <summary>
         /// Terminates execution of the program.
         /// </summary>
@@ -26,12 +33,12 @@
         /// <returns></returns>
         public BreakpointType Terminate(string? error = null)
         {
-            DebugWrite("Terminate called");
+            this.DebugWrite("Terminate called");
             if (error is not null)
             {
-                DebugWrite("Error: " + error);
+                this.DebugWrite("Error: " + error);
             }
-            finishProcessing = true;
+            this.finishProcessing = true;
             this.Break(BreakpointType.Terminate);
             return BreakpointType.Terminate;
         }
@@ -46,7 +53,7 @@
         {
             //             Debug.WriteLine("BRANCH: " + (condition ? "1" : "0"));
 
-            byte branchInfo = pc_getByte();
+            byte branchInfo = this.pc_getByte();
             int branchOn = ((branchInfo >> 7) & 0x01);
             int branchSmall = ((branchInfo >> 6) & 0x1);
             uint offset = (uint)(branchInfo & 0x3f); // the "offset" is in the range 0 to 63, given in the bottom 6 bits.
@@ -65,18 +72,18 @@
 
                 offset <<= 8;              // Shift bits 8 left before adding next 6 to make a 14-bit number.
 
-                offset += pc_getByte();  // in bits 0 to 5 of the first byte followed by all 8 of the second.
+                offset += this.pc_getByte();  // in bits 0 to 5 of the first byte followed by all 8 of the second.
             }
 
             if (condition)
             {
                 if (offset == 0 || offset == 1)
                 {
-                    popRoutineData((ushort)offset);
+                    this.popRoutineData((ushort)offset);
                 }
                 else
                 {
-                    programCounter += offset - 2;
+                    this.ProgramCounter += offset - 2;
                 }
             }
             return this;
@@ -88,18 +95,18 @@
         {
             if (variable == 0)                   // Variable number $00 refers to the top of the stack
             {
-                stack.setWord(stackPointer, value);        // Set value in stack
-                stackPointer += 2;                         // Increment stack pointer by 2 (size of word)
+                this.stack.setWord(this.stackPointer, value);        // Set value in stack
+                this.stackPointer += 2;                         // Increment stack pointer by 2 (size of word)
             }
             else if (variable < 16)              //$01 to $0f mean the local variables of the current routine
             {
-                callStack[callDepth].localVars[variable - 1] = value; // Set value in local variable table
+                this.callStack[this.callDepth].localVars[variable - 1] = value; // Set value in local variable table
             }
             else
             {
                 //and $10 to $ff mean the global variables.
-                uint address = (uint)(Memory.getWord(Memory.ADDR_GLOBALS) + ((variable - 16) * 2));                 // Set value in global variable table (variable 16 -> index 0)
-                Memory.setWord(address, value);
+                uint address = (uint)(this.Memory.getWord(Memory.ADDR_GLOBALS) + ((variable - 16) * 2));                 // Set value in global variable table (variable 16 -> index 0)
+                this.Memory.setWord(address, value);
             }
 
             return this;
@@ -114,17 +121,17 @@
 
             if (variable == 0)
             {
-                stackPointer -= 2;
-                value = stack.getWord(stackPointer);                     // get value from stack;
+                this.stackPointer -= 2;
+                value = this.stack.getWord(this.stackPointer);                     // get value from stack;
             }
             else if (variable < 16)
             {
-                value = callStack[callDepth].localVars[variable - 1];        // get value from local variable table
+                value = this.callStack[this.callDepth].localVars[variable - 1];        // get value from local variable table
             }
             else
             {
-                uint address = (uint)(Memory.getWord(Memory.ADDR_GLOBALS) + ((variable - 16) * 2));        // Move by a variable number of steps through the table of global variables.
-                value = Memory.getWord(address);
+                uint address = (uint)(this.Memory.getWord(Memory.ADDR_GLOBALS) + ((variable - 16) * 2));        // Move by a variable number of steps through the table of global variables.
+                value = this.Memory.getWord(address);
                 // Debug.WriteLine("VAR[" + variable + "] = " + value);
 
             }
@@ -138,51 +145,51 @@
         {
 
             // First check if we've gone too deep into our call stack:
-            if (callDepth >= StackDepth)
+            if (this.callDepth >= StackDepth)
             {
                 Debug.Assert(true, "Error: Call Stack Overflow"); //alert the user 
-                finishProcessing = true;
+                this.finishProcessing = true;
                 return this;
             }
 
-            ++callDepth;
-            callStack[callDepth].returnAddress = programCounter;            // Store return address @ current position of pc upon entering routine
-            programCounter = unpackedAddress(operands[0]);                  // Set the PC to the routine address.
-            callStack[callDepth].stackFrameAddress = stackPointer;                       // Store stack pointer address.
+            ++this.callDepth;
+            this.callStack[this.callDepth].returnAddress = this.ProgramCounter;            // Store return address @ current position of pc upon entering routine
+            this.ProgramCounter = this.unpackedAddress(operands[0]);                  // Set the PC to the routine address.
+            this.callStack[this.callDepth].stackFrameAddress = this.stackPointer;                       // Store stack pointer address.
 
             //SPEC: 6.4.4 When a routine is called, its local variables are created with initial values taken from the routine header (Versions 1 to 4). 
             //            Next, the arguments are written into the local variables (argument 1 into local 1 and so on).
-            byte numLocals = pc_getByte();
+            byte numLocals = this.pc_getByte();
             for (int i = 0; i < numLocals; i++)
             {
-                callStack[callDepth].localVars[i] = pc_getWord();   // Local variables and the stack are conserved as the routine executes.
+                this.callStack[this.callDepth].localVars[i] = this.pc_getWord();   // Local variables and the stack are conserved as the routine executes.
             }
 
             //Those remaining (up to three) operands will stomp over the first (up to three) values in localVars
             for (int i = 1; i < operands.Count; i++)
             {
-                callStack[callDepth].localVars[i - 1] = operands[i]; ////Loop over the remaining operands, putting them into the appropriate spots in localVars
+                this.callStack[this.callDepth].localVars[i - 1] = operands[i]; ////Loop over the remaining operands, putting them into the appropriate spots in localVars
             }
 
             numLocals = (byte)System.Math.Max(operands.Count - 1, numLocals);
-            callStack[callDepth].numLocalVars = numLocals;
+            this.callStack[this.callDepth].numLocalVars = numLocals;
             return this;
         }
 
         public Machine popRoutineData(ushort returnVal)
         {
-            if (callDepth == 0)
+            if (this.callDepth == 0)
             {
 
                 Debug.Assert(false, "Error: Call Stack Underrun"); // alert the user to the error.
-                finishProcessing = true;
+                this.finishProcessing = true;
             }
             // Restore the stack to the previous value in callstack[callDepth]
-            programCounter = callStack[callDepth].returnAddress;                       //Restore the PC to the previous value in callstack[callDepth]
-            stackPointer = callStack[callDepth].stackFrameAddress;                   //Restore the sp to the previous value in callstack[callDepth]
-            --callDepth;
+            this.ProgramCounter = this.callStack[this.callDepth].returnAddress;                       //Restore the PC to the previous value in callstack[callDepth]
+            this.stackPointer = this.callStack[this.callDepth].stackFrameAddress;                   //Restore the sp to the previous value in callstack[callDepth]
+            --this.callDepth;
 
-            setVar(pc_getByte(), returnVal);                                // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
+            this.setVar(this.pc_getByte(), returnVal);                                // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
             return this;
         }
 
@@ -192,8 +199,8 @@
         /// </summary>
         private Machine initializeProgramCounter()
         {
-            ProgramCounter = Memory.getWord(Memory.ADDR_INITIALPC);
-            finishProcessing = false;
+            this.ProgramCounter = this.Memory.getWord(Memory.ADDR_INITIALPC);
+            this.finishProcessing = false;
             return this;
         }
 
@@ -203,7 +210,7 @@
             {
                 throw new Exception("insufficient operands");
             }
-            Lex.read(operands[0], operands[1]);
+            this.Lex.read(operands[0], operands[1]);
             return this;
         }
 
@@ -217,30 +224,28 @@
         /// Looks at pointer and returns instruction
         /// Returns whether input is required before proceeding
         /// </summary>
-        public BreakpointType processInstruction(ulong? instructionNumber = null)
+        public Models.InstructionInfo processInstruction(ulong? instructionNumber = null)
         {
             if (instructionNumber is not null)
             {
                 this.InstructionCounter = instructionNumber.Value;
-            }   
-
-            if (Finished)
-            {
-                DebugWrite("Warning: processInstruction called after termination.");
-                if (this.BreakFor.Contains(BreakpointType.Terminate))
-                {
-                    // we are breaking before executing, instruction counter does not increment
-                    return BreakpointType.Terminate;
-                }
             }
 
-            pcStart = programCounter;
+            if (this.Finished)
+            {
+                this.DebugWrite("Warning: processInstruction called after termination.");
+                return new Models.InstructionInfo(breakpointType: BreakpointType.Terminate, instruction: 0, opcodeType: null, operands: new List<Models.OperandInfo> { });
+            }
+
+            this.pcStart = this.ProgramCounter;
             ushort opcode;                              // Initialize variables
-            int instruction = pc_getByte();
+            byte originalInstruction = this.pc_getByte();
+            Enum? opcodeType = null;
+            int instruction = originalInstruction;
             //            Debug.WriteLine(pcStart.ToString("X4") + " : 0x" + instruction.ToString("X2") + " (" + instruction + ")");
 
             List<ushort> operandList = new List<ushort>();
-
+            List<Models.OperandInfo> operandInfo = new List<Models.OperandInfo>();
             // This switch statement looks at the PC and reads in two bits to see the instruction form
             int form = (byte)(instruction >> 6);
             switch (form)
@@ -253,11 +258,24 @@
                         int opTypeA = instruction >> 6 & 1;//6th bit
                         int opTypeB = instruction >> 5 & 1;//5th bit
                                                            // Value of 0 means variable, value of 1 means small
+                        OperandType operandTypeA = opTypeA == 0 ? OperandType.Small : OperandType.Var;
+                        OperandType operandTypeB = opTypeB == 0 ? OperandType.Small : OperandType.Var;
 
+                        ushort operandA = this.loadOperand(operandTypeA);
+                        ushort operandB = this.loadOperand(operandTypeB);
+                        
                         // load both operands of long form instruction
-                        operandList.Add(loadOperand(opTypeA == 0 ? OperandType.Small : OperandType.Var));
-                        operandList.Add(loadOperand(opTypeB == 0 ? OperandType.Small : OperandType.Var));
-                        this.process2OP(opcode, operandList);
+                        operandList.Add(operandA);
+                        operandInfo.Add(new Models.OperandInfo(
+                            operandType: operandTypeA,
+                            operand: operandA));
+
+                        operandList.Add(operandB);
+                        operandInfo.Add(new Models.OperandInfo(
+                            operandType: operandTypeB,
+                            operand: operandB));
+                        
+                        opcodeType = this.process2OP(opcode, operandList);
                     }
                     break;
 
@@ -269,12 +287,13 @@
 
                         if (opType == (int)OperandType.Omit)
                         {
-                            this.process0OP(opcode);
+                            opcodeType = this.process0OP(opcode);
                         }
                         else
                         {
-                            ushort op1 = loadOperand((OperandType)opType);
-                            this.process1OP(opcode, op1);
+                            ushort op1 = this.loadOperand((OperandType)opType);
+                            operandInfo.Add(new Models.OperandInfo(operandType: (OperandType)opType, operand: op1));
+                            opcodeType = this.process1OP(opcode, op1);
                         }
                     }
                     break;
@@ -285,16 +304,17 @@
                         //                        Debug.WriteLine("\tInstruction Form : Variable");
                         opcode = (ushort)(instruction & 0x1f);          // Grab bottom 5 bits. 
                         int type = ((instruction >> 5) & 1);            // Store type of opcode (2OP, VAR)          
-                        byte operandTypes = pc_getByte();
+                        byte operandTypes = this.pc_getByte();
 
                         for (int i = 0; i < 4; i++)
                         {
                             OperandType opType = (OperandType)((operandTypes >> 6) & 3);  // Grab top 2 bits
 
-                            ushort op = loadOperand(opType);
+                            ushort op = this.loadOperand(opType);
                             if (opType != OperandType.Omit)
                             {
                                 operandList.Add(op);
+                                operandInfo.Add(new Models.OperandInfo(operandType: opType, op));
                             }
 
                             operandTypes <<= 2;   // Shift two to the left
@@ -303,11 +323,11 @@
 
                         if (type == 0)
                         {
-                            this.process2OP(opcode, operandList);           // Need to pass in two operands?
+                            opcodeType = this.process2OP(opcode, operandList);           // Need to pass in two operands?
                         }
                         else
                         {
-                            this.processVAR(opcode, operandList);
+                            opcodeType = this.processVAR(opcode, operandList);
 
                         }
                     }
@@ -320,25 +340,40 @@
 
             if (this.ShouldBreak)
             {
-                return BreakpointsReached.Last().breakpointType;
+                BreakpointType lastBreak = this.BreakpointsReached.Last().breakpointType;
+                // Completion is the only type of breakpoint we increment after
+                if (lastBreak == BreakpointType.Complete)
+                {
+                    this.InstructionCounter++;
+                }
+                
+                return new Models.InstructionInfo(
+                    breakpointType: lastBreak,
+                    instruction: originalInstruction,
+                    opcodeType: opcodeType,
+                    operands: operandInfo);
             }
 
             // increment the completed instruction counter
             this.InstructionCounter++;
 
-            return BreakpointType.None;
+            return new Models.InstructionInfo(
+                    breakpointType: BreakpointType.None,
+                    instruction: originalInstruction,
+                    opcodeType: opcodeType,
+                    operands: operandInfo);
         }// end processInstruction
 
         public byte pc_getByte()
         {
-            byte next = Memory.getByte(programCounter);
-            programCounter++;
+            byte next = this.Memory.getByte(this.ProgramCounter);
+            this.ProgramCounter++;
             return next;
         }
         public ushort pc_getWord()
         {
-            ushort next = Memory.getWord(programCounter);
-            programCounter += 2;
+            ushort next = this.Memory.getWord(this.ProgramCounter);
+            this.ProgramCounter += 2;
             return next;
         }
 
@@ -350,18 +385,18 @@
             {
                 case OperandType.Large:
                     {
-                        operand = pc_getWord();
+                        operand = this.pc_getWord();
                         return operand;
                     }
 
                 case OperandType.Small:
                     {
-                        operand = pc_getByte();
+                        operand = this.pc_getByte();
                         return operand;
                     }
                 case OperandType.Var:
                     {
-                        operand = getVar(pc_getByte());
+                        operand = this.getVar(this.pc_getByte());
                         return operand;
                     }
                 default:                    // OperandType.Omit:

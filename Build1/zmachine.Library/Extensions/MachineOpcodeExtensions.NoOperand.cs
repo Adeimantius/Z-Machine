@@ -39,12 +39,12 @@
 
         public static void op_save(this Machine machine)
         {
-            fail_unimplemented(machine: machine);
+            machine.Save();
         }
 
         public static void op_restore(this Machine machine)
         {
-            fail_unimplemented(machine);
+            machine.Restore();
         }
 
         public static void op_restart(this Machine machine)
@@ -64,7 +64,7 @@
 
         public static void op_quit(this Machine machine)
         {
-            machine.Terminate(nameof(op_quit));
+            machine.QuitNicely();
         }
 
         public static void op_new_line(this Machine machine)
@@ -82,7 +82,7 @@
             fail_unimplemented(machine);
         }
 
-        public static Machine process0OP(this Machine machine, int opcode)
+        public static NoOperandOpcode process0OP(this Machine machine, int opcode)
         {
             if (!System.Enum.IsDefined(typeof(NoOperandOpcode), opcode))
             {
@@ -138,7 +138,7 @@
                     fail_unimplemented(machine: machine);
                     break;
             }
-            return machine;
+            return noOperandOpcode;
             /*
             string? opcodeName = noOperandOpcode.ToString();
 

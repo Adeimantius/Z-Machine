@@ -1,7 +1,11 @@
-namespace zmachine.Library.Tests
+﻿namespace zmachine.Library.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Collections.Generic;
     using zmachine.Library.Enumerations;
+    using System.Linq;
+    using System;
+    using zmachine.Library.Models;
 
     [TestClass]
     public class TestZMachine
@@ -15,13 +19,13 @@ namespace zmachine.Library.Tests
         {
             get
             {
-                var filePath = System.AppContext.BaseDirectory; //returns path "C:\..\bin\debug"
-                var pos = filePath.IndexOf("zmachine.Library.Tests");
+                string? filePath = System.AppContext.BaseDirectory; //returns path "C:\..\bin\debug"
+                int pos = filePath.IndexOf("zmachine.Library.Tests");
                 if (pos == -1)
                 {
                     throw new System.Exception();
                 }
-                var pathSubstr = filePath.Substring(0, pos);
+                string? pathSubstr = filePath.Substring(0, pos);
 
                 return System.IO.Path.Join(pathSubstr, "zmachine", "zmachine", "ZORK1.DAT");
             }
@@ -37,25 +41,24 @@ namespace zmachine.Library.Tests
                 breakpointTypes: new BreakpointType[]
                 {
                     BreakpointType.InputRequired,
-                    BreakpointType.Terminate
                 });
 
             while (!machine.Finished)
             {
-                var breakpoint = machine.processInstruction();
-                if (breakpoint != BreakpointType.None)
+                var instructionInfo = machine.processInstruction();
+                if (instructionInfo.BreakpointType != BreakpointType.None)
                 {
                     break;
                 }
             }
-            
-            var actualOutput = staticIO.GetOutput(keepContents: true);
-            var identicalOutput = staticIO.GetOutput(keepContents: false);
-            var emptyOutput = staticIO.GetOutput(keepContents: false);
-         
+
+            string? actualOutput = staticIO.GetOutput(keepContents: true);
+            string? identicalOutput = staticIO.GetOutput(keepContents: false);
+            string? emptyOutput = staticIO.GetOutput(keepContents: false);
+
             Assert.AreEqual(expected: 386U, actual: machine.InstructionCounter);
-            Assert.AreEqual(expected: Screens[0], actual: actualOutput);
-            Assert.AreEqual(expected: Screens[0], actual: identicalOutput);
+            Assert.AreEqual(expected: this.Screens[0], actual: actualOutput);
+            Assert.AreEqual(expected: this.Screens[0], actual: identicalOutput);
             Assert.AreEqual(expected: "", actual: emptyOutput);
         }
 
@@ -69,25 +72,71 @@ namespace zmachine.Library.Tests
                 breakpointTypes: new BreakpointType[]
                 {
                     BreakpointType.InputRequired,
-                    BreakpointType.Terminate
-                });
+                })
+            {
 
-            // skip the first screen
-            machine.BreakAfter = 387;
+                // skip the first screen
+                BreakAfter = 387
+            };
 
             while (!machine.Finished)
             {
-                var breakpoint = machine.processInstruction();
-                if (breakpoint != BreakpointType.None)
+                InstructionInfo instructionInfo = machine.processInstruction();
+                if (instructionInfo.BreakpointType != BreakpointType.None)
                 {
-                    Assert.AreEqual(expected: BreakpointType.InputRequired, actual: breakpoint);
+                    Assert.AreEqual(expected: BreakpointType.InputRequired, actual: instructionInfo.BreakpointType);
                     break;
                 }
             }
-            var scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: Screens[0].Length);
+            string? scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: this.Screens[0].Length);
             Assert.AreEqual(
                 expected: "Your score is 0 (total of 350 points), in 0 moves.\r\nThis gives you the rank of Beginner.\r\n\r\n>",
                 actual: scoreScreen);
+        }
+
+        [TestMethod]
+        public void TestSaveRestore()
+        {
+            // TODO: staticIO should only cause InputRequired when the supplied buffer is insufficient.
+            StaticIO staticIO = new StaticIO("south\nsave\nnorth\nrestore\nopen mailbox\n");
+            Machine machine = new Machine(
+                io: staticIO,
+                programFilename: ZorkPath,
+                breakpointTypes: new BreakpointType[]{})
+            {
+            };
+
+            List<(InstructionInfo instructionInfo, string output)> stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
+            while (!machine.Finished)
+            {
+                var instruction = machine.InstructionCounter;
+                InstructionInfo instructionInfo = machine.processInstruction();
+                string? transcript = staticIO.GetOutput(keepContents: false);
+                if (transcript is not null && !string.IsNullOrEmpty(transcript))
+                {
+                    stepTranscripts.Add((
+                        instructionInfo: instructionInfo,
+                        output: transcript));
+                }
+                Assert.AreEqual(expected: BreakpointType.None, actual: instructionInfo.BreakpointType);
+            }
+
+            // number of total steps
+            Assert.AreEqual(expected: 968, actual: machine.InstructionCounter);
+            // number of non empty steps
+            Assert.AreEqual(expected: 0, actual: stepTranscripts.Count);
+            var expected = new string[]
+                {
+                    Screens[0],
+                    "South of House\r\nYou are facing the south side of a white house. There is no door here, and all the windows are boarded.\r\n\r\n>",
+                };
+            for (int i = 0; i<stepTranscripts.Count(); i++)
+            {
+                Assert.AreEqual(
+                expected: expected[i],
+                actual: stepTranscripts[i].output);
+            }
+            
         }
     }
 }

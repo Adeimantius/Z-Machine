@@ -16,7 +16,7 @@
         public ulong instructionCounter;
 
         public CPUState() : this(
-            memory: new byte[Machine.MemorySize],
+            memory: new byte[Machine.MemorySizeByVersion[Machine.CurrentVersion]],
             stack: new byte[Machine.StackSize],
             lexMemoryPointer: 0,
             pc: 0,
@@ -44,9 +44,9 @@
             this.memory = memory.ToArray();
             this.lexMemoryPointer = lexMemoryPointer;
             this.stack = stack.ToArray();
-            programCounter = pc;
+            this.programCounter = pc;
             this.pcStart = pcStart;
-            stackPointer = sp;
+            this.stackPointer = sp;
             this.callDepth = callDepth;
             this.callStack = callStack;
             this.finish = finish;

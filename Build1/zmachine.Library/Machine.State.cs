@@ -7,37 +7,65 @@
         public CPUState State
         {
             get => new CPUState(
-                    memory: Memory.Contents,
-                    stack: stack.Contents,
-                    lexMemoryPointer: Lex.MemoryPointer,
-                    pc: programCounter,
-                    pcStart: pcStart,
-                    sp: stackPointer,
-                    callDepth: callDepth,
-                    callStack: callStack,
-                    finish: finishProcessing,
-                    instructionCounter: InstructionCounter);
+                    memory: this.Memory.Contents,
+                    stack: this.stack.Contents,
+                    lexMemoryPointer: this.Lex.MemoryPointer,
+                    pc: this.ProgramCounter,
+                    pcStart: this.pcStart,
+                    sp: this.stackPointer,
+                    callDepth: this.callDepth,
+                    callStack: this.callStack,
+                    finish: this.finishProcessing,
+                    instructionCounter: this.InstructionCounter);
             set
             {
-                Memory.load(value.memory);
-                stack.load(value.stack);
-                Lex.MemoryPointer = value.lexMemoryPointer;
-                programCounter = value.programCounter;
-                pcStart = value.pcStart;
-                stackPointer = value.stackPointer;
-                callDepth = value.callDepth;
+                this.Memory.load(value.memory);
+                this.stack.load(value.stack);
+                this.Lex.MemoryPointer = value.lexMemoryPointer;
+                this.ProgramCounter = value.programCounter;
+                this.pcStart = value.pcStart;
+                this.stackPointer = value.stackPointer;
+                this.callDepth = value.callDepth;
                 Array.Copy(
                     sourceArray: value.callStack,
-                    destinationArray: callStack,
+                    destinationArray: this.callStack,
                     length: StackDepth);
-                finishProcessing = value.finish;
-                InstructionCounter = value.instructionCounter;
+                this.finishProcessing = value.finish;
+                this.InstructionCounter = value.instructionCounter;
             }
+        }
+
+        public CPUState Save()
+        {
+            if (this.CPUStates.Count >= Machine.MaximumRestoreStates)
+            {
+                this.CPUStates.RemoveFirst();
+            }
+            var state = this.State;
+            this.CPUStates.AddLast(state);
+            return state;
+        }
+
+        public bool Restore(bool removeAfterRestore = false)
+        {
+            if (!this.CPUStates.Any())
+            {
+                return false;
+            }
+
+            this.State = this.CPUStates.Last();
+
+            if (removeAfterRestore)
+            {
+                this.CPUStates.RemoveLast();
+            }
+
+            return true;
         }
 
         public string stateString()
         {
-            string s = "M: " + Memory.getCrc32() + " S: " + stack.getCrc32();
+            string s = "M: " + this.Memory.getCrc32() + " S: " + this.stack.getCrc32();
             //            for (ushort i = 1; i < 256; ++i)
             //                s += " " + getVar(i);
             return s;

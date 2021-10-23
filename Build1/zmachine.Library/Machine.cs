@@ -9,14 +9,32 @@
     public partial class Machine
     {
         public const int StackDepth = 128;
-        public const int MemorySize = 1024 * 128;
         /// <summary>
         /// Stack of size 32768 (can be larger, but this should be fine)
         /// </summary>
         public const int StackSize = 1024 * 32;
 
-        public readonly Memory Memory = new Memory(size: MemorySize);
-        private readonly Memory stack = new Memory(size: StackSize);
+        /// <summary>
+        /// Z-Machine implementation level
+        /// </summary>
+        public const int CurrentVersion = 3;
+
+        public static readonly int[] MemorySizeByVersion = new int[]
+        {
+            0,        // V0    - does not exist 
+            1024*128, // V1-V3 - 128k
+            1024*128, // V1-V3 - 128k
+            1024*128, // V1-V3 - 128k
+            1024*256, // V4-V5 - 256K
+            1024*256, // V4-V5 - 256K
+            1024*576, // V6-V7 - 576K
+            1024*576, // V6-V7 - 576K
+            1024*512, // V8    - 512K
+        };
+
+
+        public readonly Memory Memory;
+        private readonly Memory stack;
         public readonly ObjectTable ObjectTable;
         private readonly IIO io;
         private readonly Lex Lex;
@@ -26,13 +44,7 @@
         /// <summary>
         /// Program Counter to step through memory
         /// </summary>
-        private uint programCounter = 0;
-
-        public uint ProgramCounter
-        {
-            get => programCounter;
-            set => programCounter = value;
-        }
+        public uint ProgramCounter = 0;
 
         /// <summary>
         /// Number of instructions since power on
@@ -44,79 +56,48 @@
         /// </summary>
         private uint pcStart = 0;
 
-        public uint ProgramCounterStart => pcStart;
-
         /// <summary>
         /// Flag to say "finish processing. We're done".
         /// </summary>
         private bool finishProcessing = false;
+
+        /// <summary>
+        /// Index to current stack record
+        /// </summary>
         private uint stackPointer = 0;
+
+        /// <summary>
+        /// Current call depth
+        /// </summary>
         private uint callDepth = 0;
+
+        private const int MaximumRestoreStates = 10;
+        private readonly LinkedList<CPUState> CPUStates;
+
         /// <summary>
         /// We could use a "Stack" here, as well, but we have lots of memory. According to the spec, there could be up to 90. But 128 is nice.
         /// </summary>
         private readonly RoutineCallState[] callStack = new RoutineCallState[StackDepth];
 
-        private List<Enumerations.BreakpointType> BreakFor;
+        /// <summary>
+        /// Breakpoint types besides complete/terminate to break for
+        /// </summary>
+        private readonly List<Enumerations.BreakpointType> BreakFor;
 
-        private List<(ulong instruction, Enumerations.BreakpointType breakpointType)> breakpointsReached;
+        /// <summary>
+        /// Breakpoints reached and their instruction number
+        /// </summary>
+        private readonly List<(ulong instruction, Enumerations.BreakpointType breakpointType)> breakpointsReached;
 
-        public IEnumerable<(ulong instruction, Enumerations.BreakpointType breakpointType)> BreakpointsReached => breakpointsReached.ToArray();
+        /// <summary>
+        /// Do not perform non-terminating breakpoints unless after the given instruction number
+        /// </summary>
+        public ulong BreakAfter;
 
-        public ulong BreakAfter = 0;
-
-        public bool ShouldBreak
-        {
-            get
-            {
-                return (this.InstructionCounter > this.BreakAfter) && this.breakpointsReached.Any();
-            }
-        }
-
-        public bool ShouldBreakFor(BreakpointType breakpointType)
-        {
-            return (this.InstructionCounter > this.BreakAfter) && 
-                this.BreakFor.Contains(breakpointType);
-        }
-
-        public bool BreakpointReached(BreakpointType breakpointType) =>
-            this.breakpointsReached
-                .Select(t => t.breakpointType)
-                .Contains(breakpointType);
-        
-        public Machine AddBreakpoint(BreakpointType breakpointType, ulong? afterInstruction = null)
-        {
-            if (!this.BreakFor.Contains(breakpointType))
-            {
-                this.BreakFor.Add(breakpointType);
-            }
-            if (afterInstruction is not null && (this.BreakAfter < afterInstruction.Value))
-            {
-                this.BreakAfter = afterInstruction.Value;
-            }
-            return this;
-        }
-
-        public Machine RemoveBreakpoint(BreakpointType breakpointType)
-        {
-            if (this.BreakFor.Contains(breakpointType))
-            {
-                this.BreakFor.Remove(breakpointType);
-            }
-            return this;
-        }
-
-        public bool Break(BreakpointType breakpointType)
-        {
-            if (!this.ShouldBreakFor(breakpointType))
-            {
-                return false;
-            }
-            this.breakpointsReached.Add((
-                instruction: this.InstructionCounter,
-                breakpointType: breakpointType));
-            return true;
-        }
+        /// <summary>
+        /// Fixed list of breakpoint types that must be allowed to break and are not filtered.
+        /// </summary>
+        public static readonly BreakpointType[] EndProgramBreakpoints = { BreakpointType.Complete, BreakpointType.Terminate };
 
         /// <summary>
         /// Class constructor : Loads in data from file and sets Program Counter
@@ -125,22 +106,26 @@
         /// <param name="programFilename"></param>
         public Machine(IIO io, string programFilename, IEnumerable<BreakpointType>? breakpointTypes = null)
         {
-            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> {  };
+            this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
+            this.stack = new Memory(size: StackSize);
+            this.CPUStates = new LinkedList<CPUState>();
+            this.BreakAfter = 0;
+            this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
             this.finishProcessing = false;
-            Memory.load(programFilename);
-            initializeProgramCounter();
+            this.Memory.load(programFilename);
+            this.initializeProgramCounter();
 
             for (int i = 0; i < StackDepth; ++i)
             {
-                callStack[i] = new RoutineCallState();
+                this.callStack[i] = new RoutineCallState();
             }
 
-            this.ObjectTable = new ObjectTable(ref Memory);
+            this.ObjectTable = new ObjectTable(ref this.Memory);
             this.Lex = new Lex(
                 io: this.io,
-                mem: ref Memory);
+                mem: ref this.Memory);
         }
 
         /// <summary>
@@ -155,23 +140,36 @@
             {
                 throw new ArgumentNullException(nameof(initialState));
             }
+            this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion]);
+            this.stack = new Memory(size: StackSize);
+            this.CPUStates = new LinkedList<CPUState>();
+            this.BreakAfter = 0;
             this.BreakFor = breakpointTypes is not null ? new List<Enumerations.BreakpointType>(breakpointTypes) : new List<Enumerations.BreakpointType> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
             this.io = io;
             this.finishProcessing = false;
-            this.ObjectTable = new ObjectTable(ref Memory);
+            this.ObjectTable = new ObjectTable(ref this.Memory);
             this.Lex = new Lex(
                 io: this.io,
-                mem: ref Memory,
+                mem: ref this.Memory,
                 mp: initialState.lexMemoryPointer);
             this.State = initialState;
         }
 
-        public bool Finished => finishProcessing;
+        /// <summary>
+        /// readonly handle to access pcStart
+        /// </summary>
+        public uint ProgramCounterStart => this.pcStart;
 
-        public bool DebugEnabled => debug;
 
-        public IIO IO => io;
+
+        public IEnumerable<(ulong instruction, Enumerations.BreakpointType breakpointType)> BreakpointsReached => this.breakpointsReached.ToArray();
+
+        public bool Finished => this.finishProcessing;
+
+        public bool DebugEnabled => this.debug;
+
+        public IIO IO => this.io;
 
     } // end Machine
 } // end namespace

@@ -161,7 +161,7 @@
             machine.setVar(machine.pc_getByte(), (ushort)Convert.ToInt32((short)v1 * (short)v2));
         }
 
-        public static Machine process2OP(this Machine machine, int opcode, List<ushort> operands)
+        public static TwoOperandOpcode process2OP(this Machine machine, int opcode, List<ushort> operands)
         {
             if (!System.Enum.IsDefined(typeof(TwoOperandOpcode), opcode))
             {
@@ -248,7 +248,7 @@
                     fail_unimplemented(machine: machine);
                     break;
             }
-            return machine;
+            return twoOperandOpcode;
             /*
             string? opcodeName = twoOperandOpcode.ToString();
             MethodInfo opcodeMethod = typeof(Machine).GetMethod(opcodeName);

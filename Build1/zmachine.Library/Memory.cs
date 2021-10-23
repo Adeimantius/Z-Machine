@@ -19,20 +19,20 @@
         public Memory(int size)
         {
             // Class constructor
-            memory = new byte[size];
+            this.memory = new byte[size];
         }
 
-        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(memory);
+        public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
 
         public Memory load(ReadOnlyMemory<byte> contents)
         {
-            memory = contents.ToArray();
+            this.memory = contents.ToArray();
             return this;
         }
 
         public Memory load(byte[] contents)
         {
-            memory = contents;
+            this.memory = contents;
             return this;
         }
 
@@ -43,14 +43,14 @@
 
             byte[] src = File.ReadAllBytes(filename);
 
-            if (src.Length <= memory.Length)
+            if (src.Length <= this.memory.Length)
             {
 
                 int i = 0;
                 foreach (byte b in src)
                 {
                     //read through bytes and write in new byte array []
-                    memory[i] = src[i];
+                    this.memory[i] = src[i];
                     i++;
                 }
             }
@@ -59,7 +59,7 @@
         //assign given byte value @ hex address location
         public Memory setByte(uint address, byte val)
         {
-            memory[address] = val;
+            this.memory[address] = val;
             return this;
         }
 
@@ -67,7 +67,7 @@
         //access given byte location & return byte stored in data
         public byte getByte(uint address)
         {
-            return memory[address];
+            return this.memory[address];
         }
 
 
@@ -81,8 +81,8 @@
             // byte first = (byte) a[0];
             // byte second = (byte) a[1];
             // first <<= 8;                             // shift first byte up 8 bits
-            memory[address] = a;
-            memory[address + 1] = b;
+            this.memory[address] = a;
+            this.memory[address + 1] = b;
             return this;
         }
 
@@ -91,8 +91,8 @@
         {
             //access 16-bit value and return "word" stored in data
             //read in two bytes, shift first byte left (<<) 8 bits
-            byte a = memory[address];
-            byte b = memory[address + 1];
+            byte a = this.memory[address];
+            byte b = this.memory[address + 1];
             ushort val = (ushort)((a << 8) + b);
 
             return val;
@@ -100,12 +100,12 @@
 
         public short getSignedWord(uint address)
         {
-            return (short)getWord(address);
+            return (short)this.getWord(address);
         }
 
         public string getAbbrev(int abbrevIndex)
         {
-            StringAndReadLength abbrev = getZSCII(address: (uint)(getWord((uint)(getWord(Memory.ADDR_ABBREVS) + abbrevIndex * 2)) * 2), numBytes: 0);
+            StringAndReadLength abbrev = this.getZSCII(address: (uint)(this.getWord((uint)(this.getWord(Memory.ADDR_ABBREVS) + abbrevIndex * 2)) * 2), numBytes: 0);
             return abbrev.str;
         }
 
@@ -170,7 +170,7 @@
             while (!stringComplete)
             {
                 //Get another word from memory
-                ushort word = getWord(address);
+                ushort word = this.getWord(address);
                 if (((word >> 15) & 0x1) == 1)
                 {
                     stringComplete = true;
@@ -221,10 +221,10 @@
                                 {
                                     zchar10 += c[i];
 
-                                    output += getZChar(zchar10);
+                                    output += this.getZChar(zchar10);
                                     if (debug == true)
                                     {
-                                        debugOutput += getZChar(zchar10); z++;
+                                        debugOutput += this.getZChar(zchar10); z++;
                                         Debug.WriteLine("\n" + debugOutput + "(" + z + ")");
                                     }
                                     break;
@@ -236,11 +236,11 @@
                     {
                         int abbrevId = (abbrevSet - 1) * 32 + c[i];
                         //get the abbrev string using the current character and append it
-                        output += getAbbrev(abbrevIndex: abbrevId);
+                        output += this.getAbbrev(abbrevIndex: abbrevId);
                         if (debug == true)
                         {
-                            debugOutput += getAbbrev(abbrevIndex: abbrevId); z++;
-                            Debug.WriteLine("Abbrev: |" + abbrevId + "| : " + getAbbrev(abbrevIndex: abbrevId));
+                            debugOutput += this.getAbbrev(abbrevIndex: abbrevId); z++;
+                            Debug.WriteLine("Abbrev: |" + abbrevId + "| : " + this.getAbbrev(abbrevIndex: abbrevId));
                         }
                         abbrevSet = 0;
                     }
@@ -306,18 +306,18 @@
         // Print the file header
         public Memory dumpHeader()
         {
-            Debug.WriteLine("Type : " + getByte(ADDR_VERSION));
-            Debug.WriteLine("Base : " + getWord(ADDR_HIGH));
-            Debug.WriteLine("PC   : " + getWord(ADDR_INITIALPC));
-            Debug.WriteLine("Dict : " + getWord(ADDR_DICT));
-            Debug.WriteLine("Obj  : " + getWord(ADDR_OBJECTS));
+            Debug.WriteLine("Type : " + this.getByte(ADDR_VERSION));
+            Debug.WriteLine("Base : " + this.getWord(ADDR_HIGH));
+            Debug.WriteLine("PC   : " + this.getWord(ADDR_INITIALPC));
+            Debug.WriteLine("Dict : " + this.getWord(ADDR_DICT));
+            Debug.WriteLine("Obj  : " + this.getWord(ADDR_OBJECTS));
             return this;
         }
 
         public uint getCrc32()
         {
             Crc32 crc32 = new Crc32();
-            return crc32.ComputeChecksum(memory);
+            return crc32.ComputeChecksum(this.memory);
         }
     }
 }

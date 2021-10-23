@@ -10,22 +10,22 @@
             for (int i = 0; i < bytes.Length; ++i)
             {
                 byte index = (byte)(((crc) & 0xff) ^ bytes[i]);
-                crc = (crc >> 8) ^ table[index];
+                crc = (crc >> 8) ^ this.table[index];
             }
             return ~crc;
         }
 
         public byte[] ComputeChecksumBytes(byte[] bytes)
         {
-            return BitConverter.GetBytes(ComputeChecksum(bytes));
+            return BitConverter.GetBytes(this.ComputeChecksum(bytes));
         }
 
         public Crc32()
         {
             uint poly = 0xedb88320;
-            table = new uint[256];
+            this.table = new uint[256];
             uint temp = 0;
-            for (uint i = 0; i < table.Length; ++i)
+            for (uint i = 0; i < this.table.Length; ++i)
             {
                 temp = i;
                 for (int j = 8; j > 0; --j)
@@ -39,7 +39,7 @@
                         temp >>= 1;
                     }
                 }
-                table[i] = temp;
+                this.table[i] = temp;
             }
         }
     }
