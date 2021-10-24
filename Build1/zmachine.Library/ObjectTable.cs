@@ -184,7 +184,7 @@ public class ObjectTable
     public bool getObjectAttribute(int objectId, int attributeId)
     {
         this.tp = this.getObjectAddress(objectId);
-        bool[]? attributes = new bool[32];
+        bool[] attributes = new bool[32];
         byte attributeByte;
 
         // Why not just make a boolean array of the attributes?!
@@ -295,7 +295,7 @@ public class ObjectTable
             return "Unable to find Object";
         }
 
-        Memory.StringAndReadLength? str = new Memory.StringAndReadLength();
+        Memory.StringAndReadLength str = new Memory.StringAndReadLength();
         this.tp = this.getPropertyTableAddress(
             objectId); // An object's name is stored in the header of its property table, and is given in the text-length.
         int textLength = this.tp_getByte(); // The first byte is the text-length number of words in the short name

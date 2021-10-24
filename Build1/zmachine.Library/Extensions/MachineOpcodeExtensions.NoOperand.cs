@@ -21,7 +21,7 @@ public static partial class MachineOpcodeExtensions
     public static void op_print(this Machine machine)
     {
         //                Debug.WriteLine("Getting string at " + machine.pc);
-        Memory.StringAndReadLength? str = machine.Memory.getZSCII(machine.ProgramCounter, 0);
+        Memory.StringAndReadLength str = machine.Memory.getZSCII(machine.ProgramCounter, 0);
         machine.IO.Write(str.str);
         machine.ProgramCounter += (uint)str.bytesRead;
         //                Debug.WriteLine("New pc location: " + machine.pc);
@@ -29,7 +29,7 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_print_ret(this Machine machine)
     {
-        Memory.StringAndReadLength? str = machine.Memory.getZSCII(machine.ProgramCounter, 0);
+        Memory.StringAndReadLength str = machine.Memory.getZSCII(machine.ProgramCounter, 0);
         machine.IO.Write(str.str);
         machine.ProgramCounter += (uint)str.bytesRead;
         machine.popRoutineData(1);

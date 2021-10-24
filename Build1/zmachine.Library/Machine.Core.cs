@@ -263,8 +263,8 @@ public partial class Machine
         int instruction = originalInstruction;
         //            Debug.WriteLine(pcStart.ToString("X4") + " : 0x" + instruction.ToString("X2") + " (" + instruction + ")");
 
-        List<ushort>? operandList = new List<ushort>();
-        List<OperandInfo>? operandInfo = new List<OperandInfo>();
+        List<ushort> operandList = new List<ushort>();
+        List<OperandInfo> operandInfo = new List<OperandInfo>();
         // This switch statement looks at the PC and reads in two bits to see the instruction form
         int form = (byte)(instruction >> 6);
         switch (form)

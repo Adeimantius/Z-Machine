@@ -1,6 +1,7 @@
-﻿namespace zmachine.Library.Models
+﻿using zmachine.Library.Enumerations;
+
+namespace zmachine.Library.Models
 {
-    using zmachine.Library.Enumerations;
 
     public record OpcodeEnumBox
     {

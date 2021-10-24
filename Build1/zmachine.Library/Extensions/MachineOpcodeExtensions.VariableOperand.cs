@@ -55,15 +55,15 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_random(this Machine machine, List<ushort> operands)
     {
-        int value = 0;
+        int value;
         if (operands[0] > 0)
         {
-            Random? random = new Random();
+            Random random = new Random();
             value = (ushort)random.Next(1, operands[0]);
         }
         else
         {
-            Random? random = new Random(operands[0]);
+            Random random = new Random(operands[0]);
             value = (ushort)random.Next(1, operands[0]);
         }
 
@@ -103,7 +103,7 @@ public static partial class MachineOpcodeExtensions
             }
             else if (operands[0] == 3)
             {
-                Memory.StringAndReadLength? str = machine.Memory.getZSCII((uint)operands[1] + 2, machine.Memory.getWord(operands[1]));
+                Memory.StringAndReadLength str = machine.Memory.getZSCII((uint)operands[1] + 2, machine.Memory.getWord(operands[1]));
             }
         }
     }

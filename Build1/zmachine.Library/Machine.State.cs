@@ -31,7 +31,7 @@ public partial class Machine
             this.CPUStates.RemoveFirst();
         }
 
-        CPUState? state = this.State;
+        CPUState state = this.State;
         this.CPUStates.AddLast(state);
         return state;
     }
@@ -55,7 +55,7 @@ public partial class Machine
 
     public string stateString()
     {
-        string? s = "M: " + this.Memory.getCrc32() + " S: " + this.stack.getCrc32();
+        string s = "M: " + this.Memory.getCrc32() + " S: " + this.stack.getCrc32();
         //            for (ushort i = 1; i < 256; ++i)
         //                s += " " + getVar(i);
         return s;

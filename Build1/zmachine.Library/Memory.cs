@@ -39,7 +39,7 @@ public class Memory
     {
         //Load data into temp variable, copy into specified byte array
 
-        byte[]? src = File.ReadAllBytes(filename);
+        byte[] src = File.ReadAllBytes(filename);
 
         if (src.Length <= this.memory.Length)
         {
@@ -104,7 +104,7 @@ public class Memory
 
     public string getAbbrev(int abbrevIndex)
     {
-        StringAndReadLength? abbrev = this.getZSCII((uint)(this.getWord((uint)(this.getWord(ADDR_ABBREVS) + abbrevIndex * 2)) * 2), 0);
+        StringAndReadLength abbrev = this.getZSCII((uint)(this.getWord((uint)(this.getWord(ADDR_ABBREVS) + abbrevIndex * 2)) * 2), 0);
         return abbrev.str;
     }
 
@@ -156,8 +156,8 @@ public class Memory
         int abbrevSet = 0;
         int zchar10 = 0;
 
-        string? output = "";
-        string? debugOutput = "";
+        string output = "";
+        string debugOutput = "";
         int z = 0;
         bool debug = false;
 
@@ -172,7 +172,7 @@ public class Memory
                 stringComplete = true;
             }
 
-            int[]?
+            int[]
                 c = new int[3]; // Store three zchars across 16 bits (two bytes). May have to make a dynamic list and pad it once every 3 reads.
 
             c[0] = (word >> 10) & 0x01f;
@@ -297,7 +297,7 @@ public class Memory
             }
         }
 
-        StringAndReadLength? ret = new StringAndReadLength
+        StringAndReadLength ret = new StringAndReadLength
         {
             bytesRead = bytesRead,
             str = output
@@ -318,7 +318,7 @@ public class Memory
 
     public uint getCrc32()
     {
-        Crc32? crc32 = new Crc32();
+        Crc32 crc32 = new Crc32();
         return crc32.ComputeChecksum(this.memory);
     }
 

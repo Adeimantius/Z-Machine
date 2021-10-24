@@ -89,7 +89,7 @@ public class StaticIO : IIO
     public string GetOutput(bool keepContents = false)
     {
         this.outputWriter.Flush();
-        string? output = this.outputWriter.ToString();
+        string output = this.outputWriter.ToString();
         if (!keepContents)
         {
             this.outputWriter.Dispose();

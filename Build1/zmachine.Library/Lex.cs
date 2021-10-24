@@ -57,8 +57,8 @@ public class Lex
         if (parseBufferLength > 0) // Check to see if lexical analysis is called for
         {
             this.buildDict(); // Build Dictionary into class variable
-            string[]? wordArray = this.parseString(input); // Separate string by spaces and build list of word indices
-            uint[]? matchedWords = new uint[parseBufferLength];
+            string[] wordArray = this.parseString(input); // Separate string by spaces and build list of word indices
+            uint[] matchedWords = new uint[parseBufferLength];
 
             for (int i = 0; i < wordArray.Length; i++)
             {
@@ -125,7 +125,7 @@ public class Lex
         for (uint i = entryAddress; i < entryAddress + dictionaryLength * entryLength; i += entryLength)
         {
             this.dictionaryIndex.Add(i); // Record dictionary entry address
-            Memory.StringAndReadLength? dictEntry = this.Memory.getZSCII(i, 0);
+            Memory.StringAndReadLength dictEntry = this.Memory.getZSCII(i, 0);
             //                  Debug.WriteLine(dictEntry.str);
             this.dictionary.Add(dictEntry.str); // Find 'n' different dictionary entries and add words to list
         }
@@ -156,7 +156,7 @@ public class Lex
     {
         int wordindex = 1;
 
-        string[]? wordArray = input.Split(' '); // Tokenize into words
+        string[] wordArray = input.Split(' '); // Tokenize into words
         this.wordStartIndex = new int[wordArray.Length];
 
         // Record start index of each word in input string

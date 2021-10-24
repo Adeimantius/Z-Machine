@@ -36,14 +36,14 @@ public class TestZMachine
     {
         get
         {
-            string? filePath = AppContext.BaseDirectory; //returns path "C:\..\bin\debug"
+            string filePath = AppContext.BaseDirectory; //returns path "C:\..\bin\debug"
             int pos = filePath.IndexOf("zmachine.Library.Tests");
             if (pos == -1)
             {
                 throw new Exception();
             }
 
-            string? pathSubstr = filePath.Substring(0, pos);
+            string pathSubstr = filePath.Substring(0, pos);
 
             return Path.Join(pathSubstr, "zmachine", "zmachine", "ZORK1.DAT");
         }
@@ -52,8 +52,8 @@ public class TestZMachine
     [TestMethod]
     public void TestFirstScreen()
     {
-        StaticIO? staticIO = new StaticIO();
-        Machine? machine = new Machine(
+        StaticIO staticIO = new StaticIO();
+        Machine machine = new Machine(
             staticIO,
             ZorkPath,
             new Dictionary<BreakpointType, BreakpointAction>
@@ -63,16 +63,16 @@ public class TestZMachine
 
         while (!machine.Finished)
         {
-            InstructionInfo? instructionInfo = machine.processInstruction();
+            InstructionInfo instructionInfo = machine.processInstruction();
             if (instructionInfo.BreakpointType != BreakpointType.None)
             {
                 break;
             }
         }
 
-        string? actualOutput = staticIO.GetOutput(true);
-        string? identicalOutput = staticIO.GetOutput();
-        string? emptyOutput = staticIO.GetOutput();
+        string actualOutput = staticIO.GetOutput(true);
+        string identicalOutput = staticIO.GetOutput();
+        string emptyOutput = staticIO.GetOutput();
 
         Assert.AreEqual(386U, machine.InstructionCounter);
         Assert.AreEqual(this.Screens[nameof(TestFirstScreen)], actualOutput);
@@ -83,15 +83,15 @@ public class TestZMachine
     [TestMethod]
     public void TestQuit()
     {
-        StaticIO? staticIO = new StaticIO("quit\nY\n");
-        Machine? machine = new Machine(
+        StaticIO staticIO = new StaticIO("quit\nY\n");
+        Machine machine = new Machine(
             staticIO,
             ZorkPath,
             new Dictionary<BreakpointType, BreakpointAction>());
 
         while (!machine.Finished)
         {
-            InstructionInfo? instructionInfo = machine.processInstruction();
+            InstructionInfo instructionInfo = machine.processInstruction();
             if (instructionInfo.BreakpointType != BreakpointType.None)
             {
                 Assert.AreEqual(BreakpointType.Complete, instructionInfo.BreakpointType);
@@ -99,7 +99,7 @@ public class TestZMachine
             }
         }
 
-        string? transcript = staticIO.GetOutput().Substring(this.Screens[nameof(TestFirstScreen)].Length);
+        string transcript = staticIO.GetOutput().Substring(this.Screens[nameof(TestFirstScreen)].Length);
         Assert.AreEqual(
             this.Screens[nameof(TestQuit)],
             transcript);
@@ -110,8 +110,8 @@ public class TestZMachine
     [TestMethod]
     public void TestScore()
     {
-        StaticIO? staticIO = new StaticIO("score\n");
-        Machine? machine = new Machine(
+        StaticIO staticIO = new StaticIO("score\n");
+        Machine machine = new Machine(
             staticIO,
             ZorkPath,
             new Dictionary<BreakpointType, BreakpointAction>
@@ -125,7 +125,7 @@ public class TestZMachine
 
         while (!machine.Finished)
         {
-            InstructionInfo? instructionInfo = machine.processInstruction();
+            InstructionInfo instructionInfo = machine.processInstruction();
             if (instructionInfo.BreakpointType != BreakpointType.None)
             {
                 Assert.AreEqual(BreakpointType.InputRequired, instructionInfo.BreakpointType);
@@ -133,7 +133,7 @@ public class TestZMachine
             }
         }
 
-        string? scoreScreen = staticIO.GetOutput().Substring(this.Screens[nameof(TestFirstScreen)].Length);
+        string scoreScreen = staticIO.GetOutput().Substring(this.Screens[nameof(TestFirstScreen)].Length);
         Assert.AreEqual(
             this.Screens[nameof(TestScore)],
             scoreScreen);
@@ -142,25 +142,23 @@ public class TestZMachine
     [TestMethod]
     public void TestSaveRestore()
     {
-        StaticIO? staticIO = new StaticIO("south\nsave\nnorth\nrestore\nopen mailbox\n");
-        Machine? machine = new Machine(
+        StaticIO staticIO = new StaticIO("south\nsave\nnorth\nrestore\nopen mailbox\n");
+        Machine machine = new Machine(
             staticIO,
             ZorkPath,
             new Dictionary<BreakpointType, BreakpointAction>
             {
                 //{ BreakpointType.Opcode, BreakpointAction.Continue }
             });
-        {
-        }
-        ;
+
         machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_save);
         machine.OpcodeBreakpoints.Add(NoOperandOpcode.op_show_status);
 
-        List<(InstructionInfo instructionInfo, string output)>? stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
+        List<(InstructionInfo instructionInfo, string output)> stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
         while (!machine.Finished)
         {
             ulong instruction = machine.InstructionCounter;
-            InstructionInfo? instructionInfo = machine.processInstruction();
+            InstructionInfo instructionInfo = machine.processInstruction();
             string transcript = staticIO.GetOutput();
             if (!string.IsNullOrEmpty(transcript))
             {
@@ -176,12 +174,12 @@ public class TestZMachine
         Assert.AreEqual(968U, machine.InstructionCounter);
         // number of non empty steps
         Assert.AreEqual(0, stepTranscripts.Count);
-        string[]? expected = new[]
+        string[] expected = new[]
         {
             this.Screens[nameof(TestFirstScreen)],
             this.Screens[nameof(TestSaveRestore)]
         };
-        for (int i = 0; i < stepTranscripts.Count(); i++)
+        for (int i = 0; i < stepTranscripts.Count; i++)
         {
             Assert.AreEqual(
                 expected[i],
