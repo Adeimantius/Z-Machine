@@ -6,14 +6,17 @@
     using System.Linq;
     using System;
     using zmachine.Library.Models;
+    using System.Collections.Immutable;
 
     [TestClass]
     public class TestZMachine
     {
-        private readonly string[] Screens = new string[1]
+        private readonly ImmutableDictionary<string, string> Screens = (new Dictionary<string, string>()
         {
-            "ZORK I: The Great Underground Empire\nCopyright (c) 1981, 1982, 1983 Infocom, Inc. All rights reserved.\r\nZORK is a registered trademark of Infocom, Inc.\nRevision 88 / Serial number 840726\r\n\r\nWest of House\r\nYou are standing in an open field west of a white house, with a boarded front door.\r\nThere is a small mailbox here.\r\n\r\n>",
-        };
+            { nameof(TestFirstScreen), "ZORK I: The Great Underground Empire\nCopyright (c) 1981, 1982, 1983 Infocom, Inc. All rights reserved.\r\nZORK is a registered trademark of Infocom, Inc.\nRevision 88 / Serial number 840726\r\n\r\nWest of House\r\nYou are standing in an open field west of a white house, with a boarded front door.\r\nThere is a small mailbox here.\r\n\r\n>" },
+            { nameof(TestSaveRestore), "South of House\r\nYou are facing the south side of a white house. There is no door here, and all the windows are boarded.\r\n\r\n>" },
+            { nameof(TestScore), "Your score is 0 (total of 350 points), in 0 moves.\r\nThis gives you the rank of Beginner.\r\n\r\n>" },
+        }).ToImmutableDictionary();
 
         public static string ZorkPath
         {
@@ -57,9 +60,35 @@
             string? emptyOutput = staticIO.GetOutput(keepContents: false);
 
             Assert.AreEqual(expected: 386U, actual: machine.InstructionCounter);
-            Assert.AreEqual(expected: this.Screens[0], actual: actualOutput);
-            Assert.AreEqual(expected: this.Screens[0], actual: identicalOutput);
+            Assert.AreEqual(expected: this.Screens[nameof(TestFirstScreen)], actual: actualOutput);
+            Assert.AreEqual(expected: this.Screens[nameof(TestFirstScreen)], actual: identicalOutput);
             Assert.AreEqual(expected: "", actual: emptyOutput);
+        }
+
+        [TestMethod]
+        public void TestQuit()
+        {
+            StaticIO staticIO = new StaticIO("quit\nY\n");
+            Machine machine = new Machine(
+                io: staticIO,
+                programFilename: ZorkPath,
+                breakpointTypes: new Dictionary<BreakpointType, BreakpointAction>() { })
+            {
+            };
+
+            while (!machine.Finished)
+            {
+                InstructionInfo instructionInfo = machine.processInstruction();
+                if (instructionInfo.BreakpointType != BreakpointType.None)
+                {
+                    Assert.AreEqual(expected: BreakpointType.Complete, actual: instructionInfo.BreakpointType);
+                    break;
+                }
+            }
+            string? scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: this.Screens[nameof(TestFirstScreen)].Length);
+            Assert.AreEqual(
+                expected: "",
+                actual: scoreScreen);
         }
 
         [TestMethod]
@@ -88,9 +117,9 @@
                     break;
                 }
             }
-            string? scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: this.Screens[0].Length);
+            string? scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: this.Screens[nameof(TestFirstScreen)].Length);
             Assert.AreEqual(
-                expected: "Your score is 0 (total of 350 points), in 0 moves.\r\nThis gives you the rank of Beginner.\r\n\r\n>",
+                expected: Screens[nameof(TestScore)],
                 actual: scoreScreen);
         }
 
@@ -131,8 +160,8 @@
             Assert.AreEqual(expected: 0, actual: stepTranscripts.Count);
             var expected = new string[]
                 {
-                    Screens[0],
-                    "South of House\r\nYou are facing the south side of a white house. There is no door here, and all the windows are boarded.\r\n\r\n>",
+                    Screens[nameof(TestFirstScreen)],
+                    Screens[nameof(TestSaveRestore)],
                 };
             for (int i = 0; i<stepTranscripts.Count(); i++)
             {
