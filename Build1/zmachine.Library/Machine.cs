@@ -97,7 +97,13 @@
         /// <summary>
         /// Fixed list of breakpoint types that must be allowed to break and are not filtered.
         /// </summary>
-        public static readonly BreakpointType[] EndProgramBreakpoints = { BreakpointType.Complete, BreakpointType.Terminate };
+        public static readonly BreakpointType[] EndProgramBreakpoints = {
+            BreakpointType.Complete,
+            BreakpointType.DivisionByZero,
+            BreakpointType.Error,
+            BreakpointType.Terminate,
+            BreakpointType.Unimplemented,
+        };
 
         public readonly List<Enum> OpcodeBreakpoints; 
 

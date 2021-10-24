@@ -8,7 +8,7 @@
         public static BreakpointType fail_unimplemented(this Machine machine)
         {
             string? callingFunctionName = new StackTrace().GetFrame(1)!.GetMethod()!.Name;
-            return machine.Terminate(error: "Unimplemented function: " + callingFunctionName);
+            return machine.Terminate(error: "Unimplemented function: " + callingFunctionName, BreakpointType.Unimplemented);
         }
     }
 }

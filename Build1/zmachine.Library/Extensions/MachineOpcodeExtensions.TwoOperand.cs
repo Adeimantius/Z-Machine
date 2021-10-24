@@ -148,7 +148,7 @@
             if (v2 == 0)
             {
                 // Interpreter cannot div by 0
-                machine.Terminate("Division by zero");
+                machine.Terminate("Division by zero", BreakpointType.DivisionByZero);
                 return;
             }
 
