@@ -90,6 +90,8 @@
             Assert.AreEqual(
                 expected: this.Screens[nameof(TestQuit)],
                 actual: transcript);
+            Assert.AreEqual(expected: BreakpointType.Complete, actual: machine.BreakpointsReached.Last().breakpointType);
+            Assert.IsTrue(machine.Finished);
         }
 
         [TestMethod]
