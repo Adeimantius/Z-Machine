@@ -76,19 +76,25 @@
             {
             };
 
+            List<(InstructionInfo instructionInfo, string output)> stepTranscripts = new List<(InstructionInfo instructionInfo, string output)>();
             while (!machine.Finished)
             {
                 InstructionInfo instructionInfo = machine.processInstruction();
+                string? transcript = staticIO.GetOutput(keepContents: false);
+                if (transcript is not null && !string.IsNullOrEmpty(transcript))
+                {
+                    stepTranscripts.Add((
+                        instructionInfo: instructionInfo,
+                        output: transcript));
+                }
                 if (instructionInfo.BreakpointType != BreakpointType.None)
                 {
                     Assert.AreEqual(expected: BreakpointType.Complete, actual: instructionInfo.BreakpointType);
                     break;
                 }
             }
-            string? scoreScreen = staticIO.GetOutput(keepContents: false).Substring(startIndex: this.Screens[nameof(TestFirstScreen)].Length);
-            Assert.AreEqual(
-                expected: "",
-                actual: scoreScreen);
+            // test quit output
+            throw new Exception();
         }
 
         [TestMethod]
@@ -126,7 +132,6 @@
         [TestMethod]
         public void TestSaveRestore()
         {
-            // TODO: staticIO should only cause InputRequired when the supplied buffer is insufficient.
             StaticIO staticIO = new StaticIO("south\nsave\nnorth\nrestore\nopen mailbox\n");
             Machine machine = new Machine(
                 io: staticIO,

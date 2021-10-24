@@ -36,7 +36,7 @@
         public readonly Memory Memory;
         private readonly Memory stack;
         public readonly ObjectTable ObjectTable;
-        private readonly IIO io;
+        public readonly IIO IO;
         private readonly Lex Lex;
 
         private readonly bool debug = false;
@@ -115,7 +115,7 @@
             this.BreakAfter = 0;
             this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
-            this.io = io;
+            this.IO = io;
             this.finishProcessing = false;
             this.Memory.load(programFilename);
             this.initializeProgramCounter();
@@ -127,8 +127,7 @@
 
             this.ObjectTable = new ObjectTable(ref this.Memory);
             this.Lex = new Lex(
-                io: this.io,
-                mem: ref this.Memory);
+                machine: this);
         }
 
         /// <summary>
@@ -150,12 +149,11 @@
             this.BreakAfter = 0;
             this.BreakFor = breakpointTypes is not null ? new Dictionary<Enumerations.BreakpointType, BreakpointAction>(breakpointTypes) : new Dictionary<BreakpointType, BreakpointAction> { };
             this.breakpointsReached = new List<(ulong, Enumerations.BreakpointType)> { };
-            this.io = io;
+            this.IO = io;
             this.finishProcessing = false;
             this.ObjectTable = new ObjectTable(ref this.Memory);
             this.Lex = new Lex(
-                io: this.io,
-                mem: ref this.Memory,
+                machine: this,
                 mp: initialState.lexMemoryPointer);
             this.State = initialState;
         }
@@ -172,8 +170,5 @@
         public bool Finished => this.finishProcessing;
 
         public bool DebugEnabled => this.debug;
-
-        public IIO IO => this.io;
-
     } // end Machine
 } // end namespace

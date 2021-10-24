@@ -2,28 +2,33 @@
 {
     using System;
     using System.Collections.Generic;
+    using zmachine.Library.Enumerations;
 
     public class Lex
     {
-        private readonly Memory memory;
+        private readonly Machine Machine;
         private readonly uint dictionaryAddress;
-        private readonly List<ushort> separators = new List<ushort>();
-        private readonly List<string> dictionary = new List<string>();
-        private readonly List<uint> dictionaryIndex = new List<uint>();
+        private readonly List<ushort> separators;
+        private readonly List<string> dictionary;
+        private readonly List<uint> dictionaryIndex;
         private int[] wordStartIndex;
-        private readonly IIO io;
         /// <summary>
         /// memory pointer
         /// </summary>
         private uint memoryPointer;
 
-        public Lex(IIO io, ref Memory mem, uint mp = 0)
+        public Lex(Machine machine, uint mp = 0)
         {
-            this.io = io;
-            this.memory = mem;
+            this.separators = new List<ushort>();
+            this.dictionary = new List<string>();
+            this.dictionaryIndex = new List<uint>();
+            this.wordStartIndex = new int[] { };
+            this.Machine = machine;
             this.memoryPointer = mp;
-            this.dictionaryAddress = this.memory.getWord(Memory.ADDR_DICT);
+            this.dictionaryAddress = this.Machine.Memory.getWord(Memory.ADDR_DICT);
         }
+
+        public Memory Memory => this.Machine.Memory;
 
         public uint MemoryPointer
         {
@@ -31,13 +36,17 @@
             set => this.memoryPointer = value;
         }
 
-        public void read(int textBufferAddress, uint parseBufferAddress)
+        public BreakpointType read(int textBufferAddress, uint parseBufferAddress)
         {
-            int maxInputLength = this.memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
-            int parseBufferLength = this.memory.getByte(parseBufferAddress);
+            int maxInputLength = this.Memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
+            int parseBufferLength = this.Memory.getByte(parseBufferAddress);
             this.memoryPointer = parseBufferAddress + 2;
-            string input = this.io.ReadLine();                                   // Get initial input from io terminal
-
+            string input = this.Machine.IO.ReadLine();                                   // Get initial input from io terminal
+            if (input is null)
+            {
+                this.Machine.Terminate("Input required, but none available");
+                return BreakpointType.InputRequired;
+            }
             if (input.Length > maxInputLength)
             {
                 input = input.Remove(maxInputLength);                            // Limit input to size of text-buffer
@@ -62,7 +71,7 @@
                 // Record dictionary addresses after comparing words
 
 
-                this.memory.setByte(this.memoryPointer - 1, (byte)(wordArray.Length));  // Write number of parsed words
+                this.Memory.setByte(this.memoryPointer - 1, (byte)(wordArray.Length));  // Write number of parsed words
 
                 for (int i = 0; i < wordArray.Length; i++)
                 {
@@ -70,16 +79,16 @@
                     //                    if (4 * (i + 1) < parseBufferLength)
                     //                    {                            
                     int wordLength = wordArray[i].Length;
-                    this.memory
+                    this.Memory
                         .setWord(this.memoryPointer, (ushort)matchedWords[i])      // Address in dictionary of matches (either from dictionary or 0)
                         .setByte(this.memoryPointer + 2, (byte)wordLength)         // # of letters in parsed word 
                         .setByte(this.memoryPointer + 3, (byte)this.wordStartIndex[i]); // Corresponding word position in text buffer 
                     //                     }
                     this.memoryPointer += 4;
-                    this.memory.setByte(this.memoryPointer, 0);
+                    this.Memory.setByte(this.memoryPointer, 0);
                 }
             }
-
+            return BreakpointType.None;
         }
 
         // Store string (in ZSCII) at address in byte 1 onward with a zero terminator. 
@@ -90,11 +99,11 @@
             {
                 char ch = input[i];
                 // Convert these to ZSCII here...     
-                this.memory.setByte((uint)(address + i + 1), (byte)ch);
+                this.Memory.setByte((uint)(address + i + 1), (byte)ch);
             }
             // Write next char from input into 3-char array (unimplemented)
 
-            this.memory.setByte((uint)(address + i + 1), 0);       // Write empty byte to terminate after read is complete.
+            this.Memory.setByte((uint)(address + i + 1), 0);       // Write empty byte to terminate after read is complete.
                                                                    // io.WriteLine("Converted ZSCII string: " + memory.getZSCII((uint)(address + 1), 0).str);
             return this;
         }
@@ -102,20 +111,20 @@
         public Lex buildDict()
         {
             // build the dictionary into class variable
-            uint separatorLength = this.memory.getByte(this.dictionaryAddress);                           // Number of separators
-            uint entryLength = this.memory.getByte(this.dictionaryAddress + separatorLength + 1);         // Size of each entry (default 7 bytes)
-            uint dictionaryLength = this.memory.getWord(this.dictionaryAddress + separatorLength + 2);    // Number of 2-byte entries
+            uint separatorLength = this.Memory.getByte(this.dictionaryAddress);                           // Number of separators
+            uint entryLength = this.Memory.getByte(this.dictionaryAddress + separatorLength + 1);         // Size of each entry (default 7 bytes)
+            uint dictionaryLength = this.Memory.getWord(this.dictionaryAddress + separatorLength + 2);    // Number of 2-byte entries
             uint entryAddress = this.dictionaryAddress + separatorLength + 4;                        // Start of dictionary entries
 
             for (uint i = entryAddress; i < this.dictionaryAddress + separatorLength; i++)
             {
-                this.separators.Add(this.memory.getByte(i + 1));      // Find 'n' different word separators and add to list
+                this.separators.Add(this.Memory.getByte(i + 1));      // Find 'n' different word separators and add to list
             }
 
             for (uint i = entryAddress; i < entryAddress + dictionaryLength * entryLength; i += entryLength)
             {
                 this.dictionaryIndex.Add(i);         // Record dictionary entry address
-                Memory.StringAndReadLength dictEntry = this.memory.getZSCII(address: i, numBytes: 0);
+                Memory.StringAndReadLength dictEntry = this.Memory.getZSCII(address: i, numBytes: 0);
                 //                  Debug.WriteLine(dictEntry.str);
                 this.dictionary.Add(dictEntry.str);                                           // Find 'n' different dictionary entries and add words to list
             }
@@ -222,7 +231,7 @@
 
         public char readChar()
         {
-            this.memory.getZChar(Convert.ToChar(this.io.ReadKey()));// read keypress and pass as a char into getZchar
+            this.Memory.getZChar(Convert.ToChar(this.Machine.IO.ReadKey()));// read keypress and pass as a char into getZchar
             return '0';
         }
 

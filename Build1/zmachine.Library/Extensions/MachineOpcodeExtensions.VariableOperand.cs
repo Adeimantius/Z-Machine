@@ -36,7 +36,11 @@
 
         public static void op_sread(this Machine machine, List<ushort> operands)
         {
-            machine.ReadLex(operands);
+            var breakpoint = machine.ReadLex(operands);
+            if (breakpoint == BreakpointType.InputRequired)
+            {
+                machine.Break(BreakpointType.InputRequired);
+            }
         }
 
         public static void op_print_char(this Machine machine, List<ushort> operands)
@@ -156,11 +160,12 @@
                     op_split_window(machine: machine, operands: operands);
                     break;
                 case VariableOperandOpcode.op_sread:
-                    if (machine.ShouldBreakFor(BreakpointType.InputRequired))
+                    var shouldBreak = machine.ShouldBreakFor(BreakpointType.InputRequired);
+                    if (shouldBreak)
                     {
                         machine.Break(BreakpointType.InputRequired);
                     }
-                    if (machine.ShouldContinueFor(BreakpointType.InputRequired))
+                    if (!shouldBreak || machine.ShouldContinueFor(BreakpointType.InputRequired))
                     {
                         op_sread(machine: machine, operands: operands);
                     }

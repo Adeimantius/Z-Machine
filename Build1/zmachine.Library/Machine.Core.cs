@@ -204,14 +204,13 @@
             return this;
         }
 
-        public Machine ReadLex(List<ushort> operands)
+        public BreakpointType ReadLex(List<ushort> operands)
         {
             if (operands.Count < 2)
             {
                 throw new Exception("insufficient operands");
             }
-            this.Lex.read(operands[0], operands[1]);
-            return this;
+            return this.Lex.read(operands[0], operands[1]);
         }
 
         //In a V3 machine, there are 4 types of opcodes, as per http://inform-fiction.org/zmachine/standards/z1point1/sect14.html
@@ -226,6 +225,10 @@
         /// </summary>
         public Models.InstructionInfo processInstruction(ulong? instructionNumber = null)
         {
+            if (this.InstructionCounter >= 380)
+            {
+                this.DebugWrite(this.InstructionCounter.ToString());
+            }
             if (instructionNumber is not null)
             {
                 this.InstructionCounter = instructionNumber.Value;
