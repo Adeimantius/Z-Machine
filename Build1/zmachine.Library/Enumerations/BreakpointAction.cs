@@ -1,8 +1,7 @@
-﻿namespace zmachine.Library.Enumerations
+﻿namespace zmachine.Library.Enumerations;
+
+public enum BreakpointAction
 {
-    public enum BreakpointAction
-    {
-        Continue,
-        Halt,
-    }
+    Continue,
+    Halt
 }

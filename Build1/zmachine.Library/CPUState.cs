@@ -1,56 +1,53 @@
-﻿namespace zmachine.Library
+﻿namespace zmachine.Library;
+
+public record CPUState
 {
-    using System;
+    public uint callDepth;
+    public RoutineCallState[] callStack;
+    public bool finish;
+    public ulong instructionCounter;
+    public uint lexMemoryPointer;
+    public byte[] memory;
+    public uint pcStart;
+    public uint programCounter;
+    public byte[] stack;
+    public uint stackPointer;
 
-    public record CPUState
+    public CPUState() : this(
+        new byte[Machine.MemorySizeByVersion[Machine.CurrentVersion]],
+        new byte[Machine.StackSize],
+        0,
+        0,
+        0,
+        0,
+        0,
+        new RoutineCallState[Machine.StackDepth],
+        false,
+        0)
     {
-        public byte[] memory;
-        public byte[] stack;
-        public uint lexMemoryPointer;
-        public uint programCounter;
-        public uint pcStart;
-        public uint stackPointer;
-        public uint callDepth;
-        public RoutineCallState[] callStack;
-        public bool finish;
-        public ulong instructionCounter;
+    }
 
-        public CPUState() : this(
-            memory: new byte[Machine.MemorySizeByVersion[Machine.CurrentVersion]],
-            stack: new byte[Machine.StackSize],
-            lexMemoryPointer: 0,
-            pc: 0,
-            pcStart: 0,
-            sp: 0,
-            callDepth: 0,
-            callStack: new RoutineCallState[Machine.StackDepth],
-            finish: false,
-            instructionCounter: 0)
-        {
-        }
-
-        public CPUState(
-            ReadOnlyMemory<byte> memory,
-            ReadOnlyMemory<byte> stack,
-            uint lexMemoryPointer,
-            uint pc,
-            uint pcStart,
-            uint sp,
-            uint callDepth,
-            RoutineCallState[] callStack,
-            bool finish,
-            ulong instructionCounter = 0)
-        {
-            this.memory = memory.ToArray();
-            this.lexMemoryPointer = lexMemoryPointer;
-            this.stack = stack.ToArray();
-            this.programCounter = pc;
-            this.pcStart = pcStart;
-            this.stackPointer = sp;
-            this.callDepth = callDepth;
-            this.callStack = callStack;
-            this.finish = finish;
-            this.instructionCounter = instructionCounter;
-        }
+    public CPUState(
+        ReadOnlyMemory<byte> memory,
+        ReadOnlyMemory<byte> stack,
+        uint lexMemoryPointer,
+        uint pc,
+        uint pcStart,
+        uint sp,
+        uint callDepth,
+        RoutineCallState[] callStack,
+        bool finish,
+        ulong instructionCounter)
+    {
+        this.memory = memory.ToArray();
+        this.lexMemoryPointer = lexMemoryPointer;
+        this.stack = stack.ToArray();
+        this.programCounter = pc;
+        this.pcStart = pcStart;
+        this.stackPointer = sp;
+        this.callDepth = callDepth;
+        this.callStack = callStack;
+        this.finish = finish;
+        this.instructionCounter = instructionCounter;
     }
 }

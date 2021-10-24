@@ -1,14 +1,13 @@
-﻿namespace zmachine.Library.Enumerations
+﻿namespace zmachine.Library.Enumerations;
+
+public enum BreakpointType
 {
-    public enum BreakpointType
-    {
-        None,
-        DivisionByZero,
-        Error,
-        InputRequired,
-        Opcode,
-        Unimplemented,
-        Terminate,
-        Complete,
-    }
+    None,
+    DivisionByZero,
+    Error,
+    InputRequired,
+    Opcode,
+    Unimplemented,
+    Terminate,
+    Complete
 }

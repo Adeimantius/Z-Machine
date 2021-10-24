@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>zmachine</RootNamespace>
-    <AssemblyName>zmachine</AssemblyName>
-    <TargetFramework>net6.0</TargetFramework>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-	<StartupObject>zmachine.Program</StartupObject>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\zmachine.Library\zmachine.Library.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>zmachine</RootNamespace>
+        <AssemblyName>zmachine</AssemblyName>
+        <TargetFramework>net6.0</TargetFramework>
+        <ApplicationRevision>0</ApplicationRevision>
+        <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+        <StartupObject>zmachine.Program</StartupObject>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="App.config"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\zmachine.Library\zmachine.Library.csproj"/>
+    </ItemGroup>
 </Project>

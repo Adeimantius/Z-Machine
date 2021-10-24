@@ -1,10 +1,9 @@
-﻿namespace zmachine.Library.Enumerations
+﻿namespace zmachine.Library.Enumerations;
+
+public enum OperandType
 {
-    public enum OperandType
-    {
-        Large = 0,
-        Small = 1,
-        Var = 2,
-        Omit = 3
-    };
+    Large = 0,
+    Small = 1,
+    Var = 2,
+    Omit = 3
 }

@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>zmachine.Library</RootNamespace>
-	<AssemblyName>zmachine.Library</AssemblyName>
-  </PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Runtime" Version="16.11.0" />
-		<PackageReference Include="System.Collections" Version="4.3.0" />
-	</ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>zmachine.Library</RootNamespace>
+        <AssemblyName>zmachine.Library</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Runtime" Version="16.11.0" />
+        <PackageReference Include="System.Collections" Version="4.3.0" />
+    </ItemGroup>
 </Project>
