@@ -128,6 +128,10 @@
             this.ObjectTable = new ObjectTable(ref this.Memory);
             this.Lex = new Lex(
                 machine: this);
+            if (this.IO is null)
+            {
+                throw new Exception(nameof(this.IO));
+            }
         }
 
         /// <summary>
@@ -156,6 +160,10 @@
                 machine: this,
                 mp: initialState.lexMemoryPointer);
             this.State = initialState;
+            if (this.IO is null)
+            {
+                throw new Exception(nameof(this.IO));
+            }
         }
 
         /// <summary>

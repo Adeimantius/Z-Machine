@@ -31,7 +31,7 @@
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
-        public BreakpointType Terminate(string? error = null)
+        public BreakpointType Terminate(string? error = null, BreakpointType finalBreakpointType = BreakpointType.Terminate)
         {
             this.DebugWrite("Terminate called");
             if (error is not null)
@@ -39,8 +39,8 @@
                 this.DebugWrite("Error: " + error);
             }
             this.finishProcessing = true;
-            this.Break(BreakpointType.Terminate);
-            return BreakpointType.Terminate;
+            this.Break(finalBreakpointType);
+            return finalBreakpointType;
         }
 
         public uint unpackedAddress(ushort address)

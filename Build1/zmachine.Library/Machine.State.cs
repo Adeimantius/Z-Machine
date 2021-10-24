@@ -15,7 +15,7 @@
                     sp: this.stackPointer,
                     callDepth: this.callDepth,
                     callStack: this.callStack,
-                    finish: this.finishProcessing,
+                    finish: this.Finished,
                     instructionCounter: this.InstructionCounter);
             set
             {

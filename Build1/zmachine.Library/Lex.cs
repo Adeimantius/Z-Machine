@@ -41,11 +41,10 @@
             int maxInputLength = this.Memory.getByte((uint)textBufferAddress) - 1;    // byte 0 of the text-buffer should initially contain the maximum number of letters which can be typed, minus 1
             int parseBufferLength = this.Memory.getByte(parseBufferAddress);
             this.memoryPointer = parseBufferAddress + 2;
-            string input = this.Machine.IO.ReadLine();                                   // Get initial input from io terminal
+            string? input = this.Machine.IO.ReadLine();                                   // Get initial input from io terminal
             if (input is null)
             {
-                this.Machine.Terminate("Input required, but none available");
-                return BreakpointType.InputRequired;
+                return this.Machine.Terminate("Input required, but none available", BreakpointType.InputRequired);
             }
             if (input.Length > maxInputLength)
             {
