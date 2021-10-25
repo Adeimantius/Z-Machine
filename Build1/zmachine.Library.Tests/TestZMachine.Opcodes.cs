@@ -24,21 +24,6 @@
             byte pcByte = machine.pc_getByte();
         }
 
-        /// <summary>
-        /// Memory test. TODO: move to memory
-        /// </summary>
-        [TestMethod]
-        public void Test_setWord()
-        {
-            Memory testMemory = new Memory(Machine.MemorySizeByVersion[3]);
-            uint address = 1234;
-            ushort value = 2345;
-            testMemory.setWord(address: address, val: value);
-
-            var memoryCheck = testMemory.getWord(address: address);
-            Assert.AreEqual(expected: value, actual: memoryCheck);
-        }
-
         [TestMethod]
         public void Test_setVar()
         {
@@ -65,7 +50,7 @@
             //and $10 to $ff mean the global variables.
         }
 
-            [TestMethod]
+        [TestMethod]
         public void Test_popRoutineData()
         {
             IIO staticIO = new NullIO();
