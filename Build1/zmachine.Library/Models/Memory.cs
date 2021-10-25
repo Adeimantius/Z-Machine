@@ -14,45 +14,41 @@ public class Memory
 
     private byte[] memory;
 
-    public Memory(int size)
+    public Memory(int size, byte[]? contents = null)
     {
-        // Class constructor
         this.memory = new byte[size];
+        if (contents is not null)
+        {
+            this.load(contents: contents);
+        }
     }
 
-    public ReadOnlyMemory<byte> Contents => new(this.memory);
+    public Memory(int size, ReadOnlyMemory<byte>? contents = null)
+        : this(size: size, contents: contents is not null ? contents.Value.ToArray() : null) { }
 
-    public Memory load(ReadOnlyMemory<byte> contents)
-    {
-        this.memory = contents.ToArray();
-        return this;
-    }
+    public Memory(int size, string? contentsFilename = null)
+        : this(size: size, contents: !string.IsNullOrEmpty(contentsFilename) ? File.ReadAllBytes(path: contentsFilename) : null) { }
 
     public Memory load(byte[] contents)
     {
-        this.memory = contents;
+        if (contents.Length > this.memory.Length)
+        {
+            throw new ArgumentException("Length too long for memory.");
+        }
+        Array.Copy(
+            sourceArray: contents,
+            sourceIndex: 0,
+            destinationArray: this.memory,
+            destinationIndex: 0,
+            length: contents.Length);
         return this;
     }
 
-    //input byte array [] from file, output size specified byte array []
-    public Memory load(string filename)
+    public ReadOnlyMemory<byte> Contents => new ReadOnlyMemory<byte>(this.memory);
+
+    public Memory load(ReadOnlyMemory<byte> contents)
     {
-        //Load data into temp variable, copy into specified byte array
-
-        byte[] src = File.ReadAllBytes(filename);
-
-        if (src.Length <= this.memory.Length)
-        {
-            int i = 0;
-            foreach (byte b in src)
-            {
-                //read through bytes and write in new byte array []
-                this.memory[i] = src[i];
-                i++;
-            }
-        }
-
-        return this;
+        return this.load(contents: contents.ToArray());
     }
 
     //assign given byte value @ hex address location

@@ -73,7 +73,7 @@ public partial class Machine
     public readonly ObjectTable ObjectTable;
 
     public readonly List<Enum> OpcodeBreakpoints;
-    private readonly Memory stack;
+    private readonly Memory Stack;
 
     /// <summary>
     ///     Do not perform non-terminating breakpoints unless after the given instruction number
@@ -112,8 +112,8 @@ public partial class Machine
     /// <param name="programFilename"></param>
     public Machine(IIO io, string programFilename, Dictionary<BreakpointType, BreakpointAction>? breakpointTypes = null)
     {
-        this.Memory = new Memory(MemorySizeByVersion[CurrentVersion]);
-        this.stack = new Memory(StackSize);
+        this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion], contentsFilename: programFilename);
+        this.Stack = new Memory(size: StackSize, contents: null);
         this.CPUStates = new LinkedList<CPUState>();
         this.OpcodeBreakpoints = new List<Enum>();
         this.BreakAfter = 0;
@@ -123,7 +123,6 @@ public partial class Machine
         this.breakpointsReached = new List<(ulong, BreakpointType)>();
         this.IO = io;
         this.Finished = false;
-        this.Memory.load(programFilename);
         this.initializeProgramCounter();
 
         for (int i = 0; i < StackDepth; ++i)
@@ -153,8 +152,8 @@ public partial class Machine
             throw new ArgumentNullException(nameof(initialState));
         }
 
-        this.Memory = new Memory(MemorySizeByVersion[CurrentVersion]);
-        this.stack = new Memory(StackSize);
+        this.Memory = new Memory(size: MemorySizeByVersion[CurrentVersion], contents: null);
+        this.Stack = new Memory(size: StackSize, contents: null);
         this.CPUStates = new LinkedList<CPUState>();
         this.OpcodeBreakpoints = new List<Enum>();
         this.BreakAfter = 0;

@@ -100,7 +100,7 @@ public partial class Machine
     {
         if (variable == 0) // Variable number $00 refers to the top of the stack
         {
-            this.stack.setWord(this.stackPointer, value); // Set value in stack
+            this.Stack.setWord(this.stackPointer, value); // Set value in stack
             this.stackPointer += 2; // Increment stack pointer by 2 (size of word)
         }
         else if (variable < 16) //$01 to $0f mean the local variables of the current routine
@@ -129,7 +129,7 @@ public partial class Machine
         if (variable == 0)
         {
             this.stackPointer -= 2;
-            value = this.stack.getWord(this.stackPointer); // get value from stack;
+            value = this.Stack.getWord(this.stackPointer); // get value from stack;
         }
         else if (variable < 16)
         {

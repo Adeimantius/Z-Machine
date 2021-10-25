@@ -4,12 +4,12 @@ public partial class Machine
 {
     public CPUState State
     {
-        get => new(this.Memory.Contents, this.stack.Contents, this.Lex.MemoryPointer, this.ProgramCounter, this.pcStart, this.stackPointer, this.callDepth,
+        get => new(this.Memory.Contents, this.Stack.Contents, this.Lex.MemoryPointer, this.ProgramCounter, this.pcStart, this.stackPointer, this.callDepth,
             this.callStack, this.Finished, this.InstructionCounter);
         set
         {
             this.Memory.load(value.memory);
-            this.stack.load(value.stack);
+            this.Stack.load(value.stack);
             this.Lex.MemoryPointer = value.lexMemoryPointer;
             this.ProgramCounter = value.programCounter;
             this.pcStart = value.pcStart;
@@ -55,7 +55,7 @@ public partial class Machine
 
     public string stateString()
     {
-        string s = "M: " + this.Memory.getCrc32() + " S: " + this.stack.getCrc32();
+        string s = "M: " + this.Memory.getCrc32() + " S: " + this.Stack.getCrc32();
         //            for (ushort i = 1; i < 256; ++i)
         //                s += " " + getVar(i);
         return s;
