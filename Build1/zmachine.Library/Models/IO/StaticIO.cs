@@ -1,4 +1,6 @@
-﻿namespace zmachine.Library;
+﻿using zmachine.Library.Interfaces;
+
+namespace zmachine.Library.Models.IO;
 
 public class StaticIO : IIO
 {

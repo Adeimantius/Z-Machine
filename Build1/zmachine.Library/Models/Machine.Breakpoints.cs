@@ -1,6 +1,6 @@
 ﻿using zmachine.Library.Enumerations;
 
-namespace zmachine.Library;
+namespace zmachine.Library.Models;
 
 public partial class Machine
 {

@@ -1,6 +1,7 @@
 ﻿using zmachine.Library.Enumerations;
+using zmachine.Library.Interfaces;
 
-namespace zmachine.Library;
+namespace zmachine.Library.Models;
 
 /// <summary>
 ///     This class moves through the input file and extracts bytes to deconstruct instructions in the code

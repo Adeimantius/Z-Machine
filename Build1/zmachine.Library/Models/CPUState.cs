@@ -1,4 +1,4 @@
-﻿namespace zmachine.Library;
+﻿namespace zmachine.Library.Models;
 
 public record CPUState
 {

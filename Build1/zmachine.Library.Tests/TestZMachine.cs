@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using zmachine.Library.Enumerations;
 using zmachine.Library.Models;
+using zmachine.Library.Models.IO;
 
 namespace zmachine.Library.Tests;
 

@@ -1,24 +1,26 @@
-﻿namespace zmachine.Library;
+﻿using zmachine.Library.Interfaces;
 
-public class ConsoleIO : IIO
+namespace zmachine.Library.Models.IO;
+
+public class NullIO : IIO
 {
     public string? ReadLine()
     {
-        return Console.ReadLine();
+        return null;
     }
 
     public void Write(string str)
     {
-        Console.Write(str);
+        return;
     }
 
     public void WriteLine(string str)
     {
-        Console.WriteLine(str);
+        return;
     }
 
     public ConsoleKeyInfo ReadKey()
     {
-        return Console.ReadKey();
+        return default;
     }
 }

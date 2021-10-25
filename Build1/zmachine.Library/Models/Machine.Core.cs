@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using zmachine.Library.Enumerations;
 using zmachine.Library.Extensions;
-using zmachine.Library.Models;
 
-namespace zmachine.Library;
+namespace zmachine.Library.Models;
 
 public partial class Machine
 {
@@ -187,6 +186,11 @@ public partial class Machine
         return this;
     }
 
+    /// <summary>
+    /// Gets function/routine info from top of call stack and loads the return address on to the program counter and the stack frame address onto the stack pointer before setting the return value
+    /// </summary>
+    /// <param name="returnVal"></param>
+    /// <returns></returns>
     public Machine popRoutineData(ushort returnVal)
     {
         if (this.callDepth == 0)

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using zmachine.Library.Enumerations;
+using zmachine.Library.Models;
 
 namespace zmachine.Library.Extensions;
 

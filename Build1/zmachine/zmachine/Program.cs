@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using zmachine.Library;
+using zmachine.Library.Models;
+using zmachine.Library.Models.IO;
 
 namespace zmachine;
 

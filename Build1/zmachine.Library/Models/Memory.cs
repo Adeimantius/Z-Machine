@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace zmachine.Library;
+namespace zmachine.Library.Models;
 
 public class Memory
 {

@@ -1,4 +1,6 @@
-﻿namespace zmachine.Library.Extensions;
+﻿using zmachine.Library.Models;
+
+namespace zmachine.Library.Extensions;
 
 public static partial class MachineOpcodeExtensions
 {

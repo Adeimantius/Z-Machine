@@ -1,4 +1,4 @@
-﻿namespace zmachine.Library;
+﻿namespace zmachine.Library.Models;
 
 /// <summary>
 ///     This class stores the chain of routines that have been called, in sequence, and the values in the local variable
