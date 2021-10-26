@@ -33,7 +33,7 @@ public partial class Machine
     /// </summary>
     /// <param name="error"></param>
     /// <returns></returns>
-    public BreakpointType Terminate(string? error = null, BreakpointType finalBreakpointType = BreakpointType.Terminate)
+    public BreakpointType Terminate(string? error = null, BreakpointType finalBreakpointType = BreakpointType.Terminate, bool forceAddBreak = false)
     {
         this.DebugWrite("Terminate called");
         if (error is not null)
@@ -42,7 +42,7 @@ public partial class Machine
         }
 
         this.Finished = true;
-        this.Break(finalBreakpointType);
+        this.Break(breakpointType: finalBreakpointType, force: forceAddBreak);
         return finalBreakpointType;
     }
 
@@ -100,7 +100,9 @@ public partial class Machine
     {
         if (variable == 0) // Variable number $00 refers to the top of the stack
         {
-            this.Stack.setWord(this.stackPointer, value); // Set value in stack
+            this.Stack.setWord(
+                address: this.stackPointer,
+                value: value); // Set value in stack
             this.stackPointer += 2; // Increment stack pointer by 2 (size of word)
         }
         else if (variable < 16) //$01 to $0f mean the local variables of the current routine

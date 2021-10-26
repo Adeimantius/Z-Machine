@@ -90,17 +90,26 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_store(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(v1, v2);
+        machine.setVar(
+            variable: v1,
+            value: v2);
     }
 
     public static void op_insert_obj(this Machine machine, ushort v1, ushort v2)
     {
         int newSibling = machine.ObjectTable.getChild(v2); // 
         machine.ObjectTable
-            .unlinkObject(v1)
-            .setChild(v2, v1)
-            .setParent(v1, v2)
-            .setSibling(v1, newSibling);
+            .unlinkObject(
+                objectId: v1)
+            .setChild(
+                objectId: v2,
+                childId: v1)
+            .setParent(
+                objectId: v1,
+                parentId: v2)
+            .setSibling(
+                objectId: v1,
+                siblingId: newSibling);
         // after the operation the child of v2 is v1
         // and the sibling of v1 is whatever was previously the child of v2.
         // All children of v1 move with it. (Initially O can be at any point in the object tree; it may legally have parent zero.)    
@@ -108,27 +117,41 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_loadw(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), Convert.ToUInt16(machine.Memory.getWord(v1 + (uint)(2 * v2))));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: Convert.ToUInt16(machine.Memory.getWord(
+                address: v1 + (uint)(2 * v2))));
     }
 
     public static void op_loadb(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), Convert.ToUInt16(machine.Memory.getByte(v1 + (uint)v2)));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: Convert.ToUInt16(machine.Memory.getByte(
+                address: v1 + (uint)v2)));
     }
 
     public static void op_get_prop(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getObjectProperty(v1, v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)machine.ObjectTable.getObjectProperty(v1, v2));
     }
 
     public static void op_get_prop_addr(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getObjectPropertyAddress(v1, v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)machine.ObjectTable.getObjectPropertyAddress(
+                objectId: v1,
+                property: v2));
     }
 
     public static void op_get_next_addr(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getNextObjectPropertyIdAfter(v1, v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)machine.ObjectTable.getNextObjectPropertyIdAfter(v1, v2));
     }
 
     public static void op_add(this Machine machine, ushort v1, ushort v2)
@@ -138,12 +161,16 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_sub(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)Convert.ToInt32((short)v1 - (short)v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)Convert.ToInt32((short)v1 - (short)v2));
     }
 
     public static void op_div(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)Convert.ToInt32((short)v1 / (short)v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)Convert.ToInt32((short)v1 / (short)v2));
     }
 
     public static void op_mod(this Machine machine, ushort v1, ushort v2)
@@ -151,12 +178,17 @@ public static partial class MachineOpcodeExtensions
         if (v2 == 0)
         {
             // Interpreter cannot div by 0
-            machine.Terminate("Division by zero", BreakpointType.DivisionByZero);
+            machine.Terminate(
+                error: "Division by zero",
+                finalBreakpointType: BreakpointType.DivisionByZero,
+                forceAddBreak: true);
             return;
         }
 
         int result = (short)v1 % (short)v2;
-        machine.setVar(machine.pc_getByte(), (ushort)result);
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)result);
     }
 
     public static void op_mul(this Machine machine, ushort v1, ushort v2)

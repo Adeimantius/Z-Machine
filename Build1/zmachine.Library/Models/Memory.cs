@@ -67,10 +67,10 @@ public class Memory
 
 
     //assign 16-bit value from given 16-bit memory address
-    public Memory setWord(uint address, ushort val)
+    public Memory setWord(uint address, ushort value)
     {
-        byte a = (byte)((val >> 8) & 0xff);
-        byte b = (byte)(val & 0xff);
+        byte a = (byte)((value >> 8) & 0xff);
+        byte b = (byte)(value & 0xff);
 
         // byte[] a = BitConverter.GetBytes(val);
         // byte first = (byte) a[0];

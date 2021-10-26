@@ -104,6 +104,7 @@ public class TestZMachine
         Assert.AreEqual(
             this.Screens[nameof(TestQuit)],
             transcript);
+        Assert.IsTrue(machine.BreakpointsReached.Any());
         Assert.AreEqual(BreakpointType.Complete, machine.BreakpointsReached.Last().breakpointType);
         Assert.IsTrue(machine.Finished);
     }

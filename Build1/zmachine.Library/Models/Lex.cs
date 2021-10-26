@@ -40,7 +40,10 @@ public class Lex
         string? input = this.Machine.IO.ReadLine(); // Get initial input from io terminal
         if (input is null)
         {
-            return this.Machine.Terminate("Input required, but none available", BreakpointType.InputRequired);
+            return this.Machine.Terminate(
+                error: "Input required, but none available",
+                finalBreakpointType: BreakpointType.InputRequired,
+                forceAddBreak: true);
         }
 
         if (input.Length > maxInputLength)

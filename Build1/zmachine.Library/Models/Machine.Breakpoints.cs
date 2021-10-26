@@ -66,9 +66,9 @@ public partial class Machine
         return this;
     }
 
-    public bool Break(BreakpointType breakpointType)
+    public bool Break(BreakpointType breakpointType, bool force = false)
     {
-        if (!this.ShouldBreakFor(breakpointType))
+        if (!force && !this.ShouldBreakFor(breakpointType))
         {
             return false;
         }

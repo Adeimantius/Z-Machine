@@ -20,7 +20,7 @@
             Memory testMemory = new Memory(Machine.MemorySizeByVersion[3], contents: null);
             uint address = 1234;
             ushort value = 2345;
-            testMemory.setWord(address: address, val: value);
+            testMemory.setWord(address: address, value: value);
 
             var memoryCheck = testMemory.getWord(address: address);
             Assert.AreEqual(expected: value, actual: memoryCheck);
