@@ -42,7 +42,9 @@ public partial class Machine
         }
 
         this.Finished = true;
-        this.Break(breakpointType: finalBreakpointType, force: forceAddBreak);
+        this.Break(
+            breakpointType: finalBreakpointType,
+            force: forceAddBreak);
         return finalBreakpointType;
     }
 
@@ -83,7 +85,8 @@ public partial class Machine
         {
             if (offset == 0 || offset == 1)
             {
-                this.popRoutineData((ushort)offset);
+                this.popRoutineData(
+                    returnValue: (ushort)offset);
             }
             else
             {
@@ -95,10 +98,12 @@ public partial class Machine
     }
 
 
+    public const int VAR_TOP_OF_STACK = 0;
+
     // Put a value onto the top of the stack.
     public Machine setVar(ushort variable, ushort value)
     {
-        if (variable == 0) // Variable number $00 refers to the top of the stack
+        if (variable == VAR_TOP_OF_STACK) // Variable number $00 refers to the top of the stack
         {
             this.Stack.setWord(
                 address: this.stackPointer,
@@ -113,9 +118,12 @@ public partial class Machine
         {
             //and $10 to $ff mean the global variables.
             uint address =
-                (uint)(this.Memory.getWord(Memory.ADDR_GLOBALS) +
-                        (variable - 16) * 2); // Set value in global variable table (variable 16 -> index 0)
-            this.Memory.setWord(address, value);
+                (uint)(this.Memory.getWord(
+                    address: 
+                        Memory.ADDR_GLOBALS) + (variable - 16) * 2); // Set value in global variable table (variable 16 -> index 0)
+            this.Memory.setWord(
+                address: address,
+                value: value);
         }
 
         return this;
@@ -131,7 +139,8 @@ public partial class Machine
         if (variable == 0)
         {
             this.stackPointer -= 2;
-            value = this.Stack.getWord(this.stackPointer); // get value from stack;
+            value = this.Stack.getWord(
+                address: this.stackPointer); // get value from stack;
         }
         else if (variable < 16)
         {
@@ -191,9 +200,9 @@ public partial class Machine
     /// <summary>
     /// Gets function/routine info from top of call stack and loads the return address on to the program counter and the stack frame address onto the stack pointer before setting the return value
     /// </summary>
-    /// <param name="returnVal"></param>
+    /// <param name="returnValue"></param>
     /// <returns></returns>
-    public Machine popRoutineData(ushort returnVal)
+    public Machine popRoutineData(ushort returnValue)
     {
         if (this.callDepth == 0)
         {
@@ -209,7 +218,7 @@ public partial class Machine
         --this.callDepth;
 
         this.setVar(this.pc_getByte(),
-            returnVal); // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
+            returnValue); // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
         return this;
     }
 

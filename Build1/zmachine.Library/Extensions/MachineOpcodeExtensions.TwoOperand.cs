@@ -62,25 +62,36 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_or(this Machine machine, ushort v1, ushort v2)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)(v1 | v2));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)(v1 | v2));
     }
 
     public static void op_set_attr(this Machine machine, ushort v1, ushort v2)
     {
-        machine.ObjectTable.setObjectAttribute(v1, v2, true);
+        machine.ObjectTable.setObjectAttribute(
+            objectId: v1,
+            attributeId: v2,
+            value: true);
     }
 
     public static void op_test(this Machine machine, ushort v1, ushort v2)
     {
-        machine.branch((v1 & v2) == v2);
+        machine.branch(
+            condition: (v1 & v2) == v2);
     }
 
     public static void op_test_attr(this Machine machine, ushort v1, ushort v2)
     {
         machine
             .DebugWrite("Looking for attribute in obj " + v1 + " attribute:" +
-                        machine.ObjectTable.getObjectAttribute(v1, v2))
-            .branch(machine.ObjectTable.getObjectAttribute(v1, v2));
+                        machine.ObjectTable.getObjectAttribute(
+                            objectId: v1, 
+                            attributeId: v2))
+            .branch(
+                condition: machine.ObjectTable.getObjectAttribute(
+                    objectId: v1,
+                    attributeId: v2));
     }
 
     public static void op_clear_attr(this Machine machine, ushort v1, ushort v2)

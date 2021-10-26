@@ -11,18 +11,22 @@ public static partial class MachineOpcodeExtensions
 {
     public static void op_rtrue(this Machine machine)
     {
-        machine.popRoutineData(1);
+        machine.popRoutineData(
+            returnValue: 1);
     }
 
     public static void op_rfalse(this Machine machine)
     {
-        machine.popRoutineData(0);
+        machine.popRoutineData(
+            returnValue: 0);
     }
 
     public static void op_print(this Machine machine)
     {
         //                Debug.WriteLine("Getting string at " + machine.pc);
-        Memory.StringAndReadLength str = machine.Memory.getZSCII(machine.ProgramCounter, 0);
+        Memory.StringAndReadLength str = machine.Memory.getZSCII(
+            address: machine.ProgramCounter,
+            numBytes: Memory.ZSCII_READ_TO_END);
         machine.IO.Write(str.str);
         machine.ProgramCounter += (uint)str.bytesRead;
         //                Debug.WriteLine("New pc location: " + machine.pc);
@@ -57,12 +61,14 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_ret_popped(this Machine machine)
     {
-        machine.popRoutineData(machine.getVar(0));
+        machine.popRoutineData(
+            returnValue: machine.getVar(
+                variable: 0));
     }
 
     public static void op_pop(this Machine machine)
     {
-        machine.getVar(0);
+        machine.getVar(variable: 0);
     }
 
     public static void op_quit(this Machine machine)

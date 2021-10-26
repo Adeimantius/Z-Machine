@@ -12,46 +12,76 @@ public static partial class MachineOpcodeExtensions
 {
     public static void op_jz(this Machine machine, ushort v1)
     {
-        machine.branch(v1 == 0);
+        machine.branch(
+            condition: v1 == 0);
     }
 
     public static void op_get_sibling(this Machine machine, ushort v1)
     {
         machine
-            .setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getSibling(v1))
-            .branch(machine.ObjectTable.getSibling(v1) != 0);
+            .setVar(
+                variable: machine.pc_getByte(),
+                value: (ushort)machine.ObjectTable.getSibling(
+                    objectId: v1))
+            .branch(
+            condition:
+                machine.ObjectTable.getSibling(
+                    objectId: v1) 
+                != 0);
     }
 
     public static void op_get_child(this Machine machine, ushort v1)
     {
         machine
-            .setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getChild(v1))
-            .branch(machine.ObjectTable.getChild(v1) != 0);
+            .setVar(
+                variable: machine.pc_getByte(),
+                value: (ushort)machine.ObjectTable.getChild(
+                    objectId: v1))
+            .branch(
+                condition: machine.ObjectTable.getChild(
+                    objectId: v1)
+                != 0);
     }
 
     public static void op_get_parent(this Machine machine, ushort v1)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getParent(v1));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)machine.ObjectTable.getParent(
+                objectId: v1));
     }
 
     public static void op_get_prop_len(this Machine machine, ushort v1)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)machine.ObjectTable.getObjectPropertyLengthFromAddress(v1));
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)machine.ObjectTable.getObjectPropertyLengthFromAddress(
+                propertyAddress: v1));
     }
 
     public static void op_inc(this Machine machine, ushort v1)
     {
-        machine.setVar(v1, (ushort)Convert.ToInt32((short)machine.getVar(v1) + 1));
+        machine.setVar(
+            variable: v1,
+            value: (ushort)Convert.ToInt32((short)machine.getVar(
+                variable: v1)
+            + 1));
     }
 
     public static void op_dec(this Machine machine, ushort v1)
     {
-        machine.setVar(v1, (ushort)Convert.ToInt32((short)machine.getVar(v1) - 1));
+        machine.setVar(
+            variable: v1,
+            value: (ushort)Convert.ToInt32((short)machine.getVar(
+                variable: v1)
+            - 1));
     }
 
     public static void op_not(this Machine machine, ushort v1)
     {
-        machine.setVar(machine.pc_getByte(), (ushort)~v1);
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)~v1);
     }
 
     public static void op_print_addr(Machine machine, ushort v1)
@@ -61,7 +91,9 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_remove_obj(this Machine machine, ushort v1)
     {
-        machine.ObjectTable.setParent(v1, 0);
+        machine.ObjectTable.setParent(
+            objectId: v1,
+            parentId: 0);
     }
 
     /// <summary>
@@ -76,7 +108,8 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_ret(this Machine machine, ushort v1)
     {
-        machine.popRoutineData(v1);
+        machine.popRoutineData(
+            returnValue: v1);
     }
 
     public static void op_jump(this Machine machine, ushort v1)
@@ -91,12 +124,16 @@ public static partial class MachineOpcodeExtensions
     /// <param name="v1"></param>
     public static void op_print_paddr(this Machine machine, ushort v1)
     {
-        machine.IO.Write(machine.Memory.getZSCII((uint)v1 * 2, 0).str);
+        machine.IO.Write(machine.Memory.getZSCII(
+            address: (uint)v1 * 2,
+            numBytes: Memory.ZSCII_READ_TO_END).str);
     }
 
     public static void op_load(this Machine machine, ushort v1)
     {
-        machine.setVar(machine.pc_getWord(), v1);
+        machine.setVar(
+            variable: machine.pc_getWord(),
+            value: v1);
     }
 
     public static SingleOperandOpcodes process1OP(this Machine machine, int opcode, ushort operand1)

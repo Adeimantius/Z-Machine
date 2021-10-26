@@ -12,7 +12,9 @@ public static partial class MachineOpcodeExtensions
     {
         if (operands[0] == 0)
         {
-            machine.setVar(machine.pc_getByte(), 0); //set return value to zero
+            machine.setVar(
+                variable: machine.pc_getByte(),
+                value: 0); //set return value to zero
         }
         else
         {
@@ -22,17 +24,24 @@ public static partial class MachineOpcodeExtensions
 
     public static void op_storew(this Machine machine, List<ushort> operands)
     {
-        machine.Memory.setWord((uint)(operands[0] + 2 * operands[1]), operands[2]);
+        machine.Memory.setWord(
+            address: (uint)(operands[0] + 2 * operands[1]),
+            value: operands[2]);
     }
 
     public static void op_storeb(this Machine machine, List<ushort> operands)
     {
-        machine.Memory.setByte((uint)(operands[0] + operands[1]), (byte)operands[2]);
+        machine.Memory.setByte(
+            address: (uint)(operands[0] + operands[1]),
+            value: (byte)operands[2]); ;
     }
 
     public static void op_put_prop(this Machine machine, List<ushort> operands)
     {
-        machine.ObjectTable.setObjectProperty(operands[0], operands[1], operands[2]);
+        machine.ObjectTable.setObjectProperty(
+            objectId: operands[0],
+            property: operands[1],
+            value: operands[2]);
     }
 
     public static void op_sread(this Machine machine, List<ushort> operands)
@@ -68,18 +77,23 @@ public static partial class MachineOpcodeExtensions
             value = (ushort)random.Next(1, operands[0]);
         }
 
-        machine.setVar(machine.pc_getByte(),
-            (ushort)value); // If range is negative, the random number generator is seeded to that value and the return value is 0
+        machine.setVar(
+            variable: machine.pc_getByte(),
+            value: (ushort)value); // If range is negative, the random number generator is seeded to that value and the return value is 0
     }
 
     public static void op_push(this Machine machine, List<ushort> operands)
     {
-        machine.setVar(0, operands[0]);
+        machine.setVar(
+            variable: 0,
+            value: operands[0]);
     }
 
     public static void op_pull(this Machine machine, List<ushort> operands)
     {
-        machine.setVar(operands[0], machine.getVar(0));
+        machine.setVar(
+            variable: operands[0],
+            value: machine.getVar(0));
     }
 
     public static void op_split_window(this Machine machine, List<ushort> operands)
@@ -104,7 +118,10 @@ public static partial class MachineOpcodeExtensions
             }
             else if (operands[0] == 3)
             {
-                Memory.StringAndReadLength str = machine.Memory.getZSCII((uint)operands[1] + 2, machine.Memory.getWord(operands[1]));
+                Memory.StringAndReadLength str = machine.Memory.getZSCII(
+                    address: (uint)operands[1] + 2,
+                    numBytes: machine.Memory.getWord(
+                        address: operands[1]));
             }
         }
     }

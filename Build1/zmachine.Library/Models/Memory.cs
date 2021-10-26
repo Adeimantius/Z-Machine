@@ -52,9 +52,9 @@ public class Memory
     }
 
     //assign given byte value @ hex address location
-    public Memory setByte(uint address, byte val)
+    public Memory setByte(uint address, byte value)
     {
-        this.memory[address] = val;
+        this.memory[address] = value;
         return this;
     }
 
@@ -95,12 +95,20 @@ public class Memory
 
     public short getSignedWord(uint address)
     {
-        return (short)this.getWord(address);
+        return (short)this.getWord(address: address);
     }
 
     public string getAbbrev(int abbrevIndex)
     {
-        StringAndReadLength abbrev = this.getZSCII((uint)(this.getWord((uint)(this.getWord(ADDR_ABBREVS) + abbrevIndex * 2)) * 2), 0);
+        StringAndReadLength abbrev = this.getZSCII(
+            address: 
+                (uint)(this.getWord(
+                    address: 
+                        (uint)(this.getWord(
+                            address: ADDR_ABBREVS) 
+                + abbrevIndex * 2))
+                * 2), 
+            numBytes: Memory.ZSCII_READ_TO_END);
         return abbrev.str;
     }
 
@@ -142,6 +150,8 @@ public class Memory
         return (char)0;
     }
 
+    public const int ZSCII_READ_TO_END = 0;
+
     public StringAndReadLength getZSCII(uint address, uint numBytes)
     {
         string[] zalphabets =
@@ -162,7 +172,8 @@ public class Memory
         while (!stringComplete)
         {
             //Get another word from memory
-            ushort word = this.getWord(address);
+            ushort word = this.getWord(
+                address: address);
             if (((word >> 15) & 0x1) == 1)
             {
                 stringComplete = true;
@@ -283,6 +294,7 @@ public class Memory
             address += 2; // move to next word
             bytesRead += 2; // store number of bytesRead for pointer
 
+            // ZSCII_READ_TO_END = 0
             if (numBytes > 0 && bytesRead >= numBytes)
             {
                 stringComplete = true;

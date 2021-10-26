@@ -62,7 +62,7 @@
                 });
 
             ushort returnVal = 12345;
-            machine.popRoutineData(returnVal: returnVal);
+            machine.popRoutineData(returnValue: returnVal);
         }
 
         [TestMethod]
