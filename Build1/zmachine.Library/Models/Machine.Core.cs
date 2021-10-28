@@ -202,7 +202,7 @@ public partial class Machine
     /// </summary>
     /// <param name="returnValue"></param>
     /// <returns></returns>
-    public Machine popRoutineData(ushort returnValue)
+    public virtual void popRoutineData(ushort returnValue)
     {
         if (this.callDepth == 0)
         {
@@ -219,7 +219,6 @@ public partial class Machine
 
         this.setVar(this.pc_getByte(),
             returnValue); // Set the return value. Calling a routine is a "store" function, so the next byte contains where to store the result.
-        return this;
     }
 
     /// <summary>
