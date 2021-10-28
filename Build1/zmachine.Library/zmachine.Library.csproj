@@ -7,7 +7,35 @@
         <RootNamespace>zmachine.Library</RootNamespace>
         <AssemblyName>zmachine.Library</AssemblyName>
     </PropertyGroup>
+
     <ItemGroup>
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Common.CrossTargeting.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Common.CurrentVersion.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Common.overridetasks" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Common.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Common.tasks" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.CSharp.CrossTargeting.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.CSharp.CurrentVersion.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.CSharp.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Managed.After.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Managed.Before.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.Managed.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.NET.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.NETFramework.CurrentVersion.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.NETFramework.CurrentVersion.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.NETFramework.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.NETFramework.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualBasic.CrossTargeting.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualBasic.CurrentVersion.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualBasic.targets" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualStudioVersion.v11.Common.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualStudioVersion.v12.Common.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\Microsoft.VisualStudioVersion.v14.Common.props" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\MSBuild.dll" />
+      <Content Remove="C:\Users\Jessica Mulein\.nuget\packages\microsoft.build.runtime\16.11.0\contentFiles\any\net5.0\MSBuild.runtimeconfig.json" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Crc32.NET" Version="1.2.0" />
         <PackageReference Include="Microsoft.Build.Runtime" Version="16.11.0" />
         <PackageReference Include="System.Collections" Version="4.3.0" />
     </ItemGroup>

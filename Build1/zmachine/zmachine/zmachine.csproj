@@ -10,9 +10,9 @@
         <StartupObject>zmachine.Program</StartupObject>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="App.config"/>
+        <None Include="App.config" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\zmachine.Library\zmachine.Library.csproj"/>
+        <ProjectReference Include="..\..\zmachine.Library\zmachine.Library.csproj" />
     </ItemGroup>
 </Project>

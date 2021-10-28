@@ -326,8 +326,7 @@ public class Memory
 
     public uint getCrc32()
     {
-        Crc32 crc32 = new Crc32();
-        return crc32.ComputeChecksum(this.memory);
+        return Force.Crc32.Crc32Algorithm.Compute(this.memory);
     }
 
     public class StringAndReadLength
