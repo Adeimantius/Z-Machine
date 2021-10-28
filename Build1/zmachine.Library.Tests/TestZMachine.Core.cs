@@ -55,13 +55,17 @@
             IIO staticIO = new NullIO();
             Machine machine = new Machine(
                 staticIO,
-                TestZMachine.ZorkPath,
+                new CPUState(),
                 new Dictionary<BreakpointType, BreakpointAction>
                 {
                 });
 
             ushort returnVal = 12345;
+            machine.pushRoutineData(new List<ushort> { 0 });
+            // call depth now 1
             machine.popRoutineData(returnValue: returnVal);
+            // we've now called setVar 0 with value 12345
+
         }
     }
 }

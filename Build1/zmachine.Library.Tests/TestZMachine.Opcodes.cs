@@ -19,7 +19,7 @@
             IIO staticIO = new NullIO();
             Mock<Machine>? machineMock = new Mock<Machine>(
                 staticIO,
-                TestZMachine.ZorkPath,
+                new CPUState(),
                 new Dictionary<BreakpointType, BreakpointAction>
                 {
                 });
@@ -43,7 +43,7 @@
             IIO staticIO = new NullIO();
             Mock<Machine>? machineMock = new Mock<Machine>(
                 staticIO,
-                TestZMachine.ZorkPath,
+                new CPUState(),
                 new Dictionary<BreakpointType, BreakpointAction>
                 {
                 });
