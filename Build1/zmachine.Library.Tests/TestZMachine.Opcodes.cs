@@ -1,7 +1,6 @@
 ﻿namespace zmachine.Library.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
     using System.Collections.Generic;
     using zmachine.Library.Enumerations;
     using zmachine.Library.Interfaces;
@@ -37,7 +36,7 @@
 
             ushort value = 2345;
             ushort[] variables = new ushort[] { 0, 0x0f, 0xff };
-            foreach (var variable in variables)
+            foreach (ushort variable in variables)
             {
                 machine.setVar(
                     variable: variable,

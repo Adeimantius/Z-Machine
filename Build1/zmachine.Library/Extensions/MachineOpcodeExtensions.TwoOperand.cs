@@ -86,7 +86,7 @@ public static partial class MachineOpcodeExtensions
         machine
             .DebugWrite("Looking for attribute in obj " + v1 + " attribute:" +
                         machine.ObjectTable.getObjectAttribute(
-                            objectId: v1, 
+                            objectId: v1,
                             attributeId: v2))
             .branch(
                 condition: machine.ObjectTable.getObjectAttribute(

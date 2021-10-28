@@ -26,7 +26,7 @@ public static partial class MachineOpcodeExtensions
             .branch(
             condition:
                 machine.ObjectTable.getSibling(
-                    objectId: v1) 
+                    objectId: v1)
                 != 0);
     }
 

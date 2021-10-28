@@ -80,14 +80,20 @@ public class Lex
                 //                    {                            
                 int wordLength = wordArray[i].Length;
                 this.Memory
-                    .setWord(this.MemoryPointer,
-                        (ushort)matchedWords[i]) // Address in dictionary of matches (either from dictionary or 0)
-                    .setByte(this.MemoryPointer + 2, (byte)wordLength) // # of letters in parsed word 
-                    .setByte(this.MemoryPointer + 3,
-                        (byte)this.wordStartIndex[i]); // Corresponding word position in text buffer 
+                    .setWord(
+                        address: this.MemoryPointer,
+                        value: (ushort)matchedWords[i]) // Address in dictionary of matches (either from dictionary or 0)
+                    .setByte(
+                        address: this.MemoryPointer + 2,
+                        value: (byte)wordLength) // # of letters in parsed word
+                    .setByte(
+                        address: this.MemoryPointer + 3,
+                        value: (byte)this.wordStartIndex[i]); // Corresponding word position in text buffer
                 //                     }
                 this.MemoryPointer += 4;
-                this.Memory.setByte(this.MemoryPointer, 0);
+                this.Memory.setByte(
+                    address: this.MemoryPointer,
+                    value: 0);
             }
         }
 

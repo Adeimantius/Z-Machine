@@ -12,7 +12,7 @@ public class Memory
     public const ushort ADDR_OBJECTS = 0x0a;
     public const ushort ADDR_ABBREVS = 0x18;
 
-    private byte[] memory;
+    private readonly byte[] memory;
 
     public Memory(int size, byte[]? contents = null)
     {
@@ -101,13 +101,13 @@ public class Memory
     public string getAbbrev(int abbrevIndex)
     {
         StringAndReadLength abbrev = this.getZSCII(
-            address: 
+            address:
                 (uint)(this.getWord(
-                    address: 
+                    address:
                         (uint)(this.getWord(
-                            address: ADDR_ABBREVS) 
+                            address: ADDR_ABBREVS)
                 + abbrevIndex * 2))
-                * 2), 
+                * 2),
             numBytes: Memory.ZSCII_READ_TO_END);
         return abbrev.str;
     }

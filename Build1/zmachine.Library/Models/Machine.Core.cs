@@ -119,7 +119,7 @@ public partial class Machine
             //and $10 to $ff mean the global variables.
             uint address =
                 (uint)(this.Memory.getWord(
-                    address: 
+                    address:
                         Memory.ADDR_GLOBALS) + (variable - 16) * 2); // Set value in global variable table (variable 16 -> index 0)
             this.Memory.setWord(
                 address: address,
