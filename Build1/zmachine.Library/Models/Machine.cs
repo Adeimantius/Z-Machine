@@ -88,6 +88,8 @@ public partial class Machine
     /// </summary>
     private uint callDepth;
 
+    public uint CallDepth => callDepth;
+
     /// <summary>
     ///     Number of instructions since power on
     /// </summary>

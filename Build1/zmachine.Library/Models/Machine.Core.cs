@@ -101,7 +101,7 @@ public partial class Machine
     public const int VAR_TOP_OF_STACK = 0;
 
     // Put a value onto the top of the stack.
-    public Machine setVar(ushort variable, ushort value)
+    public virtual Machine setVar(ushort variable, ushort value)
     {
         if (variable == VAR_TOP_OF_STACK) // Variable number $00 refers to the top of the stack
         {
@@ -394,7 +394,7 @@ public partial class Machine
             operandInfo);
     } // end processInstruction
 
-    public byte pc_getByte()
+    public virtual byte pc_getByte()
     {
         byte next = this.Memory.getByte(this.ProgramCounter);
         this.ProgramCounter++;

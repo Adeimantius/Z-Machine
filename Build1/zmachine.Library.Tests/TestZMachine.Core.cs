@@ -53,7 +53,7 @@ namespace zmachine.Library.Tests
         }
 
         [TestMethod]
-        public void Test_popRoutineData()
+        public void Test_popRoutineDataUnderrun()
         {
             // Arrange
             ushort returnVal = 12345;
@@ -77,6 +77,48 @@ namespace zmachine.Library.Tests
 
             // Assert
             Assert.IsTrue(machine.Finished);
+        }
+
+        [TestMethod]
+        public void Test_popRoutineData()
+        {
+            // Arrange
+            ushort returnVal = 12345;
+            IIO staticIO = new NullIO();
+            Mock<Machine>? machineMock = new Mock<Machine>(
+                staticIO,
+                new CPUState(),
+                new Dictionary<BreakpointType, BreakpointAction>
+                {
+                });
+            Machine machine = machineMock.Object;
+            Machine.DEBUG_ASSERT_DISABLED = true;
+            machineMock.Setup(m => m.popRoutineData(It.IsAny<ushort>()))
+                .CallBase()
+                .Verifiable();
+            machineMock.Setup(m => m.pushRoutineData(It.IsAny<List<ushort>>()))
+                .CallBase()
+                .Verifiable();
+            machineMock.Setup(m => m.setVar(It.IsAny<ushort>(), It.IsAny<ushort>()))
+                .CallBase()
+                .Verifiable();
+            machineMock.Setup(m => m.pc_getByte())
+                .CallBase()
+                .Verifiable();
+
+            Assert.AreEqual(expected: 0U, machine.CallDepth);
+            machine.pushRoutineData(new List<ushort> { 0 });
+            Assert.AreEqual(expected: 1U, machine.CallDepth);
+
+            // Act
+            machine.popRoutineData(returnValue: returnVal);
+
+            // Assert
+            Assert.AreEqual(expected: 0U, machine.CallDepth);
+            Assert.IsFalse(machine.Finished);
+
+            machineMock.Verify();
+            machineMock.VerifyNoOtherCalls();
         }
     }
 }
