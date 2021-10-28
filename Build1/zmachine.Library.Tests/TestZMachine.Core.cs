@@ -1,6 +1,9 @@
-﻿namespace zmachine.Library.Tests
+﻿#define DISABLE_ASSERT
+
+namespace zmachine.Library.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Moq;
     using System.Collections.Generic;
     using zmachine.Library.Enumerations;
     using zmachine.Library.Interfaces;
@@ -52,20 +55,28 @@
         [TestMethod]
         public void Test_popRoutineData()
         {
+            // Arrange
+            ushort returnVal = 12345;
             IIO staticIO = new NullIO();
-            Machine machine = new Machine(
+            Mock<Machine>? machineMock = new Mock<Machine>(
                 staticIO,
                 new CPUState(),
                 new Dictionary<BreakpointType, BreakpointAction>
                 {
                 });
+            Machine machine = machineMock.Object;
+            Machine.DEBUG_ASSERT_DISABLED = true;
+            machineMock.Setup(m => m.popRoutineData(It.IsAny<ushort>()))
+                .CallBase()
+                .Verifiable();
 
-            ushort returnVal = 12345;
-            machine.pushRoutineData(new List<ushort> { 0 });
-            // call depth now 1
+
+            // Act
+            Assert.IsFalse(machine.Finished);
             machine.popRoutineData(returnValue: returnVal);
-            // we've now called setVar 0 with value 12345
 
+            // Assert
+            Assert.IsTrue(machine.Finished);
         }
     }
 }

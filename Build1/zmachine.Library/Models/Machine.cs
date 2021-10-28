@@ -8,6 +8,7 @@ namespace zmachine.Library.Models;
 /// </summary>
 public partial class Machine
 {
+    public static bool DEBUG_ASSERT_DISABLED = false;
     public const int StackDepth = 128;
 
     /// <summary>
@@ -42,6 +43,8 @@ public partial class Machine
     {
         BreakpointType.Complete,
         BreakpointType.DivisionByZero,
+        BreakpointType.StackUnderrun,
+        BreakpointType.StackOverflow,
         BreakpointType.Error,
         BreakpointType.Terminate,
         BreakpointType.Unimplemented

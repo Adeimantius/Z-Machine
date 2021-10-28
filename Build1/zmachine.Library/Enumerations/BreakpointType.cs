@@ -4,6 +4,8 @@ public enum BreakpointType
 {
     None,
     DivisionByZero,
+    StackOverflow,
+    StackUnderrun,
     Error,
     InputRequired,
     Opcode,

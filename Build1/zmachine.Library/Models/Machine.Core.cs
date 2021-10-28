@@ -160,14 +160,14 @@ public partial class Machine
         return value;
     }
 
-    public Machine pushRoutineData(List<ushort> operands)
+    public virtual void pushRoutineData(List<ushort> operands)
     {
         // First check if we've gone too deep into our call stack:
         if (this.callDepth >= StackDepth)
         {
-            Debug.Assert(true, "Error: Call Stack Overflow"); //alert the user 
+            Debug.Assert(Machine.DEBUG_ASSERT_DISABLED, "Error: Call Stack Overflow"); //alert the user
+            this.Terminate("Error: Call Stack Overflow", BreakpointType.StackOverflow, forceAddBreak: true);
             this.Finished = true;
-            return this;
         }
 
         ++this.callDepth;
@@ -194,7 +194,6 @@ public partial class Machine
 
         numLocals = (byte)Math.Max(operands.Count - 1, numLocals);
         this.callStack[this.callDepth].numLocalVars = numLocals;
-        return this;
     }
 
     /// <summary>
@@ -206,7 +205,8 @@ public partial class Machine
     {
         if (this.callDepth == 0)
         {
-            Debug.Assert(false, "Error: Call Stack Underrun"); // alert the user to the error.
+            Debug.Assert(Machine.DEBUG_ASSERT_DISABLED, "Error: Call Stack Underrun"); // alert the user to the error.
+            this.Terminate("Error: Call Stack Underrun", BreakpointType.StackUnderrun, forceAddBreak: true);
             this.Finished = true;
         }
 
