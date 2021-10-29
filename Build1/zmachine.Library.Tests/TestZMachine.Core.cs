@@ -103,7 +103,7 @@ namespace zmachine.Library.Tests
                 .CallBase()
                 .Verifiable();
             machineMock.Setup(m => m.pc_getByte())
-                .CallBase()
+                .Returns(Machine.VAR_TOP_OF_STACK)
                 .Verifiable();
 
             Assert.AreEqual(expected: 0U, machine.CallDepth);
@@ -114,7 +114,12 @@ namespace zmachine.Library.Tests
             machine.popRoutineData(returnValue: returnVal);
 
             // Assert
+            Assert.AreEqual(expected: machine.getVar(Machine.VAR_TOP_OF_STACK), actual: returnVal);
             Assert.AreEqual(expected: 0U, machine.CallDepth);
+            var callStack = machine.CallStackAt(0);
+            Assert.AreEqual(expected: callStack.numLocalVars, actual: 0U);
+            Assert.AreEqual(expected: callStack.returnAddress, actual: 0U);
+            Assert.AreEqual(expected: callStack.stackFrameAddress, actual: 0U);
             Assert.IsFalse(machine.Finished);
 
             machineMock.Verify();

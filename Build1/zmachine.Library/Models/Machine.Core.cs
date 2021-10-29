@@ -106,9 +106,9 @@ public partial class Machine
         if (variable == VAR_TOP_OF_STACK) // Variable number $00 refers to the top of the stack
         {
             this.Stack.setWord(
-                address: this.stackPointer,
+                address: this.StackPointer,
                 value: value); // Set value in stack
-            this.stackPointer += 2; // Increment stack pointer by 2 (size of word)
+            this.StackPointer += 2; // Increment stack pointer by 2 (size of word)
         }
         else if (variable < 16) //$01 to $0f mean the local variables of the current routine
         {
@@ -138,9 +138,9 @@ public partial class Machine
 
         if (variable == 0)
         {
-            this.stackPointer -= 2;
+            this.StackPointer -= 2;
             value = this.Stack.getWord(
-                address: this.stackPointer); // get value from stack;
+                address: this.StackPointer); // get value from stack;
         }
         else if (variable < 16)
         {
@@ -174,7 +174,7 @@ public partial class Machine
         this.callStack[this.callDepth].returnAddress =
             this.ProgramCounter; // Store return address @ current position of pc upon entering routine
         this.ProgramCounter = this.unpackedAddress(operands[0]); // Set the PC to the routine address.
-        this.callStack[this.callDepth].stackFrameAddress = this.stackPointer; // Store stack pointer address.
+        this.callStack[this.callDepth].stackFrameAddress = this.StackPointer; // Store stack pointer address.
 
         //SPEC: 6.4.4 When a routine is called, its local variables are created with initial values taken from the routine header (Versions 1 to 4). 
         //            Next, the arguments are written into the local variables (argument 1 into local 1 and so on).
@@ -213,7 +213,7 @@ public partial class Machine
         // Restore the stack to the previous value in callstack[callDepth]
         this.ProgramCounter =
             this.callStack[this.callDepth].returnAddress; //Restore the PC to the previous value in callstack[callDepth]
-        this.stackPointer =
+        this.StackPointer =
             this.callStack[this.callDepth].stackFrameAddress; //Restore the sp to the previous value in callstack[callDepth]
         --this.callDepth;
 

@@ -66,6 +66,15 @@ public partial class Machine
     /// </summary>
     private readonly RoutineCallState[] callStack = new RoutineCallState[StackDepth];
 
+    /// <summary>
+    /// Index 0 is special. Depth >= 1 is the actual stack.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public RoutineCallState CallStackAt(int index) => callStack.Length > index ? this.CallStack.ElementAt(index) : throw new ArgumentException(nameof(index));
+    public IEnumerable<RoutineCallState> CallStack => (RoutineCallState[])callStack.Clone();
+
     private readonly LinkedList<CPUState> CPUStates;
 
     public readonly IIO IO;
@@ -108,7 +117,7 @@ public partial class Machine
     /// <summary>
     ///     Index to current stack record
     /// </summary>
-    private uint stackPointer;
+    public uint StackPointer;
 
     /// <summary>
     ///     Class constructor : Loads in data from file and sets Program Counter

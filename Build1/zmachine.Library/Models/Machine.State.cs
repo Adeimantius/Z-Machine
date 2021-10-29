@@ -4,7 +4,7 @@ public partial class Machine
 {
     public CPUState State
     {
-        get => new(this.Memory.Contents, this.Stack.Contents, this.Lex.MemoryPointer, this.ProgramCounter, this.pcStart, this.stackPointer, this.callDepth,
+        get => new(this.Memory.Contents, this.Stack.Contents, this.Lex.MemoryPointer, this.ProgramCounter, this.pcStart, this.StackPointer, this.callDepth,
             this.callStack, this.Finished, this.InstructionCounter);
         set
         {
@@ -13,7 +13,7 @@ public partial class Machine
             this.Lex.MemoryPointer = value.lexMemoryPointer;
             this.ProgramCounter = value.programCounter;
             this.pcStart = value.pcStart;
-            this.stackPointer = value.stackPointer;
+            this.StackPointer = value.stackPointer;
             this.callDepth = value.callDepth;
             Array.Copy(
                 value.callStack,
