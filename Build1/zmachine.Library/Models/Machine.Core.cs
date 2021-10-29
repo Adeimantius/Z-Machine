@@ -252,6 +252,8 @@ public partial class Machine
     /// </summary>
     public InstructionInfo processInstruction(ulong? instructionNumber = null)
     {
+        var startingBreakCount = this.BreakpointsReached.Count();
+
         if (this.InstructionCounter >= 380)
         {
             this.DebugWrite(this.InstructionCounter.ToString());

@@ -197,10 +197,29 @@ public partial class Machine
     public IEnumerable<(ulong instruction, BreakpointType breakpointType)> BreakpointsReached =>
         this.breakpointsReached.ToArray();
 
+    private bool finished;
+
     /// <summary>
     ///     Flag to say "finish processing. We're done".
     /// </summary>
-    public bool Finished { get; private set; }
+    public bool Finished
+    {
+        get
+        {
+            return this.finished;
+        }
+
+        private set
+        {
+            if (this.finished == false)
+            {
+                this.finished = value;
+            } else
+            {
+                throw new Exception();
+            }
+        }
+    }
 
     public bool DebugEnabled { get; } = false;
 } // end Machine

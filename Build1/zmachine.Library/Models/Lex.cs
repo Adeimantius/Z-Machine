@@ -107,7 +107,8 @@ public class Lex
         for (i = 0; i < input.Length; i++)
         {
             char ch = input[i];
-            // Convert these to ZSCII here...     
+            // Convert these to ZSCII here...
+            //this.Memory.setByte((uint)(address + i + 1), (byte)Memory.getZChar((int)ch));
             this.Memory.setByte((uint)(address + i + 1), (byte)ch);
         }
         // Write next char from input into 3-char array (unimplemented)
