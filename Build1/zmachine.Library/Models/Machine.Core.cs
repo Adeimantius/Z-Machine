@@ -21,11 +21,9 @@ public partial class Machine
         return this;
     }
 
-    public BreakpointType QuitNicely()
+    public virtual BreakpointType QuitNicely()
     {
-        this.Finished = true;
-        this.Break(BreakpointType.Complete);
-        return BreakpointType.Complete;
+        return this.Terminate("user quit", finalBreakpointType: BreakpointType.Complete, forceAddBreak: true);
     }
 
     /// <summary>

@@ -32,6 +32,7 @@
             MachineOpcodeExtensions.op_rtrue(machine: machineMock.Object);
 
             // Verify
+            machineMock.Verify();
             machineMock.VerifyAll();
             machineMock.VerifyNoOtherCalls();
         }
@@ -55,9 +56,35 @@
             // Act
             MachineOpcodeExtensions.op_rfalse(machine: machineMock.Object);
 
-            // Verify
+            // Assert
+            machineMock.Verify();
             machineMock.VerifyAll();
             machineMock.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public void Test_op_quit()
+        {
+            //Arrange
+            StaticIO staticIO = new StaticIO("quit\nY\n\n");
+            var machineMock = new Mock<Machine>(
+                staticIO,
+                TestZMachine.ZorkPath,
+                new Dictionary<BreakpointType, BreakpointAction>());
+
+            machineMock.Setup(m => m.QuitNicely())
+                .CallBase()
+                .Verifiable();
+
+            // Act
+            MachineOpcodeExtensions.op_quit(machine: machineMock.Object);
+
+            // Assert
+            machineMock.Verify(m => m.QuitNicely(), Times.Once());
+            machineMock.Verify();
+            machineMock.VerifyAll();
+            machineMock.VerifyNoOtherCalls();
+            Assert.IsTrue(machineMock.Object.Finished);
         }
     }
 }
