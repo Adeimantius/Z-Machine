@@ -1,4 +1,5 @@
-﻿using zmachine.Library.Enumerations;
+﻿using BrightChain.Engine.Helpers;
+using zmachine.Library.Enumerations;
 using zmachine.Library.Interfaces;
 
 namespace zmachine.Library.Models;
@@ -8,7 +9,11 @@ namespace zmachine.Library.Models;
 /// </summary>
 public partial class Machine
 {
+    /// <summary>
+    /// Required for tests to be able to complete without UI interaction.
+    /// </summary>
     public static bool DEBUG_ASSERT_DISABLED = false;
+
     public const int StackDepth = 128;
 
     /// <summary>
@@ -221,6 +226,5 @@ public partial class Machine
         }
     }
 
-    public bool DebugEnabled { get; } = false;
+    public bool DebugEnabled => DebugStatusHelper.IsDebugMode;
 } // end Machine
-  // end namespace
